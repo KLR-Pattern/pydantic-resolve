@@ -7,7 +7,7 @@ and exposed via MCP.
 
 from __future__ import annotations
 
-import asyncio
+import inspect
 from collections.abc import Iterator
 from typing import Any
 
@@ -77,7 +77,7 @@ class BusinessMeta(type):
             if kind is None:
                 continue
 
-            if not asyncio.iscoroutinefunction(func):
+            if not inspect.iscoroutinefunction(func):  # asyncio.* variant is removed in 3.16
                 continue
 
             methods[attr_name] = {

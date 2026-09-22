@@ -6,17 +6,28 @@ on:
       - 'pydantic_resolve/**'
       - 'tests/**'
       - 'demo/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    paths:
+      - 'pydantic_resolve/**'
+      - 'tests/**'
+      - 'demo/**'
+      - '.github/workflows/ci.yml'
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v5
 
-      - name: Set up Python 3.12
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
@@ -25,9 +36,26 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --all-extras
-      
+
+      # Lower-bound compatibility check. Skipped on 3.14: pydantic 2.11
+      # predates Python 3.14 support (added in pydantic 2.12.0).
       - name: Install Pydantic v2 for testing
+        if: matrix.python-version != '3.14'
         run: uv pip install "pydantic==2.11.7"
 
+      # The dev pins (pytest<8, pytest-asyncio<0.22) call asyncio APIs that are
+      # deprecated on 3.14 (iscoroutinefunction / get_event_loop_policy), which
+      # error out under filterwarnings=error. Newer toolchain verified green on 3.14.
+      - name: Install Python 3.14 compatible test tooling
+        if: matrix.python-version == '3.14'
+        run: uv pip install -U "pytest>=9" "pytest-asyncio>=1.4"
+
       - name: Test with pytest
+        if: matrix.python-version != '3.14'
         run: uv run pytest tests/ demo/
+
+      # --no-sync: a plain `uv run` would re-sync the venv back to the locked
+      # pytest 7.x / pytest-asyncio 0.21 and undo the toolchain upgrade above.
+      - name: Test with pytest (3.14)
+        if: matrix.python-version == '3.14'
+        run: uv run --no-sync pytest tests/ demo/
