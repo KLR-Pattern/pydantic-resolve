@@ -336,7 +336,8 @@ class TestDescribeComposeMethod:
         method = body["data"]
         assert method["name"] == "get_task"
         assert method["kind"] == "query"
-        assert method["returns"] == "Optional[TaskDTO]"
+        # Python 3.14 renders Optional[X] as "X | None"
+        assert method["returns"] in ("Optional[TaskDTO]", "TaskDTO | None")
 
         # Args include types and defaults
         arg_names = [a["name"] for a in method["args"]]
