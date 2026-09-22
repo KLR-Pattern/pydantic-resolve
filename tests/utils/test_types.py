@@ -149,6 +149,23 @@ def test_get_class_field_annotations_with_inheritance():
     assert set(derived_annotations) == {'base_field', 'derived_field'}
 
 
+def test_get_class_field_annotations_when_dict_has_no_annotations_entry():
+    # Python 3.14 keeps annotations behind the descriptor and leaves
+    # cls.__dict__['__annotations__'] empty. A metaclass reproduces that
+    # without requiring 3.14.
+    stored = {"_context": dict, "batch": int}
+
+    class LazyAnnotations(type):
+        @property
+        def __annotations__(cls):
+            return stored
+
+    class Loader(metaclass=LazyAnnotations):
+        pass
+
+    assert set(get_class_field_annotations(Loader)) == {"_context", "batch"}
+
+
 def test_get_class_field_annotations_subclass_with_no_own_fields():
     # Mirrors copy_dataloader_kls: `class NewLoader(Parent): pass`
     # must still expose the parent's annotated fields, otherwise

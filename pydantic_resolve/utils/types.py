@@ -103,10 +103,31 @@ def get_core_types(tp):
     return tuple(result)
 
 
+def _own_annotations(klass: type) -> dict:
+    """Annotations defined on klass itself.
+
+    Python 3.14 (PEP 649) no longer stores a dict at
+    ``klass.__dict__['__annotations__']``. The class still exposes its own
+    annotations through the ``__annotations__`` descriptor. Walking that
+    descriptor, instead of only the dict entry, keeps loader ``_context``
+    detection and copied DataLoader fields working.
+    """
+    raw = klass.__dict__.get("__annotations__")
+    if isinstance(raw, dict):
+        return raw
+    try:
+        ann = klass.__annotations__
+    except Exception:
+        return {}
+    if isinstance(ann, dict):
+        return ann
+    return {}
+
+
 def get_class_field_annotations(cls: Type):
     annotations = {}
     for klass in reversed(cls.__mro__):
-        own = klass.__dict__.get('__annotations__')
+        own = _own_annotations(klass)
         if own:
             annotations.update(own)
     return annotations.keys()
