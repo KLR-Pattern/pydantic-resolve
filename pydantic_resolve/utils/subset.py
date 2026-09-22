@@ -66,6 +66,27 @@ def _apply_validators(model_class: type[BaseModel], validators: dict[str, Any]) 
         setattr(model_class, name, validator)
 
 
+def _get_namespace_annotations(namespace: dict[str, Any]) -> dict[str, Any]:
+    """Read annotations from a raw class namespace across Python versions.
+
+    Python 3.14 (PEP 649/749) no longer puts an eager ``__annotations__`` dict in
+    the namespace handed to a metaclass; it stores a lazy ``__annotate_func__``
+    instead, and the annotations dict only materializes after ``type.__new__``.
+    SubsetMeta never passes the namespace through ``type.__new__`` (the model is
+    built via ``create_model``), so the annotate function must be evaluated here.
+    """
+    annotate_func = namespace.get('__annotate_func__')
+    if annotate_func is not None:
+        from annotationlib import Format
+        try:
+            return annotate_func(Format.VALUE) or {}
+        except NameError:
+            # annotations referencing names not yet defined: fall back to
+            # ForwardRef objects, mirroring how pydantic defers them
+            return annotate_func(Format.FORWARDREF) or {}
+    return namespace.get('__annotations__', None) or {}
+
+
 def _extract_extra_fields_from_namespace(namespace: dict[str, Any], disallow: set[str]) -> dict[str, tuple[Any, Any]]:
     """Extract extra field definitions declared on the subset class body.
 
@@ -79,7 +100,7 @@ def _extract_extra_fields_from_namespace(namespace: dict[str, Any], disallow: se
     Raises:
         ValueError: If an extra field duplicates a subset field name.
     """
-    annotations: dict[str, Any] = namespace.get('__annotations__', {}) or {}
+    annotations: dict[str, Any] = _get_namespace_annotations(namespace)
     extras: dict[str, tuple[Any, Any]] = {}
 
     for fname, anno in annotations.items():
