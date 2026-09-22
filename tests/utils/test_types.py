@@ -88,8 +88,13 @@ def test_is_list(annotation, expected):
     ]
 )
 def test_get_core_types(tp, expected):
-    result = get_core_types(tp) 
-    assert result == expected
+    result = get_core_types(tp)
+    # Compare as multisets: on Python 3.14 typing deduplicates subscripted
+    # generics by set-equality (_tp_cache), so a union's member order is
+    # decided by whichever same-member alias the process materialized first
+    # (e.g. List[Union[int, str]] is List[Union[str, int]]). Order is not
+    # part of get_core_types' contract.
+    assert sorted(map(repr, result)) == sorted(map(repr, expected))
 
 
 @pytest.mark.parametrize(

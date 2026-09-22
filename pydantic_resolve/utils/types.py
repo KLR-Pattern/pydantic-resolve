@@ -14,6 +14,7 @@ except Exception:  # pragma: no cover
     TypeAliasType = _DummyTypeAliasType  # type: ignore
 
 import inspect
+import sys
 import typing
 from typing import get_origin, get_args
 
@@ -103,10 +104,33 @@ def get_core_types(tp):
     return tuple(result)
 
 
+def _get_class_own_annotations(klass: type) -> dict:
+    """Read a class's own annotations across Python versions.
+
+    Python 3.14 (PEP 649/749) computes class annotations lazily: they are no
+    longer stored in ``__dict__`` (except under ``from __future__ import
+    annotations``, which keeps the legacy eager string dict). Fall back to
+    ``annotationlib.get_annotations``, whose semantics match the old
+    ``__dict__`` read: own annotations only, ``{}`` when the class has none.
+    """
+    own = klass.__dict__.get('__annotations__')
+    if own is not None:
+        return own
+    if sys.version_info >= (3, 14):
+        from annotationlib import Format, get_annotations
+        try:
+            return get_annotations(klass) or {}
+        except NameError:
+            # deferred annotations referencing names not yet resolvable:
+            # fall back to ForwardRef values so the field names survive
+            return get_annotations(klass, format=Format.FORWARDREF) or {}
+    return {}
+
+
 def get_class_field_annotations(cls: Type):
     annotations = {}
     for klass in reversed(cls.__mro__):
-        own = klass.__dict__.get('__annotations__')
+        own = _get_class_own_annotations(klass)
         if own:
             annotations.update(own)
     return annotations.keys()

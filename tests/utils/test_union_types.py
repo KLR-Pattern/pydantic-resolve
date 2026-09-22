@@ -29,8 +29,11 @@ import pytest
     ]
 )
 def test_get_core_types_3_10(tp, expected):
-    result = get_core_types(tp) 
-    assert result == expected
+    result = get_core_types(tp)
+    # Multiset comparison: on Python 3.14 typing's _tp_cache deduplicates
+    # subscripted generics by set-equality, so union member order follows
+    # whichever same-member alias was materialized first in the process.
+    assert sorted(map(repr, result)) == sorted(map(repr, expected))
 
 
 @pytest.mark.skipif(sys.version_info < (3, 12), reason="PEP 695 type aliases require Python 3.12+")
