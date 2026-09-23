@@ -5,6 +5,7 @@ htmlcov
 .coverage
 coverage.json
 .venv
+.venvs
 .tox
 docs/_build
 .vscode
