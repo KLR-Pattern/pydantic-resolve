@@ -1,6 +1,6 @@
 [project]
 name = "pydantic-resolve"
-version = "6.1.0"
+version = "6.1.1"
 description = "Entity-First Architecture framework for Python: define business entities, declare relationships, and let the framework assemble your data."
 readme = "README.md"
 requires-python = ">=3.10"

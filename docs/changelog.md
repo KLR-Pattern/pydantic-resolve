@@ -1,5 +1,5 @@
 ---
-description: "Release-by-release changelog for pydantic-resolve, following semver — major for breaking changes, minor for new features, patch for bug fixes. Most recent: 6.1.0."
+description: "Release-by-release changelog for pydantic-resolve, following semver — major for breaking changes, minor for new features, patch for bug fixes. Most recent: 6.1.1."
 ---
 
 # Changelog
@@ -9,6 +9,18 @@ description: "Release-by-release changelog for pydantic-resolve, following semve
 - **Patch (x.y.Z)**: Bug fixes and minor improvements
 
 ## 6.1
+
+### 6.1.1 (2026-09-23)
+
+Python 3.14 compatibility release — the project always claimed 3.13/3.14 support in classifiers, but 6.1.0 shipped two 3.14-specific regressions (PEP 649/749 lazy annotations) that this version fixes. CI now actually exercises 3.12/3.13/3.14.
+
+- fix:
+  - **`DefineSubset` extra fields are detected on Python 3.14** (#307, #308): Python 3.14 (PEP 649/749) no longer puts an eager `__annotations__` dict in the raw class namespace handed to a metaclass — it carries a lazy `__annotate_func__` instead, and the dict only materializes after `type.__new__`. `SubsetMeta` builds its model via `create_model` and never passes the namespace through `type.__new__`, so `_extract_extra_fields_from_namespace` always saw `{}` on 3.14 and silently dropped every field declared directly on a `DefineSubset` class body — including its AutoLoad hidden-FK injection and the "duplicates subset field" validation. `_get_namespace_annotations` now evaluates `__annotate_func__` on 3.14+ (with a `Format.FORWARDREF` fallback for names not yet resolvable) and reads `__annotations__` on older versions.
+  - **class-field annotations are read on Python 3.14** (#309, #310): Python 3.14 computes class annotations lazily and no longer stores `__annotations__` in the class `__dict__` (modules using `from __future__ import annotations` keep the legacy eager dict and were unaffected — which masked the breakage in the existing loader-context tests). `get_class_field_annotations` therefore returned nothing on 3.14 for plain modules, silently disabling loader `_context` detection (`_loader_requires_context` → context never injected, `LoaderContextNotProvidedError` never raised) and `copy_dataloader_kls` param inheritance. `_get_class_own_annotations` now falls back to `annotationlib.get_annotations` on 3.14+ (own-annotations-only semantics identical to the old `__dict__` read; `Format.FORWARDREF` fallback for unresolvable deferred names — a plain attribute-access fallback would silently drop the whole annotation set on `NameError`). Also relaxes the `get_core_types` order assertions to multiset comparison: on 3.14 `typing._tp_cache` deduplicates subscripted generics by set-equality (`List[Union[int, str]] is List[Union[str, int]]`), so union member order follows whichever same-member alias the process materialized first — order is not part of `get_core_types`' contract and no caller depends on it.
+  - **`use_case` entity scanning works on Python 3.14** (#312): `asyncio.iscoroutinefunction` (deprecated on 3.14, removed in 3.16) replaced with `inspect.iscoroutinefunction` in `business.py` — under `filterwarnings = error` the old call raised during import of every `use_case` service module on 3.14.
+
+- ci:
+  - Test matrix now runs Python **3.12 / 3.13 / 3.14** (previously 3.12 only — both 3.14 regressions above were invisible to it), adds a `pull_request` trigger so fork PRs get CI, and `make test-matrix` mirrors the matrix locally.
 
 ### 6.1.0 (2026-8-2)
 
