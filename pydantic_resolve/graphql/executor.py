@@ -43,6 +43,22 @@ def _is_coercible_scalar(py_type: Any) -> bool:
     return any(safe_issubclass(py_type, t) for t in _COERCIBLE_SCALARS)
 
 
+class EnumWireError(ValueError):
+    """An invalid enum wire value reached argument conversion.
+
+    Raised instead of letting the blanket conversion catch downgrade the
+    failure to a warning and pass the raw string into the method body.
+    """
+
+    def __init__(self, enum_cls: type, value: Any) -> None:
+        self.enum_cls = enum_cls
+        self.value = value
+        super().__init__(
+            f"Invalid {enum_cls.__name__} value '{value}'; expected one of: "
+            f"{', '.join(enum_cls.__members__)}"
+        )
+
+
 class QueryExecutor:
     """
     Handles GraphQL query and mutation execution.
@@ -487,9 +503,18 @@ class QueryExecutor:
                         # Handle Enum types - convert string name to enum member
                         if safe_issubclass(core_type, Enum):
                             if isinstance(value, str):
-                                # Convert GraphQL enum name to Python enum member
+                                # GraphQL wire value is the member name; fall
+                                # back to the member value so both conventions
+                                # work, and fail loudly instead of letting a
+                                # raw string flow into the method body.
                                 # e.g., "USER" -> UserRole.USER
-                                converted_value = core_type[value]
+                                try:
+                                    converted_value = core_type[value]
+                                except KeyError:
+                                    try:
+                                        converted_value = core_type(value)
+                                    except ValueError as ve:
+                                        raise EnumWireError(core_type, value) from ve
                                 break
                             elif isinstance(value, Enum):
                                 converted_value = value
@@ -521,6 +546,10 @@ class QueryExecutor:
                 else:
                     converted[param_name] = value
 
+        except EnumWireError:
+            # Invalid enum wire values must not be silently downgraded to the
+            # raw string (the old blanket catch did exactly that).
+            raise
         except Exception as e:
             logger.warning(f"Failed to convert arguments: {e}")
             return arguments

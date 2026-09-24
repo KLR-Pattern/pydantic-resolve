@@ -29,9 +29,11 @@ This module is intentionally self-contained: it reuses public utilities
 from __future__ import annotations
 
 import asyncio
+import enum
 import inspect
+import types
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Union, get_args, get_origin
 
 from pydantic import BaseModel, TypeAdapter
 
@@ -132,6 +134,29 @@ async def _compose_and_resolve(
 def _parse_query(query: str) -> ParsedQuery:
     if not query or not query.strip():
         raise ComposeError("Query is empty", "validation_error")
+    # One operation per request: compose has no operationName channel (a bare
+    # query string), so a multi-operation document must be rejected loudly —
+    # previously the parser silently executed only the first operation and
+    # dropped the rest. Ported from nexusx #142.
+    from graphql import OperationDefinitionNode, parse as gql_parse
+
+    try:
+        document = gql_parse(query)
+    except Exception:
+        # Syntax errors surface with the proper QueryParseError → ComposeError
+        # conversion from QueryParser below.
+        document = None
+    if document is not None:
+        operations = [
+            d for d in document.definitions if isinstance(d, OperationDefinitionNode)
+        ]
+        if len(operations) > 1:
+            raise ComposeError(
+                "Document contains multiple operations; compose accepts exactly "
+                "one operation per request. Split the document or send the "
+                "operations one at a time.",
+                "validation_error",
+            )
     try:
         return QueryParser().parse(query)
     except QueryParseError as e:
@@ -341,6 +366,75 @@ def _prepare_method_kwargs(
     return kwargs
 
 
+def _promote_enum_names(value: Any, annotation: Any) -> Any:
+    """Promote GraphQL enum wire names to enum members before validation.
+
+    The compose schema renders enum members by *name* and GraphQL enum
+    literals/variables carry names — but Pydantic validates enums by
+    *value* (``TypeAdapter(Level).validate_python("HIGH")`` fails when the
+    member value is ``"high"``). Walk the annotation shape and swap any wire
+    name matching ``Enum.__members__`` for the member instance. Member
+    *values* keep flowing through untouched, so both wire conventions work.
+
+    Ported from nexusx 6.3.1 (fix/compose enum wire-name coercion).
+    """
+    if value is None or annotation is None or annotation is inspect.Parameter.empty:
+        return value
+    origin = get_origin(annotation)
+    if origin is Union or origin is types.UnionType:
+        args = [arg for arg in get_args(annotation) if arg is not type(None)]
+        if len(args) == 1:  # Optional[X] — recurse into X
+            return _promote_enum_names(value, args[0])
+        return value  # genuine unions: leave to Pydantic
+    if origin is list and isinstance(value, list):
+        args = get_args(annotation)
+        if args:
+            return [_promote_enum_names(item, args[0]) for item in value]
+        return value
+    if not isinstance(annotation, type):
+        return value
+    if issubclass(annotation, enum.Enum):
+        if isinstance(value, str) and value in annotation.__members__:
+            return annotation[value]
+        return value
+    if issubclass(annotation, BaseModel) and isinstance(value, dict):
+        # INPUT_OBJECT literals arrive as dicts; enum fields follow the same
+        # name wire convention, so recurse along the model's field hints.
+        return {
+            key: (
+                _promote_enum_names(item, field.annotation)
+                if (field := annotation.model_fields.get(key)) is not None
+                else item
+            )
+            for key, item in value.items()
+        }
+    return value
+
+
+def _enum_wire_hint(annotation: Any) -> str:
+    """Hint appended to coercion errors for enum-bearing annotations.
+
+    Pydantic's message names the member *value*, which never appears in the
+    schema — list the member names so an agent can self-correct.
+    """
+    leaf = annotation
+    for _ in range(8):  # peel Optional/list wrappers; 8 is plenty
+        origin = get_origin(leaf)
+        if origin is Union or origin is types.UnionType or origin is list:
+            args = [arg for arg in get_args(leaf) if arg is not type(None)]
+            if not args:
+                break
+            leaf = args[0]
+        else:
+            break
+    if isinstance(leaf, type) and issubclass(leaf, enum.Enum):
+        return (
+            f" {leaf.__name__} accepts member names on the GraphQL side "
+            f"(one of: {', '.join(leaf.__members__)}) or member values."
+        )
+    return ""
+
+
 def _coerce_strict(
     value: Any, annotation: Any, arg_name: str, plan: ServiceExecutionPlan
 ) -> Any:
@@ -349,11 +443,13 @@ def _coerce_strict(
     if annotation is inspect.Parameter.empty or annotation is None:
         return value
     try:
-        return TypeAdapter(annotation).validate_python(value)
+        promoted = _promote_enum_names(value, annotation)
+        return TypeAdapter(annotation).validate_python(promoted)
     except Exception as e:
         raise ComposeError(
             f"Failed to coerce argument '{arg_name}' for method "
-            f"'{plan.service_name}.{plan.method_name}': {e}",
+            f"'{plan.service_name}.{plan.method_name}': {e}"
+            f"{_enum_wire_hint(annotation)}",
             "validation_error",
         ) from e
 

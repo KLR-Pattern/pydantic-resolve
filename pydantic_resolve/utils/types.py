@@ -16,13 +16,16 @@ except Exception:  # pragma: no cover
 import inspect
 import sys
 import typing
-from typing import get_origin, get_args
+from typing import Literal, get_origin, get_args
 
 
 def _is_optional(annotation):
     origin = get_origin(annotation)
     args = get_args(annotation)
     if origin in (Union, _UnionType) and type(None) in args:
+        return True
+    # Literal["a", None] carries the same "may be None" semantics.
+    if origin is Literal and type(None) in args:
         return True
     return False
 
