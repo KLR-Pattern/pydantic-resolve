@@ -10,9 +10,18 @@ from typing import Any, Optional, TypedDict
 
 @dataclass(eq=False)  # We'll implement custom __eq__ and __hash__
 class FieldSelection:
-    """Represents a selected field in GraphQL query."""
+    """Represents a selected field in GraphQL query.
+
+    ``sub_fields`` is keyed by *response key* — the alias when present,
+    otherwise the field name (GraphQL response-key semantics). ``name``
+    keeps the original field name so executors resolve methods/fields by
+    their real identity while responses are keyed the way the client asked.
+    """
+
     sub_fields: Optional[dict[str, 'FieldSelection']] = None
     arguments: Optional[dict[str, Any]] = None
+    name: Optional[str] = None
+    alias: Optional[str] = None
 
     def __hash__(self):
         """Make FieldSelection hashable for caching.
@@ -31,7 +40,11 @@ class FieldSelection:
     def __eq__(self, other):
         if not isinstance(other, FieldSelection):
             return False
-        return self.sub_fields == other.sub_fields
+        return (
+            self.sub_fields == other.sub_fields
+            and self.name == other.name
+            and self.alias == other.alias
+        )
 
 
 @dataclass

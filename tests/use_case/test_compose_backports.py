@@ -44,6 +44,14 @@ class EnumService(UseCaseService):
         return f"{priority.name}={priority.value}"
 
 
+async def _compose(app, query: str, **kwargs):
+    """Unwrap {data, errors}; unexpected field errors fail loudly."""
+    result = await app.compose(query, **kwargs)
+    if result["errors"]:
+        raise AssertionError(f"unexpected field errors: {result['errors']}")
+    return result["data"]
+
+
 def _app(services):
     return UseCaseAppConfig(name="t", services=services, description="x")
 
@@ -51,25 +59,28 @@ def _app(services):
 class TestEnumWireNameCoercion:
     def test_member_name_wire_value(self):
         res = UseCaseManager([_app([EnumService])]).get_app("t")
-        result = asyncio.run(res.compose("{ EnumService { by_level(level: HIGH) } }"))
+        result = asyncio.run(_compose(res, "{ EnumService { by_level(level: HIGH) } }"))
         assert result == {"EnumService": {"by_level": "HIGH=high"}}
 
     def test_member_value_wire_value(self):
         res = UseCaseManager([_app([EnumService])]).get_app("t")
-        result = asyncio.run(res.compose('{ EnumService { by_level(level: "high") } }'))
+        result = asyncio.run(_compose(res, '{ EnumService { by_level(level: "high") } }'))
         assert result == {"EnumService": {"by_level": "HIGH=high"}}
 
     def test_int_valued_enum_member_name(self):
         res = UseCaseManager([_app([EnumService])]).get_app("t")
         result = asyncio.run(
-            res.compose("{ EnumService { by_priority(priority: URGENT) } }")
+            _compose(res, "{ EnumService { by_priority(priority: URGENT) } }")
         )
         assert result == {"EnumService": {"by_priority": "URGENT=1"}}
 
     def test_invalid_name_error_lists_member_names(self):
         res = UseCaseManager([_app([EnumService])]).get_app("t")
-        with pytest.raises(ComposeError, match="HIGH"):
-            asyncio.run(res.compose("{ EnumService { by_level(level: NOPE) } }"))
+        result = asyncio.run(res.compose("{ EnumService { by_level(level: NOPE) } }"))
+        assert result["data"]["EnumService"]["by_level"] is None
+        error = result["errors"][0]
+        assert error["extensions"]["code"] == "QUERY_FAILED"
+        assert "HIGH" in error["message"]
 
 
 class TestMultiOperationDocument:
@@ -85,7 +96,7 @@ class TestMultiOperationDocument:
 
         res = UseCaseManager([_app([S])]).get_app("t")
         with pytest.raises(ComposeError, match="multiple operations"):
-            asyncio.run(res.compose("{ S { m1 } } query Other { S { m2 } }"))
+            asyncio.run(_compose(res, "{ S { m1 } } query Other { S { m2 } }"))
 
     def test_single_operation_unaffected(self):
         class S(UseCaseService):
@@ -94,7 +105,7 @@ class TestMultiOperationDocument:
                 return "first"
 
         res = UseCaseManager([_app([S])]).get_app("t")
-        result = asyncio.run(res.compose("{ S { m1 } }"))
+        result = asyncio.run(_compose(res, "{ S { m1 } }"))
         assert result == {"S": {"m1": "first"}}
 
 
@@ -141,17 +152,14 @@ class TestScalarLiteralSupport:
     def test_runtime_constraint_enforced(self, status, ok):
         res = UseCaseManager([_app([LiteralService])]).get_app("t")
         if ok:
+            result = asyncio.run(_compose(res, f'{{ LiteralService {{ echo_status(status: "{status}") }} }}'))
+            assert result == {"LiteralService": {"echo_status": status}}
+        else:
             result = asyncio.run(
                 res.compose(f'{{ LiteralService {{ echo_status(status: "{status}") }} }}')
             )
-            assert result == {"LiteralService": {"echo_status": status}}
-        else:
-            with pytest.raises(ComposeError):
-                asyncio.run(
-                    res.compose(
-                        f'{{ LiteralService {{ echo_status(status: "{status}") }} }}'
-                    )
-                )
+            assert result["data"]["LiteralService"]["echo_status"] is None
+            assert result["errors"][0]["extensions"]["code"] == "QUERY_FAILED"
 
     def test_mixed_type_literal_rejected_at_build(self):
         class BadService(UseCaseService):

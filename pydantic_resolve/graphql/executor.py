@@ -23,7 +23,10 @@ from pydantic import BaseModel
 import pydantic_resolve.constant as const
 from pydantic_resolve.resolver import Resolver
 from pydantic_resolve.utils.class_util import safe_issubclass
-from pydantic_resolve.utils.types import get_core_types
+from pydantic_resolve.utils.types import (
+    _resolve_function_type_hints,
+    get_core_types,
+)
 from pydantic_resolve.graphql.exceptions import GraphQLError
 from pydantic_resolve.graphql.query_parser import QueryParser
 from pydantic_resolve.graphql.utils import group_type_name
@@ -110,6 +113,11 @@ class QueryExecutor:
 
         # 1. Parse query
         parsed = self.parser.parse(query)
+        # Entity-first projects DTOs by field name — aliases are rejected
+        # (compose supports method-level aliases; see query_parser gates).
+        from pydantic_resolve.graphql.query_parser import reject_all_aliases
+
+        reject_all_aliases(parsed.field_tree)
         logger.debug(f"Query parsed: {len(parsed.field_tree)} root groups found")
 
         # 2. Initialize results
@@ -228,6 +236,11 @@ class QueryExecutor:
 
         # 1. Parse mutation
         parsed = self.parser.parse(query)
+        # Entity-first projects DTOs by field name — aliases are rejected
+        # (compose supports method-level aliases; see query_parser gates).
+        from pydantic_resolve.graphql.query_parser import reject_all_aliases
+
+        reject_all_aliases(parsed.field_tree)
         logger.debug(f"Mutation parsed: {len(parsed.field_tree)} root groups found")
 
         # 2. Initialize results
@@ -480,6 +493,11 @@ class QueryExecutor:
         converted = {}
         try:
             sig = inspect.signature(method)
+            # Resolve string annotations (PEP 563 ``from __future__ import
+            # annotations``) — a raw ``param.annotation`` would be a string
+            # and every isinstance/issubclass check below would silently
+            # skip, passing raw wire values into the method body.
+            resolved_hints = _resolve_function_type_hints(method)
             for param_name, param in sig.parameters.items():
                 if param_name in ('self', 'cls'):
                     continue
@@ -492,7 +510,7 @@ class QueryExecutor:
                     continue
 
                 value = arguments[param_name]
-                param_type = param.annotation
+                param_type = resolved_hints.get(param_name, param.annotation)
 
                 # If parameter type is annotated
                 if param_type != inspect.Parameter.empty:

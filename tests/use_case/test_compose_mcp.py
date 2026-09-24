@@ -699,7 +699,7 @@ class TestComposeQueryWithContext:
         self, mcp_server_with_empty_extractor
     ):
         """Extractor missing a required FromContext key surfaces as a
-        validation_error envelope, not silent success."""
+        per-field error (success with errors), not silent success."""
         result = await mcp_server_with_empty_extractor.call_tool(
             "compose_query",
             {
@@ -708,7 +708,8 @@ class TestComposeQueryWithContext:
             },
         )
         data = json.loads(result.content[0].text)
-        assert data["success"] is False
-        assert data["error_type"] == "validation_error"
+        assert data["success"] is True
+        assert data["data"]["ContextService"]["get_my_tasks"] is None
         # _prepare_method_kwargs raises "Required FromContext parameter 'user_id'..."
-        assert "user_id" in data["error"]
+        assert "user_id" in data["errors"][0]["message"]
+        assert data["errors"][0]["extensions"]["code"] == "QUERY_FAILED"

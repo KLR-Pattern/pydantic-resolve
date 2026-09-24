@@ -490,7 +490,8 @@ class TestEntryRouting:
         """Sanity check: removing the auto-route doesn't break data queries."""
         app = _make_manager().get_app("project")
         result = await app.compose("{ SprintService { list_sprints { id name } } }")
-        assert "SprintService" in result
+        assert "SprintService" in result["data"]
+        assert result["errors"] == []
 
     def test_compose_introspect_explicit_call_returns_envelope(self):
         app = _make_manager().get_app("project")

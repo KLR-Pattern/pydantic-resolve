@@ -38,7 +38,11 @@ from typing import Any, Union, get_args, get_origin
 from pydantic import BaseModel, TypeAdapter
 
 from pydantic_resolve.graphql.exceptions import QueryParseError
-from pydantic_resolve.graphql.query_parser import QueryParser
+from pydantic_resolve.graphql.query_parser import (
+    QueryParser,
+    find_nested_alias,
+    nested_alias_message,
+)
 from pydantic_resolve.graphql.types import FieldSelection, ParsedQuery
 from pydantic_resolve.use_case.business import USE_CASE_METHODS_ATTR
 from pydantic_resolve.use_case.context import is_from_context_annotation
@@ -74,12 +78,24 @@ class ServiceExecutionPlan:
     method_meta: dict
     method_selection: FieldSelection
     return_anno: Any
+    # Response keys (alias when present, otherwise the field name): the
+    # response dict is keyed the way the client asked, while service/method
+    # resolution uses the original names above.
+    service_key: str = ""
+    method_key: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.service_key:
+            self.service_key = self.service_name
+        if not self.method_key:
+            self.method_key = self.method_name
 
 
 async def _compose_and_resolve(
     app: Any,
     query: str,
     context: dict[str, Any] | None = None,
+    variables: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Parse, validate, execute, and project a compose query.
 
@@ -111,19 +127,30 @@ async def _compose_and_resolve(
         ``resolve_*`` / ``AutoLoad``) before returning. Compose only
         applies the per-method field selection.
     """
-    parsed = _parse_query(query)
+    parsed = _parse_query(query, variables)
     if not parsed.field_tree:
         raise ComposeError("Query is empty", "validation_error")
 
     plans = _build_plans(app, parsed)
 
-    plan_to_result: dict[int, Any] = await _execute_plans(app, plans, context)
+    plan_to_result, errors = await _execute_plans(app, plans, context)
 
+    # Response keyed by response keys (alias when present) so clients can
+    # locate values in the shape they asked for.
     output: dict[str, Any] = {}
     for plan in plans:
-        svc_dict = output.setdefault(plan.service_name, {})
-        svc_dict[plan.method_name] = _project_one(plan_to_result[id(plan)], plan)
-    return output
+        svc_dict = output.setdefault(plan.service_key, {})
+        svc_dict[plan.method_key] = (
+            None
+            if plan_to_result[id(plan)] is _ERRORED
+            else _project_one(plan_to_result[id(plan)], plan)
+        )
+    return {"data": output, "errors": errors}
+
+
+# Sentinel marking a plan whose execution failed (its response key is
+# nulled and an errors entry was recorded).
+_ERRORED = object()
 
 
 # ============================================================================
@@ -131,7 +158,7 @@ async def _compose_and_resolve(
 # ============================================================================
 
 
-def _parse_query(query: str) -> ParsedQuery:
+def _parse_query(query: str, variables: dict[str, Any] | None = None) -> ParsedQuery:
     if not query or not query.strip():
         raise ComposeError("Query is empty", "validation_error")
     # One operation per request: compose has no operationName channel (a bare
@@ -157,15 +184,44 @@ def _parse_query(query: str) -> ParsedQuery:
                 "operations one at a time.",
                 "validation_error",
             )
+        # Variables contract check — friendly failure before any execution.
+        # Every declared variable must be provided explicitly: declared
+        # defaults ($t: String = "x") are NOT auto-applied.
+        declared: list[str] = []
+        defaulted: set[str] = set()
+        for operation in operations:
+            for vd in operation.variable_definitions or []:
+                declared.append(vd.variable.name.value)
+                if vd.default_value is not None:
+                    defaulted.add(vd.variable.name.value)
+            break
+        if declared:
+            missing = [name for name in declared if variables is None or name not in variables]
+            if missing:
+                message = (
+                    f"Query declares variables {declared} but {len(missing)} were "
+                    f"not provided ({missing}). Pass them via the 'variables' "
+                    "argument (recommended for any string containing quotes, "
+                    "backslashes or newlines)."
+                )
+                if defaulted & set(missing):
+                    message += (
+                        " Note: declared default values are never auto-applied —"
+                        " every declared variable must be passed explicitly."
+                    )
+                raise ComposeError(message, "validation_error")
     try:
-        return QueryParser().parse(query)
+        return QueryParser().parse(query, variables)
     except QueryParseError as e:
         raise ComposeError(str(e), "validation_error") from e
 
 
 def _build_plans(app: Any, parsed: ParsedQuery) -> list[ServiceExecutionPlan]:
     plans: list[ServiceExecutionPlan] = []
-    for service_name, service_selection in parsed.field_tree.items():
+    for service_key, service_selection in parsed.field_tree.items():
+        # Resolve the service by its original name (alias when present);
+        # the response is keyed by ``service_key``.
+        service_name = service_selection.name or service_key
         service_cls = _resolve_service(app, service_name)
         _reject_arguments(service_selection, f"Service '{service_name}'")
 
@@ -175,7 +231,16 @@ def _build_plans(app: Any, parsed: ParsedQuery) -> list[ServiceExecutionPlan]:
                 "validation_error",
             )
 
-        for method_name, method_selection in service_selection.sub_fields.items():
+        for method_key, method_selection in service_selection.sub_fields.items():
+            method_name = method_selection.name or method_key
+            # Only method-level aliases are supported — a nested alias would
+            # mis-project the DTO (projection walks by field name).
+            nested = find_nested_alias(method_selection)
+            if nested is not None:
+                raise ComposeError(
+                    nested_alias_message(*nested),
+                    "validation_error",
+                )
             method_meta = _resolve_method(service_cls, method_name, service_name)
             _check_mutation_permission(app, method_meta, service_name, method_name)
 
@@ -192,6 +257,8 @@ def _build_plans(app: Any, parsed: ParsedQuery) -> list[ServiceExecutionPlan]:
                 method_meta=method_meta,
                 method_selection=method_selection,
                 return_anno=return_anno,
+                service_key=service_key,
+                method_key=method_key,
             ))
     return plans
 
@@ -268,7 +335,7 @@ async def _execute_plans(
     app: Any,
     plans: list[ServiceExecutionPlan],
     context: dict[str, Any] | None,
-) -> dict[int, Any]:
+) -> tuple[dict[int, Any], list[dict[str, Any]]]:
     """Run plans with GraphQL-compliant execution semantics.
 
     - ``@query`` methods run concurrently via ``asyncio.gather``.
@@ -284,26 +351,83 @@ async def _execute_plans(
         context: Request context (flows into FromContext params).
 
     Returns:
-        ``{id(plan): result}`` map. Each plan in ``plans`` is guaranteed
-        to have an entry.
+        ``({id(plan): result}, errors)`` — each plan in ``plans`` is
+        guaranteed to have an entry; failed plans map to ``_ERRORED`` and
+        carry an errors entry (a failed query nulls only its own response
+        key). Cancellation is re-raised, never converted to a field error.
+
+    Mutation semantics (three-state, fail-stop): a succeeded call keeps
+    its result; a failed call nulls only its own key with
+    ``MUTATION_FAILED``; every later mutation in the request is skipped
+    with ``SKIPPED_PRIOR_FAILURE`` — already-executed writes are never
+    erased from the response.
     """
     query_plans = [p for p in plans if p.method_meta.get("kind") != "mutation"]
     mutation_plans = [p for p in plans if p.method_meta.get("kind") == "mutation"]
 
-    query_results = await asyncio.gather(
-        *[_exec_method(app, p, context) for p in query_plans]
-    )
+    errors: list[dict[str, Any]] = []
+    plan_to_result: dict[int, Any] = {}
 
-    plan_to_result: dict[int, Any] = {
-        id(p): r for p, r in zip(query_plans, query_results)
-    }
+    # Queries: concurrent, per-field isolation — one failing invocation
+    # nulls only its own response key.
+    if query_plans:
+        query_results = await asyncio.gather(
+            *[_exec_method(app, p, context) for p in query_plans],
+            return_exceptions=True,
+        )
+        for plan, value in zip(query_plans, query_results):
+            if isinstance(value, BaseException) and not isinstance(value, Exception):
+                # Cancellation / KeyboardInterrupt — not a field failure.
+                raise value
+            if isinstance(value, Exception):
+                plan_to_result[id(plan)] = _ERRORED
+                errors.append({
+                    "message": (
+                        str(value)
+                        if isinstance(value, ComposeError)
+                        else f"{type(value).__name__}: {value}"
+                    ),
+                    "path": [plan.service_key, plan.method_key],
+                    "extensions": {
+                        "code": "QUERY_FAILED",
+                        "service_method": f"{plan.service_name}.{plan.method_name}",
+                    },
+                })
+            else:
+                plan_to_result[id(plan)] = value
 
     # Mutations run sequentially — GraphQL spec requires this so that
-    # writes within a single operation are observable in order.
-    for p in mutation_plans:
-        plan_to_result[id(p)] = await _exec_method(app, p, context)
+    # writes within a single operation are observable in order — with
+    # three-state feedback and operation-scope fail-stop.
+    mutation_failed = False
+    for plan in mutation_plans:
+        if mutation_failed:
+            plan_to_result[id(plan)] = _ERRORED
+            errors.append({
+                "message": (
+                    f"Skipped '{plan.method_key}' because a prior mutation failed"
+                ),
+                "path": [plan.service_key, plan.method_key],
+                "extensions": {"code": "SKIPPED_PRIOR_FAILURE"},
+            })
+            continue
+        try:
+            plan_to_result[id(plan)] = await _exec_method(app, plan, context)
+        except Exception as e:  # noqa: BLE001 — keep three-state shape
+            plan_to_result[id(plan)] = _ERRORED
+            errors.append({
+                "message": (
+                    str(e) if isinstance(e, ComposeError) else f"{type(e).__name__}: {e}"
+                ),
+                "path": [plan.service_key, plan.method_key],
+                "extensions": {
+                    "code": "MUTATION_FAILED",
+                    "service_method": f"{plan.service_name}.{plan.method_name}",
+                },
+            })
+            mutation_failed = True
 
-    return plan_to_result
+    return plan_to_result, errors
 
 
 def _prepare_method_kwargs(

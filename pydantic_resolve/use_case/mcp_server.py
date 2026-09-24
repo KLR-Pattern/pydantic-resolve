@@ -281,6 +281,7 @@ def create_use_case_graphql_mcp_server(
     async def compose_query(
         app_name: str,
         query: str,
+        variables: dict[str, Any] | None = None,
         ctx: Context = None,  # type: ignore[assignment]
     ) -> dict[str, Any]:
         """Compose multiple UseCaseService methods in a single GraphQL query.
@@ -290,7 +291,16 @@ def create_use_case_graphql_mcp_server(
         round trip.
 
         Rules:
-        - No aliases (GraphQL ``field:`` syntax). Each field name must be
+        - Method-level aliases are supported (GraphQL ``alias: field``
+          syntax): each aliased invocation is an independent call and the
+          response is keyed by the alias. Nested (DTO-level) aliases are
+          not supported. Each response key must be unique — use aliases to
+          invoke one method multiple times with different arguments.
+        - Pass string arguments via ``variables`` — never inline them as
+          GraphQL literals if they might contain quotes, backslashes or
+          newlines; ``variables`` sidesteps all escaping. Every declared
+          variable must be provided (declared defaults are not applied).
+        - Each field name must be
           unique within its parent.
         - Service / method names must match the schema. Use
           ``describe_compose_schema`` to discover valid names.
@@ -366,8 +376,14 @@ def create_use_case_graphql_mcp_server(
 
         try:
             context = await _extract_context(app, ctx)
-            data = await app.compose(query, context=context)
-            response = create_success_response(data)
+            result = await app.compose(query, context=context, variables=variables)
+            response = create_success_response(result["data"])
+            if result["errors"]:
+                # Field-level failures: partial data is still a success at
+                # the protocol level; failed response keys are null and each
+                # error carries path + extensions.code
+                # (QUERY_FAILED / MUTATION_FAILED / SKIPPED_PRIOR_FAILURE).
+                response["errors"] = result["errors"]
             response["hint"] = (
                 f"Composed query executed for app '{app_name}'. "
                 f"To compose another query, reuse the same syntax."

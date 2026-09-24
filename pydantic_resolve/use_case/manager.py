@@ -75,6 +75,7 @@ class UseCaseResources:
         self,
         query: str,
         context: dict[str, Any] | None = None,
+        variables: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Execute a GraphQL data query against this app's services.
 
@@ -93,7 +94,7 @@ class UseCaseResources:
         Raises:
             ComposeError: For any validation or execution failure.
         """
-        return await _compose_and_resolve(self, query, context)
+        return await _compose_and_resolve(self, query, context, variables)
 
 
 class UseCaseManager:
