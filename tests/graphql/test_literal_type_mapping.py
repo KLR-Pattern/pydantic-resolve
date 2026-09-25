@@ -68,8 +68,11 @@ class TestLiteralValidation:
     """Invalid Literals raise loudly instead of mapping to String."""
 
     def test_mixed_type_literal_rejected(self):
-        with pytest.raises(ValueError, match="share one Python type"):
+        # Mixed value types cannot map to one GraphQL scalar — the error
+        # must point at the Enum alternative (members may mix value types).
+        with pytest.raises(ValueError, match="share one Python type") as exc_info:
             map_scalar_type(Literal["fast", 1])
+        assert "Use an Enum instead" in str(exc_info.value)
 
     def test_all_none_literal_rejected(self):
         with pytest.raises(ValueError, match="non-None value"):

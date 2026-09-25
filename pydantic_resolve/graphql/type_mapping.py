@@ -178,7 +178,9 @@ def literal_info(annotation: Any) -> tuple[type, bool] | None:
     if len(value_types) != 1:
         names = ", ".join(sorted(t.__name__ for t in value_types))
         raise ValueError(
-            f"Literal values must share one Python type; got {names} in {annotation!r}."
+            f"Literal values must share one Python type; got {names} in "
+            f"{annotation!r}. Use an Enum instead: enum members can mix "
+            "value types and map to a GraphQL enum."
         )
     literal_type = next(iter(value_types))
     if safe_issubclass(literal_type, Enum):
