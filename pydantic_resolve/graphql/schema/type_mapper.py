@@ -14,7 +14,11 @@ from pydantic import BaseModel
 from .type_registry import FieldInfo, ArgumentInfo
 from pydantic_resolve.utils.class_util import safe_issubclass
 from pydantic_resolve.utils.types import get_core_types, _is_optional, _is_list
-from pydantic_resolve.graphql.type_mapping import map_scalar_type, is_enum_type
+from pydantic_resolve.graphql.type_mapping import (
+    map_scalar_type,
+    is_enum_type,
+    literal_is_nullable,
+)
 
 if TYPE_CHECKING:
     from pydantic_resolve.utils.er_diagram import ErDiagram
@@ -250,6 +254,10 @@ class TypeMapper:
             SDL type string (e.g., "String!", "[User!]!")
         """
         is_optional = _is_optional(python_type)
+        # Literal['open', None] allows null without being a Union — the
+        # None member must suppress the ! suffix just like Optional.
+        if literal_is_nullable(python_type):
+            is_optional = True
         gql_type = self.map_to_graphql_type(python_type, is_input)
         sdl = gql_type.to_sdl()
 

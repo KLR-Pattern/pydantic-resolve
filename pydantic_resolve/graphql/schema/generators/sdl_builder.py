@@ -15,7 +15,11 @@ from pydantic_resolve.graphql.utils import group_type_name
 from pydantic_resolve.utils.class_util import safe_issubclass
 from pydantic_resolve.utils.er_diagram import Relationship
 from pydantic_resolve.utils.types import get_core_types, _is_list
-from pydantic_resolve.graphql.type_mapping import is_enum_type, get_enum_names
+from pydantic_resolve.graphql.type_mapping import (
+    is_enum_type,
+    get_enum_names,
+    describe_literal_values,
+)
 from pydantic_resolve.graphql.exceptions import FieldNameConflictError
 
 
@@ -149,6 +153,16 @@ class SDLBuilder(SchemaGenerator):
 
     # --- Internal methods (preserved from SchemaBuilder for backward compatibility) ---
 
+    def _field_line(self, field_name: str, field_type, gql_type: str) -> str:
+        """Render one field line, prefixed with an ``Allowed values: ...``
+        docstring when the annotation is a scalar ``Literal`` (the only way
+        to surface the constraint — GraphQL has no constrained scalar)."""
+        description = describe_literal_values(None, field_type)
+        line = f"  {field_name}: {gql_type}"
+        if description:
+            return f'  """{description}"""\n{line}'
+        return line
+
     def _build_type_definition(self, entity_cfg) -> str:
         """Generate GraphQL type definition for a single entity."""
         fields = []
@@ -173,7 +187,7 @@ class SDLBuilder(SchemaGenerator):
                 continue
 
             gql_type = self.mapper.map_to_sdl(field_type)
-            fields.append(f"  {field_name}: {gql_type}")
+            fields.append(self._field_line(field_name, field_type, gql_type))
 
         # Process relationships using unified type mapping
         # Note: relationships without loaders are hidden from GraphQL schema
@@ -225,7 +239,7 @@ class SDLBuilder(SchemaGenerator):
                 continue
 
             gql_type = self.mapper.map_to_sdl(field_type)
-            fields.append(f"  {field_name}: {gql_type}")
+            fields.append(self._field_line(field_name, field_type, gql_type))
 
         return f"type {kls.__name__} {{\n" + "\n".join(fields) + "\n}"
 
@@ -243,7 +257,7 @@ class SDLBuilder(SchemaGenerator):
                 continue
 
             gql_type = self.mapper.map_to_sdl(field_type, is_input=True)
-            fields.append(f"  {field_name}: {gql_type}")
+            fields.append(self._field_line(field_name, field_type, gql_type))
 
         return f"input {kls.__name__} {{\n" + "\n".join(fields) + "\n}"
 

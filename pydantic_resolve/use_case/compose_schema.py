@@ -24,11 +24,9 @@ walks to produce the focused per-method SDL string.
 
 from __future__ import annotations
 
-import enum
 import inspect
-import types
 import json
-from typing import Any, Literal, Union, get_args, get_origin
+from typing import Any
 
 from pydantic import BaseModel
 from pydantic_core import PydanticUndefined
@@ -40,7 +38,11 @@ from pydantic_resolve.graphql.schema.type_registry import (
     TypeInfo,
     SCALAR_TYPES,
 )
-from pydantic_resolve.graphql.type_mapping import is_enum_type
+from pydantic_resolve.graphql.type_mapping import (
+    is_enum_type,
+    literal_info,
+    describe_literal_values,
+)
 from pydantic_resolve.use_case.business import UseCaseService, iter_use_case_methods
 from pydantic_resolve.use_case.context import is_from_context_annotation
 from pydantic_resolve.utils.class_util import safe_issubclass
@@ -366,7 +368,7 @@ def _build_type_ref(
 
     # Scalar Literal annotations map to the scalar shared by their values;
     # a None inside the literal means the value may be null (skip NON_NULL).
-    literal = _literal_info(python_type)
+    literal = literal_info(python_type)
     if literal is not None:
         python_type, has_none = literal
         if has_none:
@@ -412,93 +414,11 @@ def _override_input_name(
     node["name"] = input_t.name
 
 
-def _literal_info(annotation: Any) -> tuple[type, bool] | None:
-    """Validate a scalar ``Literal`` annotation; return ``(scalar_type, has_none)``.
-
-    Returns ``None`` for non-Literal annotations. Raises ``ValueError`` for
-    Literals that cannot map to a single GraphQL scalar (mixed value types,
-    enum members, all-None). Ported from nexusx #151: GraphQL SDL has no
-    constrained-scalar kind, so a Literal maps to the scalar shared by its
-    values and Pydantic keeps enforcing the allowed values at runtime.
-    """
-    origin = get_origin(annotation)
-    if origin is Union or origin is types.UnionType:
-        args = [arg for arg in get_args(annotation) if arg is not type(None)]
-        if len(args) != 1:
-            return None
-        core = args[0]
-    else:
-        core = annotation
-    if get_origin(core) is not Literal:
-        return None
-
-    all_values = get_args(core)
-    values = [value for value in all_values if value is not None]
-    if not values:
-        raise ValueError(
-            f"Literal annotations must contain a non-None value; got {annotation!r}."
-        )
-    value_types = {type(value) for value in values}
-    if len(value_types) != 1:
-        names = ", ".join(sorted(t.__name__ for t in value_types))
-        raise ValueError(
-            f"Literal values must share one Python type; got {names} in {annotation!r}."
-        )
-    literal_type = next(iter(value_types))
-    if safe_issubclass(literal_type, enum.Enum):
-        raise ValueError(
-            f"Literal values must use a supported scalar type; got "
-            f"{literal_type.__name__} in {annotation!r}. "
-            "Use the enum class directly instead of Literal[enum_member]."
-        )
-    if not _TYPE_MAPPER.map_to_graphql_type(literal_type).leaf_name:
-        raise ValueError(
-            f"Literal values must use a supported scalar type; got "
-            f"{literal_type.__name__} in {annotation!r}."
-        )
-    return literal_type, len(values) != len(all_values)
-
-
-def literal_allowed_values(annotation: Any) -> tuple[Any, ...] | None:
-    """Return the allowed values of a scalar ``Literal`` annotation.
-
-    Unwraps ``Optional`` / ``list`` wrappers so field and argument
-    descriptions can mention the constraint even though the GraphQL type is
-    the plain underlying scalar.
-    """
-    origin = get_origin(annotation)
-    if origin is Union or origin is types.UnionType:
-        args = [arg for arg in get_args(annotation) if arg is not type(None)]
-        if len(args) == 1:
-            return literal_allowed_values(args[0])
-        return None
-    if origin is list:
-        args = get_args(annotation)
-        if args:
-            return literal_allowed_values(args[0])
-        return None
-    if origin is Literal:
-        values = tuple(v for v in get_args(annotation) if v is not None)
-        return values or None
-    return None
-
-
-def describe_literal_values(description: str | None, annotation: Any) -> str | None:
-    """Append ``Allowed values: ...`` to a description for ``Literal`` annotations."""
-    values = literal_allowed_values(annotation)
-    if values is None:
-        return description
-    suffix = "Allowed values: " + ", ".join(str(value) for value in values)
-    if description:
-        return f"{description} {suffix}"
-    return suffix
-
-
 def _graphql_type_name(annotation: Any, *, default: str) -> str:
     """Return the leaf GraphQL type name for an annotation (for FieldInfo)."""
     if annotation is None or annotation is inspect.Parameter.empty:
         return default
-    literal = _literal_info(annotation)
+    literal = literal_info(annotation)
     if literal is not None:
         annotation = literal[0]
     gql = _TYPE_MAPPER.map_to_graphql_type(annotation)
