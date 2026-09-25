@@ -26,7 +26,13 @@ from pydantic_resolve.graphql.types import (
 from pydantic_resolve.utils.class_util import safe_issubclass
 from pydantic_resolve.utils.er_diagram import Relationship
 from pydantic_resolve.utils.types import get_core_types
-from pydantic_resolve.graphql.type_mapping import map_scalar_type, is_list_type, is_enum_type, get_enum_names
+from pydantic_resolve.graphql.type_mapping import (
+    map_scalar_type,
+    is_list_type,
+    is_enum_type,
+    get_enum_names,
+    describe_literal_values,
+)
 
 
 class IntrospectionGenerator(SchemaGenerator):
@@ -376,7 +382,9 @@ class IntrospectionGenerator(SchemaGenerator):
                 continue
 
             type_def = self._build_graphql_type(field_type)
-            description = self._get_field_description(entity, field_name)
+            description = describe_literal_values(
+                self._get_field_description(entity, field_name), field_type
+            )
 
             fields.append({
                 "name": field_name,
@@ -563,7 +571,9 @@ class IntrospectionGenerator(SchemaGenerator):
                 continue
 
             type_def = self._build_input_graphql_type(field_type)
-            description = self._get_field_description(kls, field_name)
+            description = describe_literal_values(
+                self._get_field_description(kls, field_name), field_type
+            )
 
             fields.append({
                 "name": field_name,
@@ -715,7 +725,9 @@ class IntrospectionGenerator(SchemaGenerator):
 
                 args.append({
                     "name": param_name,
-                    "description": None,
+                    "description": describe_literal_values(None, param.annotation)
+                    if param.annotation != inspect.Parameter.empty
+                    else None,
                     "type": param_type_def,
                     "defaultValue": None if not has_default else self._format_default_value(param.default)
                 })

@@ -7,7 +7,8 @@ Provides centralized type conversion between Python and GraphQL types.
 from enum import Enum
 from datetime import datetime, date, time
 from uuid import UUID
-from typing import get_origin, get_args, Union
+from typing import Any, Literal, Optional, get_origin, get_args, Union
+import types as _types
 from pydantic_resolve.utils.class_util import safe_issubclass
 from pydantic_resolve.utils.types import get_core_types, _is_optional, _is_list
 from pydantic import BaseModel
@@ -102,8 +103,17 @@ def map_python_to_graphql(python_type: type, include_required: bool = True) -> s
     # Check if it's Optional type (Union with None)
     is_optional = _is_optional(python_type)
 
+    # Scalar Literal: unwrap to the shared scalar type. A ``None`` member
+    # (Literal['open', None]) means the value may be null even though the
+    # annotation is not a Union — treat it like Optional for the ! suffix.
+    literal = literal_info(python_type)
+    if literal is not None:
+        python_type, has_none = literal
+    else:
+        has_none = False
+
     # For Optional types, don't include required suffix
-    if is_optional:
+    if is_optional or has_none:
         include_required = False
 
     required_suffix = "!" if include_required else ""
@@ -133,6 +143,108 @@ def map_python_to_graphql(python_type: type, include_required: bool = True) -> s
             return f"{scalar_name}{required_suffix}"
 
 
+def literal_info(annotation: Any) -> tuple[type, bool] | None:
+    """Validate a scalar ``Literal`` annotation; return ``(scalar_type, has_none)``.
+
+    Returns ``None`` for non-Literal annotations. Raises ``ValueError`` for
+    Literals that cannot map to a single GraphQL scalar (mixed value types,
+    enum members, all-None). GraphQL SDL has no constrained-scalar kind, so
+    a Literal maps to the scalar shared by its values and Pydantic keeps
+    enforcing the allowed values at runtime.
+
+    Shared single source for the validation rules; the compose schema
+    builder (``use_case/compose_schema.py``) and the entity-first path
+    (``schema/type_mapper.py`` / generators) both call this so the rules
+    cannot drift. Ported from nexusx #151 via #313.
+    """
+    origin = get_origin(annotation)
+    if origin is Union or origin is _types.UnionType:
+        args = [arg for arg in get_args(annotation) if arg is not type(None)]
+        if len(args) != 1:
+            return None
+        core = args[0]
+    else:
+        core = annotation
+    if get_origin(core) is not Literal:
+        return None
+
+    all_values = get_args(core)
+    values = [value for value in all_values if value is not None]
+    if not values:
+        raise ValueError(
+            f"Literal annotations must contain a non-None value; got {annotation!r}."
+        )
+    value_types = {type(value) for value in values}
+    if len(value_types) != 1:
+        names = ", ".join(sorted(t.__name__ for t in value_types))
+        raise ValueError(
+            f"Literal values must share one Python type; got {names} in "
+            f"{annotation!r}. Use an Enum instead: enum members can mix "
+            "value types and map to a GraphQL enum."
+        )
+    literal_type = next(iter(value_types))
+    if safe_issubclass(literal_type, Enum):
+        raise ValueError(
+            f"Literal values must use a supported scalar type; got "
+            f"{literal_type.__name__} in {annotation!r}. "
+            "Use the enum class directly instead of Literal[enum_member]."
+        )
+    if not map_scalar_type(literal_type):
+        raise ValueError(
+            f"Literal values must use a supported scalar type; got "
+            f"{literal_type.__name__} in {annotation!r}."
+        )
+    return literal_type, len(values) != len(all_values)
+
+
+def literal_is_nullable(annotation: Any) -> bool:
+    """True when ``annotation`` is a ``Literal`` whose members include ``None``.
+
+    ``Literal['open', None]`` allows null at runtime but is not a Union, so
+    ``_is_optional`` does not see it — callers deciding NON_NULL wrappers
+    must consult this instead (mirrors the Optional[T] treatment).
+    """
+    info = literal_info(annotation)
+    return info is not None and info[1]
+
+
+def literal_allowed_values(annotation: Any) -> tuple[Any, ...] | None:
+    """Return the allowed values of a scalar ``Literal`` annotation.
+
+    Unwraps ``Optional`` / ``list`` wrappers so field and argument
+    descriptions can mention the constraint even though the GraphQL type is
+    the plain underlying scalar.
+    """
+    origin = get_origin(annotation)
+    if origin is Union or origin is _types.UnionType:
+        args = [arg for arg in get_args(annotation) if arg is not type(None)]
+        if len(args) == 1:
+            return literal_allowed_values(args[0])
+        return None
+    if origin is list:
+        args = get_args(annotation)
+        if args:
+            return literal_allowed_values(args[0])
+        return None
+    if origin is Literal:
+        values = tuple(v for v in get_args(annotation) if v is not None)
+        return values or None
+    return None
+
+
+def describe_literal_values(
+    description: Optional[str], annotation: Any
+) -> Optional[str]:
+    """Append ``Allowed values: ...`` to a description for ``Literal`` annotations."""
+    values = literal_allowed_values(annotation)
+    if not values:
+        return description
+    suffix = "Allowed values: " + ", ".join(str(value) for value in values)
+    if description:
+        return f"{description} {suffix}"
+    return suffix
+
+
 def map_scalar_type(python_type: type) -> str:
     """
     Map Python scalar type to GraphQL scalar type name
@@ -152,6 +264,13 @@ def map_scalar_type(python_type: type) -> str:
     # Check if it's an enum type - return enum class name as GraphQL type
     if is_enum_type(python_type):
         return python_type.__name__
+
+    # Scalar Literal: map to the scalar shared by its values (validating the
+    # Literal first — a mixed/enum/all-None Literal raises here instead of
+    # silently falling through to the lenient String fallback below).
+    if get_origin(python_type) is Literal:
+        literal_type, _ = literal_info(python_type)
+        return map_scalar_type(literal_type)
 
     # Check direct mapping
     if python_type in PYTHON_TO_GQL_TYPES:
