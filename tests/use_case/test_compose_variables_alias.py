@@ -54,7 +54,7 @@ class TestVariables:
         title = 'He said "hi" \\ done'
         result = asyncio.run(
             _app().compose(
-                'query ($t: String!) { TaskService { create_task(title: $t) { id } } }',
+                "query ($t: String!) { TaskService { create_task(title: $t) { id } } }",
                 variables={"t": title},
             )
         )
@@ -73,14 +73,14 @@ class TestVariables:
         with pytest.raises(ComposeError, match="default values are never auto-applied"):
             asyncio.run(
                 _app().compose(
-                    'query ($id: Int! = 1) { TaskService { get_task(task_id: $id) } }'
+                    "query ($id: Int! = 1) { TaskService { get_task(task_id: $id) } }"
                 )
             )
 
     def test_variable_in_input_object(self):
         result = asyncio.run(
             _app().compose(
-                "query ($f: Boolean!) { TaskService { create_task(title: \"x\", fail: $f) { id } } }",
+                'query ($f: Boolean!) { TaskService { create_task(title: "x", fail: $f) { id } } }',
                 variables={"f": False},
             )
         )
@@ -132,9 +132,7 @@ class TestMethodLevelAliases:
     def test_nested_alias_rejected(self):
         with pytest.raises(ComposeError, match="nested level"):
             asyncio.run(
-                _app().compose(
-                    "{ TaskService { get_task(task_id: 1) { n: id } } }"
-                )
+                _app().compose("{ TaskService { get_task(task_id: 1) { n: id } } }")
             )
 
     def test_service_level_alias_keys_response(self):
@@ -153,7 +151,7 @@ class TestMutationThreeStateFeedback:
         """成功保留 / 失败独立报错 / 后续跳过标注（specs/023 US3）。"""
         result = asyncio.run(
             _app().compose(
-                '{ TaskService { '
+                "{ TaskService { "
                 't1: create_task(title: "ok") '
                 't2: create_task(title: "x", fail: true) '
                 't3: create_task(title: "never") } }'

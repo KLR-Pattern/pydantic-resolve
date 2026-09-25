@@ -196,7 +196,9 @@ def _parse_query(query: str, variables: dict[str, Any] | None = None) -> ParsedQ
                     defaulted.add(vd.variable.name.value)
             break
         if declared:
-            missing = [name for name in declared if variables is None or name not in variables]
+            missing = [
+                name for name in declared if variables is None or name not in variables
+            ]
             if missing:
                 message = (
                     f"Query declares variables {declared} but {len(missing)} were "
@@ -381,18 +383,20 @@ async def _execute_plans(
                 raise value
             if isinstance(value, Exception):
                 plan_to_result[id(plan)] = _ERRORED
-                errors.append({
-                    "message": (
-                        str(value)
-                        if isinstance(value, ComposeError)
-                        else f"{type(value).__name__}: {value}"
-                    ),
-                    "path": [plan.service_key, plan.method_key],
-                    "extensions": {
-                        "code": "QUERY_FAILED",
-                        "service_method": f"{plan.service_name}.{plan.method_name}",
-                    },
-                })
+                errors.append(
+                    {
+                        "message": (
+                            str(value)
+                            if isinstance(value, ComposeError)
+                            else f"{type(value).__name__}: {value}"
+                        ),
+                        "path": [plan.service_key, plan.method_key],
+                        "extensions": {
+                            "code": "QUERY_FAILED",
+                            "service_method": f"{plan.service_name}.{plan.method_name}",
+                        },
+                    }
+                )
             else:
                 plan_to_result[id(plan)] = value
 
@@ -403,28 +407,34 @@ async def _execute_plans(
     for plan in mutation_plans:
         if mutation_failed:
             plan_to_result[id(plan)] = _ERRORED
-            errors.append({
-                "message": (
-                    f"Skipped '{plan.method_key}' because a prior mutation failed"
-                ),
-                "path": [plan.service_key, plan.method_key],
-                "extensions": {"code": "SKIPPED_PRIOR_FAILURE"},
-            })
+            errors.append(
+                {
+                    "message": (
+                        f"Skipped '{plan.method_key}' because a prior mutation failed"
+                    ),
+                    "path": [plan.service_key, plan.method_key],
+                    "extensions": {"code": "SKIPPED_PRIOR_FAILURE"},
+                }
+            )
             continue
         try:
             plan_to_result[id(plan)] = await _exec_method(app, plan, context)
         except Exception as e:  # noqa: BLE001 — keep three-state shape
             plan_to_result[id(plan)] = _ERRORED
-            errors.append({
-                "message": (
-                    str(e) if isinstance(e, ComposeError) else f"{type(e).__name__}: {e}"
-                ),
-                "path": [plan.service_key, plan.method_key],
-                "extensions": {
-                    "code": "MUTATION_FAILED",
-                    "service_method": f"{plan.service_name}.{plan.method_name}",
-                },
-            })
+            errors.append(
+                {
+                    "message": (
+                        str(e)
+                        if isinstance(e, ComposeError)
+                        else f"{type(e).__name__}: {e}"
+                    ),
+                    "path": [plan.service_key, plan.method_key],
+                    "extensions": {
+                        "code": "MUTATION_FAILED",
+                        "service_method": f"{plan.service_name}.{plan.method_name}",
+                    },
+                }
+            )
             mutation_failed = True
 
     return plan_to_result, errors
