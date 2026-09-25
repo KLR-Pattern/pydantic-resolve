@@ -61,6 +61,7 @@ async def test_compose_multi_service_parallel():
         }
         """,
     )
+    result = result["data"]
     _print("Multi-service parallel", result)
     assert "SprintService" in result
     assert "TaskService" in result
@@ -86,6 +87,7 @@ async def test_compose_single_service_multiple_methods():
         }
         """,
     )
+    result = result["data"]
     _print("Single service, multiple methods", result)
     svc = result["SprintService"]
     assert len(svc["list_sprints"]) >= 1
@@ -114,6 +116,7 @@ async def test_compose_autoload_owner_detail_through_selection():
         }
         """,
     )
+    result = result["data"]
     _print("AutoLoad projection", result)
     tasks = result["TaskService"]["get_tasks_by_sprint"]
     assert len(tasks) >= 1

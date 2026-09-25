@@ -281,6 +281,7 @@ def create_use_case_graphql_mcp_server(
     async def compose_query(
         app_name: str,
         query: str,
+        variables: dict[str, Any] | None = None,
         ctx: Context = None,  # type: ignore[assignment]
     ) -> dict[str, Any]:
         """Compose multiple UseCaseService methods in a single GraphQL query.
@@ -290,8 +291,15 @@ def create_use_case_graphql_mcp_server(
         round trip.
 
         Rules:
-        - No aliases (GraphQL ``field:`` syntax). Each field name must be
-          unique within its parent.
+        - Method-level aliases are supported (GraphQL ``alias: field``
+          syntax): each aliased invocation is an independent call and the
+          response is keyed by the alias. Nested (DTO-level) aliases are
+          not supported. Each response key must be unique — use aliases to
+          invoke one method multiple times with different arguments.
+        - Pass string arguments via ``variables`` — never inline them as
+          GraphQL literals if they might contain quotes, backslashes or
+          newlines; ``variables`` sidesteps all escaping. Every declared
+          variable must be provided (declared defaults are not applied).
         - Service / method names must match the schema. Use
           ``describe_compose_schema`` to discover valid names.
         - Method arguments go in parentheses on the method field:
@@ -316,16 +324,26 @@ def create_use_case_graphql_mcp_server(
           ``compose_query`` calls.
 
         The response shape mirrors the request: each Service becomes a
-        key whose value is a dict of method-name → result.
+        key whose value is a dict of response key (alias when present,
+        otherwise method name) → result.
 
         Args:
             app_name: Application name (from ``list_apps``).
             query: GraphQL data query string (introspection is rejected).
+            variables: Values for variables declared in the query
+                (``query ($id: Int!) ...``). Every declared variable must
+                be provided explicitly — declared defaults are never
+                applied.
             ctx: MCP request context (used for context_extractor).
 
         Returns:
-            ``{success, data: {service: {method: result}}, hint}`` on
-            success. On failure: ``success=False``, ``error``,
+            ``{success, data: {service: {responseKey: result}}, hint}`` on
+            success. Field-level failures still return ``success=True``
+            with partial data: the failed response key is ``null`` and an
+            ``errors`` list carries ``path`` plus ``extensions.code``
+            (``QUERY_FAILED`` / ``MUTATION_FAILED`` /
+            ``SKIPPED_PRIOR_FAILURE`` / ``PROJECTION_FAILED``).
+            On validation failure: ``success=False``, ``error``,
             ``error_type`` (one of: validation_error, type_not_found,
             operation_not_found, query_execution_error,
             mutation_execution_error, app_not_found, internal_error).
@@ -366,8 +384,15 @@ def create_use_case_graphql_mcp_server(
 
         try:
             context = await _extract_context(app, ctx)
-            data = await app.compose(query, context=context)
-            response = create_success_response(data)
+            result = await app.compose(query, context=context, variables=variables)
+            response = create_success_response(result["data"])
+            if result["errors"]:
+                # Field-level failures: partial data is still a success at
+                # the protocol level; failed response keys are null and each
+                # error carries path + extensions.code
+                # (QUERY_FAILED / MUTATION_FAILED /
+                # SKIPPED_PRIOR_FAILURE / PROJECTION_FAILED).
+                response["errors"] = result["errors"]
             response["hint"] = (
                 f"Composed query executed for app '{app_name}'. "
                 f"To compose another query, reuse the same syntax."

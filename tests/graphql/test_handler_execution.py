@@ -101,4 +101,4 @@ class TestHandlerExecutionBehavior:
         assert result["data"] is None
         assert result["errors"] is not None
         assert result["errors"][0]["extensions"]["code"] == "GRAPHQL_PARSE_ERROR"
-        assert "variables are not supported yet" in result["errors"][0]["message"]
+        assert "no value was provided" in result["errors"][0]["message"]

@@ -32,15 +32,26 @@ class TestQueryParser:
         assert 'limit' in parsed.field_tree['users'].arguments
         assert parsed.field_tree['users'].arguments['limit'] == 10
 
-    def test_parse_query_with_variable_raises_error(self):
-        """变量参数目前不支持，应抛出明确错误而不是静默变为 None。"""
+    def test_parse_query_with_variable_resolves(self):
+        """变量引用应从 variables dict 解析为对应值。"""
         query = """
         query GetUsers($limit: Int!) {
             users(limit: $limit) { id }
         }
         """
 
-        with pytest.raises(QueryParseError, match="variables are not supported yet"):
+        parsed = self.parser.parse(query, variables={"limit": 10})
+        assert parsed.field_tree["users"].arguments["limit"] == 10
+
+    def test_parse_query_with_missing_variable_raises_error(self):
+        """引用了未提供值的变量应抛出明确错误。"""
+        query = """
+        query GetUsers($limit: Int!) {
+            users(limit: $limit) { id }
+        }
+        """
+
+        with pytest.raises(QueryParseError, match="no value was provided"):
             self.parser.parse(query)
 
     def test_parse_nested_query(self):
@@ -108,29 +119,42 @@ class TestQueryParser:
         assert 'id' in parsed.field_tree['users'].sub_fields
         assert 'name' in parsed.field_tree['users'].sub_fields
 
-    def test_alias_rejected(self):
-        """带 alias 的字段应该抛出错误"""
-        with pytest.raises(QueryParseError, match="alias"):
-            self.parser.parse("{ a: users { id } }")
+    def test_alias_captured_and_keyed_by_response_key(self):
+        """parser 接受别名：sub_fields 以 response key 索引，.name 保留原名。"""
+        parsed = self.parser.parse("{ a: users { id } }")
+        sel = parsed.field_tree["a"]
+        assert sel.name == "users"
+        assert sel.alias == "a"
 
-    def test_nested_alias_rejected(self):
-        """嵌套字段的 alias 也应该抛出错误"""
-        with pytest.raises(QueryParseError, match="alias"):
-            self.parser.parse("{ users { a: name } }")
+    def test_entity_gate_rejects_root_alias(self):
+        """entity-first 门：任意层级的别名都会被拒绝。"""
+        from pydantic_resolve.graphql.query_parser import reject_all_aliases
+
+        parsed = self.parser.parse("{ a: users { id } }")
+        with pytest.raises(QueryParseError, match="not supported"):
+            reject_all_aliases(parsed.field_tree)
+
+    def test_entity_gate_rejects_nested_alias(self):
+        """entity-first 门：嵌套别名同样拒绝。"""
+        from pydantic_resolve.graphql.query_parser import reject_all_aliases
+
+        parsed = self.parser.parse("{ users { a: name } }")
+        with pytest.raises(QueryParseError, match="nested level"):
+            reject_all_aliases(parsed.field_tree)
 
     def test_duplicate_root_field_rejected(self):
         """根层同名字段不允许出现两次。"""
-        with pytest.raises(QueryParseError, match="Duplicate field 'users'"):
+        with pytest.raises(QueryParseError, match="Duplicate response key 'users'"):
             self.parser.parse("{ users { id } users { name } }")
 
     def test_duplicate_nested_field_rejected(self):
         """service / method 层同名也不允许重复。"""
-        with pytest.raises(QueryParseError, match="Duplicate field 'name'"):
+        with pytest.raises(QueryParseError, match="Duplicate response key 'name'"):
             self.parser.parse("{ users { id name name } }")
 
     def test_duplicate_method_with_different_args_rejected(self):
         """同名 method 即使参数不同也不允许 —— 避免参数被静默覆盖、调用被丢失。"""
-        with pytest.raises(QueryParseError, match="Duplicate field 'get_sprint'"):
+        with pytest.raises(QueryParseError, match="Duplicate response key 'get_sprint'"):
             self.parser.parse(
                 "{ SprintService { get_sprint(sprint_id: 1) { name } "
                 "get_sprint(sprint_id: 2) { id } } }"
@@ -150,7 +174,7 @@ class TestQueryParser:
             name
         }
         """
-        with pytest.raises(QueryParseError, match="Duplicate field 'id'"):
+        with pytest.raises(QueryParseError, match="Duplicate response key 'id'"):
             self.parser.parse(query)
 
     def test_duplicate_field_via_inline_fragment_rejected(self):
@@ -163,5 +187,5 @@ class TestQueryParser:
             }
         }
         """
-        with pytest.raises(QueryParseError, match="Duplicate field 'id'"):
+        with pytest.raises(QueryParseError, match="Duplicate response key 'id'"):
             self.parser.parse(query)

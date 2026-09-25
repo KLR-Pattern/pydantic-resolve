@@ -112,12 +112,14 @@ async def graphql_endpoint(req: GraphQLRequest, request: Request) -> JSONRespons
 
     try:
         if is_introspection_query(req.query):
-            # Introspection: returns {data, errors} envelope directly.
+            # Both branches return the GraphQL {data, errors} envelope
+            # directly — no re-wrapping.
             data = compose_introspect(_APP, req.query)
         else:
-            # Data query: returns nested {service: {method: ...}}.
-            nested = await _APP.compose(req.query, context=context)
-            data = {"data": nested, "errors": None}
+            # Field-level failures surface in `errors` with partial data.
+            data = await _APP.compose(
+                req.query, context=context, variables=req.variables
+            )
     except Exception as e:
         # ComposeError and any other exception — return as GraphQL-style
         # {errors: [...]} envelope so GraphiQL surfaces them in the UI.
