@@ -1,5 +1,5 @@
 ---
-description: "Release-by-release changelog for pydantic-resolve, following semver — major for breaking changes, minor for new features, patch for bug fixes. Most recent: 6.1.1."
+description: "Release-by-release changelog for pydantic-resolve, following semver — major for breaking changes, minor for new features, patch for bug fixes. Most recent: 6.2.0."
 ---
 
 # Changelog
@@ -7,6 +7,21 @@ description: "Release-by-release changelog for pydantic-resolve, following semve
 - **Major (X.0.0)**: Major new features or breaking changes
 - **Minor (x.Y.0)**: New features, backward compatible
 - **Patch (x.y.Z)**: Bug fixes and minor improvements
+
+## 6.2
+
+### 6.2.0 (2026-09-26)
+
+Compose query composition release: **GraphQL variables**, **method-level aliases**, and **three-state mutation feedback** on the compose surface (#314), plus scalar `Literal` typing fixed on the graphql main path (#316, #317).
+
+- feat:
+  - **GraphQL variables on compose** (#314): `UseCaseResources.compose(query, context, variables)` and the `compose_query` MCP tool accept a `variables` dict; `$var` references in arguments resolve from it (object/list values recurse). Declared-but-missing variables fail fast before any execution, and declared defaults (`$t: String = "x"`) are never auto-applied — every declared variable must be passed explicitly. Multi-operation documents are rejected loudly (compose has no `operationName` channel).
+  - **Method-level aliases with independent invocations** (#314): `a: get_task(task_id: 1) b: get_task(task_id: 2)` runs two independent calls; the response is keyed by the alias (service-level aliases work the same way). Duplicate response keys — alias repeats, alias/field-name collisions, plain duplicate fields — raise `ResponseKeyConflictError`, since every `(service, method, args)` tuple is a real invocation and merging would silently drop calls. Nested (DTO-level) aliases are rejected with a shared message; the entity-first executor keeps rejecting all aliases.
+  - **Three-state mutation feedback** (#314): within one compose call, `@mutation` methods run serially in declaration order — a succeeded call keeps its result, a failed call nulls only its own response key with `MUTATION_FAILED`, and every later mutation is skipped with `SKIPPED_PRIOR_FAILURE`. Queries run concurrently, each failure isolated to its own key (`QUERY_FAILED`). Already-executed writes are never erased from the response: query-shape validation (unknown fields, missing selections, DTO-leaf arguments) runs BEFORE any method executes, and a runtime projection failure nulls only its own key (`PROJECTION_FAILED`). `compose()` now returns the `{"data": ..., "errors": [...]}` envelope; execution failures surface in `errors` instead of raising.
+
+- fix:
+  - **Scalar `Literal` annotations map to their shared GraphQL scalar on the graphql main path** (#316, #317): previously every `Literal` fell through `map_scalar_type`'s lenient string-matching fallback and became `String` — `Literal[1, 2]` rendered `String!` (clients generated string inputs for int/bool literals), and `Literal[..., None]` was forced `NON_NULL` although the Python type allows null. `map_scalar_type` now maps a Literal to the scalar shared by its values and raises at schema-build time for Literals with no correct mapping: mixed value types (with a "use an Enum instead" recommendation — enum members may mix value types), enum members, and all-`None`. A `None` member renders the input field nullable, matching the `Optional[T]` treatment. The validation rules now live in `graphql/type_mapping.py` as the single source shared by the compose and entity-first paths. `Allowed values: ...` also surfaces on the entity-first path: introspection entity fields, input fields, and method args carry it in their descriptions, and SDL emits docstring blocks on Literal fields (schemas without Literals are byte-identical). **SDL surface change**: Literal fields of int/bool/float values change from `String` to `Int` / `Boolean` / `Float`; SDL consumers should regenerate types.
+  - **Four shared-lineage backports** (#313): compose enum wire-name coercion (`_promote_enum_names` — the compose schema renders enum members by *name* while Pydantic validates by *value*); entity-first enum arguments now convert name-first with value fallback and raise `EnumWireError` loudly on invalid wire values (previously swallowed and passed into the method body as a raw string); compose scalar-Literal support (superseded by the #317 main-path extraction above); multi-operation document rejection (also in #314).
 
 ## 6.1
 
