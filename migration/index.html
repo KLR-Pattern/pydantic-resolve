@@ -1,0 +1,2577 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Migration guide across pydantic-resolve versions. Covers v5 → v6 (grouped entity GraphQL layout) and earlier breaking changes, with before/after code for each.">
+      
+      
+        <meta name="author" content="tangkikodo">
+      
+      
+        <link rel="canonical" href="https://allmonday.github.io/pydantic-resolve/migration/">
+      
+      
+        <link rel="prev" href="../api_use_case_mcp/">
+      
+      
+        <link rel="next" href="../changelog/">
+      
+      
+        
+          <link rel="alternate" href="./" hreflang="en">
+        
+          <link rel="alternate" href="../zh/migration/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Migration Guide - Pydantic-resolve</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-9P2E638G4H"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-9P2E638G4H",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-9P2E638G4H",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#migration-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Pydantic-resolve" class="md-header__button md-logo" aria-label="Pydantic-resolve" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pydantic-resolve
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Migration Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="light-blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="light-blue"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../zh/migration/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/allmonday/pydantic-resolve" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    allmonday/pydantic-resolve
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../dataloader_deep_dive/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Advanced
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api_resolver/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../architecture_entity_first/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Articles
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Pydantic-resolve" class="md-nav__button md-logo" aria-label="Pydantic-resolve" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pydantic-resolve
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/allmonday/pydantic-resolve" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    allmonday/pydantic-resolve
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick_start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core_api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../post_processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Post Processing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross_layer_data_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Layer Data Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../erd_and_autoload/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ERD and AutoLoad
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Advanced
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataloader_deep_dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataLoader Deep Dive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../erd_define_subset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ERD with DefineSubset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../orm_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ORM Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fastapi_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FastAPI Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../graphql_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp_service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use_case_mcp_service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UseCase MCP Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../voyager_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Voyager Visualization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_resolver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Resolver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_dataloader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataLoader Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_cross_layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Layer Annotations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_erd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ER Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_subset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DefineSubset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_graphql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_use_case_mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UseCase MCP API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v5-to-v6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v5 to v6
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v5 to v6">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-operations-are-grouped-by-entity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Operations are grouped by entity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-response-data-is-nested-per-entity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Response data is nested per entity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mcp-schema-tools-take-entity-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. MCP schema tools take entity + method
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-removed-naming-utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Removed naming utilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v54-to-v55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v5.4 to v5.5
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v5.4 to v5.5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-diagramcreate_auto_load-replaced-by-standalone-autoload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. diagram.create_auto_load() replaced by standalone AutoLoad()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-implicit-autoload-no-annotation-needed-for-matching-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Implicit AutoLoad (no annotation needed for matching names)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-loaderinfo_er_configs_map-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. LoaderInfo._er_configs_map removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-external-erdiagram-ambiguity-is-now-explicit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. External ErDiagram ambiguity is now explicit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v4-to-v5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4 to v5
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v4 to v5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-erdiagramconfigs-erdiagramentities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. ErDiagram.configs → ErDiagram.entities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-forward-references-can-use-module-path-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Forward references can use module-path syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v3-to-v4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3 to v4
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3 to v4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-relationship-parameter-renames" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Relationship parameter renames
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-relationship-name-is-now-required-replaces-default_field_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Relationship name is now required (replaces default_field_name)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-loadby-replaced-by-autoload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. LoadBy replaced by AutoLoad
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-multiplerelationship-and-link-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. MultipleRelationship and Link removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-deprecated-resolver-parameters-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Deprecated Resolver parameters removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-field_fn-renamed-to-fk_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. field_fn renamed to fk_fn
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-__pydantic_resolve_relationships__-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. __pydantic_resolve_relationships__ removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-loaderdepend-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. LoaderDepend removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-model_config-decorator-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. model_config decorator removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Articles
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Articles
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_entity_first/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clean Architecture for Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog_pydantic_resolve_vs_orm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reframing Data Assembly: pydantic-resolve vs SQLAlchemy ORM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog_rest_graphql_and_er_diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST vs GraphQL and the Missing Layer: ER Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog_context_assembly_for_llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Treat the Context Window as a Data Assembly Problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v5-to-v6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v5 to v6
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v5 to v6">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-operations-are-grouped-by-entity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Operations are grouped by entity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-response-data-is-nested-per-entity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Response data is nested per entity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mcp-schema-tools-take-entity-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. MCP schema tools take entity + method
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-removed-naming-utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Removed naming utilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v54-to-v55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v5.4 to v5.5
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v5.4 to v5.5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-diagramcreate_auto_load-replaced-by-standalone-autoload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. diagram.create_auto_load() replaced by standalone AutoLoad()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-implicit-autoload-no-annotation-needed-for-matching-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Implicit AutoLoad (no annotation needed for matching names)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-loaderinfo_er_configs_map-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. LoaderInfo._er_configs_map removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-external-erdiagram-ambiguity-is-now-explicit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. External ErDiagram ambiguity is now explicit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v4-to-v5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4 to v5
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v4 to v5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-erdiagramconfigs-erdiagramentities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. ErDiagram.configs → ErDiagram.entities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-forward-references-can-use-module-path-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Forward references can use module-path syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v3-to-v4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3 to v4
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3 to v4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-relationship-parameter-renames" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Relationship parameter renames
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-relationship-name-is-now-required-replaces-default_field_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Relationship name is now required (replaces default_field_name)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-loadby-replaced-by-autoload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. LoadBy replaced by AutoLoad
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-multiplerelationship-and-link-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. MultipleRelationship and Link removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-deprecated-resolver-parameters-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Deprecated Resolver parameters removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-field_fn-renamed-to-fk_fn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. field_fn renamed to fk_fn
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-__pydantic_resolve_relationships__-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. __pydantic_resolve_relationships__ removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-loaderdepend-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. LoaderDepend removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-model_config-decorator-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. model_config decorator removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="migration-guide">Migration Guide</h1>
+<h2 id="v5-to-v6">v5 to v6</h2>
+<p>v6 groups entity <code>@query</code> / <code>@mutation</code> operations by entity under <code>{Entity}Query</code> / <code>{Entity}Mutation</code> types. The Python surface — <code>Entity</code>, the <code>@query</code> / <code>@mutation</code> decorators, <code>GraphQLHandler</code> — is unchanged; only the generated GraphQL schema, the response shape, and the MCP schema tools change. Four breaking changes affect GraphQL clients and MCP consumers.</p>
+<h3 id="1-operations-are-grouped-by-entity">1. Operations are grouped by entity</h3>
+<p>Each entity's <code>@query</code> / <code>@mutation</code> methods are now fields on a <code>{Entity}Query</code> / <code>{Entity}Mutation</code> group OBJECT, and the root <code>Query</code> / <code>Mutation</code> mounts one NON_NULL field per entity. Method names are used verbatim — the old <code>entityPrefix + MethodCamel</code> camelCase is gone.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c"># v5 — flat root field per method</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">type</span><span class="w"> </span><span class="err">Query</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="n">userEntityGetAll</span><span class="p">(</span><span class="n">limit</span><span class="p">:</span><span class="w"> </span><span class="no">Int</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="err">[</span><span class="n">UserEntity</span><span class="err">!]!</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="n">userEntityGetById</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="no">Int</span><span class="err">!</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">UserEntity</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">}</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c"># v6 — one group per entity, method names verbatim</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">type</span><span class="w"> </span><span class="err">Query</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nl">UserEntity</span><span class="p">:</span><span class="w"> </span><span class="n">UserEntityQuery</span><span class="err">!</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">}</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">type</span><span class="w"> </span><span class="err">UserEntityQuery</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="n">get_all</span><span class="p">(</span><span class="n">limit</span><span class="p">:</span><span class="w"> </span><span class="no">Int</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="err">[</span><span class="n">UserEntity</span><span class="err">!]!</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="n">get_by_id</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="no">Int</span><span class="err">!</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">UserEntity</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">}</span>
+</code></pre></div>
+<p>Client queries add one nesting level (the entity group):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c"># v5</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">{</span><span class="w"> </span><span class="n">userEntityGetAll</span><span class="p">(</span><span class="n">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c"># v6</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">{</span><span class="w"> </span><span class="n">UserEntity</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">get_all</span><span class="p">(</span><span class="n">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>Error reporting improves alongside this: selecting a bare group with no method (<code>{ UserEntity }</code>) returns a <code>BARE_GROUP_FIELD</code> error listing the available methods, and unknown group / method errors carry a GraphQL <code>path</code> (e.g. <code>["UserEntity", "get_all"]</code>). A schema with no <code>@query</code> methods now omits the root <code>Query</code> type entirely (introspection reports <code>queryType: null</code>).</p>
+<h3 id="2-response-data-is-nested-per-entity">2. Response data is nested per entity</h3>
+<p>Dispatch is now two-level (group → method), so results nest as <code>data[entity][method]</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># v5</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">users</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"data"</span><span class="p">][</span><span class="s2">"userEntityGetAll"</span><span class="p">]</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># v6</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">users</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"data"</span><span class="p">][</span><span class="s2">"UserEntity"</span><span class="p">][</span><span class="s2">"get_all"</span><span class="p">]</span>
+</code></pre></div>
+<p>Mutations nest the same way: <code>result["data"]["UserEntity"]["create_user"]</code>.</p>
+<h3 id="3-mcp-schema-tools-take-entity-method">3. MCP schema tools take <code>entity</code> + <code>method</code></h3>
+<p><code>get_query_schema</code> / <code>get_mutation_schema</code> replace the single <code>name</code> argument with <code>entity</code> and <code>method</code>. <code>list_queries</code> / <code>list_mutations</code> now return one entry per method — <code>{entity, method, name ("&lt;entity&gt;.&lt;method&gt;"), description}</code> — so identifiers stay unique when two entities share a method name.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># v5</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">get_query_schema</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"userEntityGetAll"</span><span class="p">,</span> <span class="n">app_name</span><span class="o">=</span><span class="s2">"blog"</span><span class="p">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">queries</span> <span class="o">=</span> <span class="n">list_queries</span><span class="p">(</span><span class="n">app_name</span><span class="o">=</span><span class="s2">"blog"</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># -&gt; [{"name": "userEntityGetAll", "description": "..."}]</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># v6</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">get_query_schema</span><span class="p">(</span><span class="n">entity</span><span class="o">=</span><span class="s2">"UserEntity"</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"get_all"</span><span class="p">,</span> <span class="n">app_name</span><span class="o">=</span><span class="s2">"blog"</span><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">queries</span> <span class="o">=</span> <span class="n">list_queries</span><span class="p">(</span><span class="n">app_name</span><span class="o">=</span><span class="s2">"blog"</span><span class="p">)</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># -&gt; [{"entity": "UserEntity", "method": "get_all",</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1">#      "name": "UserEntity.get_all", "description": "..."}]</span>
+</code></pre></div>
+<h3 id="4-removed-naming-utilities">4. Removed naming utilities</h3>
+<p><code>pydantic_resolve/graphql/utils/naming.py</code> (<code>to_camel_case</code>, <code>to_graphql_field_name</code>) is removed — field names are the verbatim method name now, so the camelCase + entity-prefix logic is obsolete. The only naming helper left is <code>group_type_name(entity_name, suffix)</code> in <code>pydantic_resolve/graphql/utils/__init__.py</code>. If you imported the old helpers, switch to <code>group_type_name</code> or inline the verbatim name.</p>
+<h2 id="v54-to-v55">v5.4 to v5.5</h2>
+<p>v5.5 simplifies the AutoLoad API and adds implicit relationship resolution. Two breaking changes affect code that uses ER Diagram.</p>
+<h3 id="1-diagramcreate_auto_load-replaced-by-standalone-autoload">1. <code>diagram.create_auto_load()</code> replaced by standalone <code>AutoLoad()</code></h3>
+<p>The diagram-bound factory is removed. <code>AutoLoad</code> is now a direct import from <code>pydantic_resolve</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># v5.4</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">diagram</span> <span class="o">=</span> <span class="n">BaseEntity</span><span class="o">.</span><span class="n">get_diagram</span><span class="p">()</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">AutoLoad</span> <span class="o">=</span> <span class="n">diagram</span><span class="o">.</span><span class="n">create_auto_load</span><span class="p">()</span>       <span class="c1"># factory bound to diagram</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">config_global_resolver</span><span class="p">(</span><span class="n">diagram</span><span class="p">)</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskView</span><span class="p">(</span><span class="n">TaskEntity</span><span class="p">):</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">owner</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">UserEntity</span><span class="p">],</span> <span class="n">AutoLoad</span><span class="p">()]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1"># v5.5</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_resolve</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoLoad</span>       <span class="c1"># standalone import</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskView</span><span class="p">(</span><span class="n">TaskEntity</span><span class="p">):</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="n">owner</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">UserEntity</span><span class="p">],</span> <span class="n">AutoLoad</span><span class="p">()]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+<p>The <code>config_global_resolver(diagram)</code> or <code>config_resolver(...)</code> call is still required — it tells the resolver which diagram to use for relationship lookup.</p>
+<h3 id="2-implicit-autoload-no-annotation-needed-for-matching-names">2. Implicit AutoLoad (no annotation needed for matching names)</h3>
+<p>When a field name matches a relationship <code>name</code>, the resolver automatically generates the resolve method. No <code>AutoLoad()</code> annotation is required.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># v5.4 — explicit annotation required</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskView</span><span class="p">(</span><span class="n">TaskEntity</span><span class="p">):</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">owner</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">UserEntity</span><span class="p">],</span> <span class="n">AutoLoad</span><span class="p">()]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># v5.5 — implicit when name matches</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskView</span><span class="p">(</span><span class="n">TaskEntity</span><span class="p">):</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">UserEntity</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>       <span class="c1"># auto-resolved via relationship name 'owner'</span>
+</code></pre></div>
+<p>Explicit <code>AutoLoad(origin=...)</code> is still needed when the field name differs from the relationship name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskView</span><span class="p">(</span><span class="n">TaskEntity</span><span class="p">):</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">my_owner</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">UserEntity</span><span class="p">],</span> <span class="n">AutoLoad</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="s1">'owner'</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+<h3 id="3-loaderinfo_er_configs_map-removed">3. <code>LoaderInfo._er_configs_map</code> removed</h3>
+<p>This internal field was previously set by <code>create_auto_load()</code>. If you were directly accessing it, switch to using the relationship lookup via the diagram or <code>config_resolver</code>.</p>
+<h3 id="4-external-erdiagram-ambiguity-is-now-explicit">4. External <code>ErDiagram</code> ambiguity is now explicit</h3>
+<p>In v5.5, <code>AutoLoad()</code> is no longer bound to one diagram instance. That simplifies regular usage, but it also means some setup-time inference must look up relationship metadata by model class and relationship name.</p>
+<p>For <code>base_entity()</code> diagrams, this is still unambiguous because one model family has one authoritative diagram.</p>
+<p>For external <code>ErDiagram(...)</code> definitions, ambiguity can appear if multiple diagrams register the same model class with the same relationship <code>name</code> but different <code>fk</code> values. In that case, <code>pydantic-resolve</code> now raises <code>ValueError</code> instead of silently using the last registration.</p>
+<p>This most commonly appears in <code>DefineSubset</code> when hidden FK fields must be auto-added:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">ErDiagram</span><span class="p">(</span><span class="n">entities</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">Entity</span><span class="p">(</span><span class="n">kls</span><span class="o">=</span><span class="n">TaskEntity</span><span class="p">,</span> <span class="n">relationships</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        <span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'owner_id'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">UserEntity</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'user'</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">user_loader</span><span class="p">),</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="p">])</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">])</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="n">ErDiagram</span><span class="p">(</span><span class="n">entities</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="n">Entity</span><span class="p">(</span><span class="n">kls</span><span class="o">=</span><span class="n">TaskEntity</span><span class="p">,</span> <span class="n">relationships</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'manager_id'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">UserEntity</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'user'</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">user_loader</span><span class="p">),</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="p">])</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="p">])</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskSummary</span><span class="p">(</span><span class="n">DefineSubset</span><span class="p">):</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    <span class="n">__subset__</span> <span class="o">=</span> <span class="p">(</span><span class="n">TaskEntity</span><span class="p">,</span> <span class="p">(</span><span class="s1">'id'</span><span class="p">,))</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>    <span class="n">user</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">UserEntity</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="c1"># v5.5+: raises ValueError instead of silently picking one FK</span>
+</code></pre></div>
+<p>Recommended migration path:</p>
+<ul>
+<li>Prefer <code>base_entity()</code> for one domain model family.</li>
+<li>Keep one authoritative external ER definition per <code>(model class, relationship name)</code>.</li>
+<li>If you intentionally need different meanings, give them different relationship names.</li>
+<li>If subset construction should not infer the FK automatically, include the FK field explicitly in the subset.</li>
+</ul>
+<hr />
+<h2 id="v4-to-v5">v4 to v5</h2>
+<p>v5.0 introduces one breaking rename. New features (ORM integration, GraphiQL, MCP schema) are additive and documented separately.</p>
+<h3 id="1-erdiagramconfigs-erdiagramentities">1. <code>ErDiagram.configs</code> → <code>ErDiagram.entities</code></h3>
+<p>The <code>ErDiagram</code> constructor parameter is renamed from <code>configs</code> to <code>entities</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># v4</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">diagram</span> <span class="o">=</span> <span class="n">ErDiagram</span><span class="p">(</span><span class="n">configs</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">Entity</span><span class="p">(</span><span class="n">kls</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">relationships</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">]),</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="p">])</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c1"># v5</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="n">diagram</span> <span class="o">=</span> <span class="n">ErDiagram</span><span class="p">(</span><span class="n">entities</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="n">Entity</span><span class="p">(</span><span class="n">kls</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">relationships</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">]),</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="p">])</span>
+</code></pre></div>
+<p>If you use <code>base_entity()</code> with <code>__relationships__</code>, no change is needed — <code>get_diagram()</code> is updated internally.</p>
+<h3 id="2-forward-references-can-use-module-path-syntax">2. Forward references can use module-path syntax</h3>
+<p>If you previously relied on same-module ordering or local <code>setattr(...)</code> workarounds for ER Diagram targets, you can now write forward refs as <code>'package.module:ClassName'</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'owner_id'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'app.dto.user:UserDTO'</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'owner'</span><span class="p">)</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'id'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="s1">'app.dto.post:PostDTO'</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'posts'</span><span class="p">)</span>
+</code></pre></div>
+<p>This is optional and backward compatible.</p>
+<hr />
+<h2 id="v3-to-v4">v3 to v4</h2>
+<p>v4.0 introduces breaking changes to the ER Diagram API, simplifying how relationships are defined.</p>
+<h3 id="1-relationship-parameter-renames">1. Relationship parameter renames</h3>
+<table>
+<thead>
+<tr>
+<th>v3</th>
+<th>v4</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field</code></td>
+<td><code>fk</code></td>
+<td>FK field name on this entity</td>
+</tr>
+<tr>
+<td><code>target_kls</code></td>
+<td><code>target</code></td>
+<td>Target entity class</td>
+</tr>
+<tr>
+<td><code>field_fn</code></td>
+<td><code>fk_fn</code></td>
+<td>Transform function applied to FK value</td>
+</tr>
+<tr>
+<td><code>field_none_default</code></td>
+<td><code>fk_none_default</code></td>
+<td>Default when FK is None</td>
+</tr>
+<tr>
+<td><code>field_none_default_factory</code></td>
+<td><code>fk_none_default_factory</code></td>
+<td>Factory for None default</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># v3</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'user_id'</span><span class="p">,</span> <span class="n">target_kls</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">user_loader</span><span class="p">)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'id'</span><span class="p">,</span> <span class="n">target_kls</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">Post</span><span class="p">],</span> <span class="n">field_none_default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">post_loader</span><span class="p">)</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="c1"># v4</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'user_id'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">user_loader</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'owner'</span><span class="p">)</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'id'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">Post</span><span class="p">],</span> <span class="n">fk_none_default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">post_loader</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'posts'</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="2-relationship-name-is-now-required-replaces-default_field_name">2. Relationship <code>name</code> is now required (replaces <code>default_field_name</code>)</h3>
+<p><code>name</code> is the unique identifier for each relationship. It serves as the GraphQL field name and the lookup key for <code>AutoLoad</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># v3: default_field_name was optional</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'owner_id'</span><span class="p">,</span> <span class="n">target_kls</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">user_loader</span><span class="p">,</span> <span class="n">default_field_name</span><span class="o">=</span><span class="s1">'owner'</span><span class="p">)</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># v4: name is required</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'owner_id'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">User</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">user_loader</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'owner'</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="3-loadby-replaced-by-autoload">3. <code>LoadBy</code> replaced by <code>AutoLoad</code></h3>
+<p><code>AutoLoad</code> no longer requires a FK field name. It resolves the relationship by matching the field name against relationship <code>name</code> values. If the field name differs from the relationship name, use the <code>origin</code> parameter.</p>
+<p><code>AutoLoad</code> is not a global helper. It must be created from the same <code>ErDiagram</code> instance used by the resolver.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># v3</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskResponse</span><span class="p">(</span><span class="n">DefineSubset</span><span class="p">):</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">owner</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">User</span><span class="p">],</span> <span class="n">LoadBy</span><span class="p">(</span><span class="s1">'owner_id'</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="c1"># v4 — field name matches relationship name</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskResponse</span><span class="p">(</span><span class="n">DefineSubset</span><span class="p">):</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="n">owner</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">User</span><span class="p">],</span> <span class="n">AutoLoad</span><span class="p">()]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="c1"># v4 — field name differs from relationship name</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskResponse</span><span class="p">(</span><span class="n">DefineSubset</span><span class="p">):</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    <span class="n">author</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">User</span><span class="p">],</span> <span class="n">AutoLoad</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="s1">'owner'</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># v4 — diagram-bound AutoLoad factory (required)</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">diagram</span> <span class="o">=</span> <span class="n">BaseEntity</span><span class="o">.</span><span class="n">get_diagram</span><span class="p">()</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">AutoLoad</span> <span class="o">=</span> <span class="n">diagram</span><span class="o">.</span><span class="n">create_auto_load</span><span class="p">()</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="n">config_global_resolver</span><span class="p">(</span><span class="n">diagram</span><span class="p">)</span>
+</code></pre></div>
+<p><code>LoadBy</code> parameters <code>biz</code> and <code>origin_kls</code> are removed. Use <code>Relationship.name</code> and <code>AutoLoad(origin=...)</code> instead.</p>
+<h3 id="4-multiplerelationship-and-link-removed">4. <code>MultipleRelationship</code> and <code>Link</code> removed</h3>
+<p>Multiple relationships to the same target entity are now expressed as separate <code>Relationship</code> entries, each with its own <code>name</code>, <code>loader</code>, and behavior.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># v3</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">MultipleRelationship</span><span class="p">(</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">field</span><span class="o">=</span><span class="s1">'user_id'</span><span class="p">,</span> <span class="n">target_kls</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">links</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>        <span class="n">Link</span><span class="p">(</span><span class="n">biz</span><span class="o">=</span><span class="s1">'created'</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">created_loader</span><span class="p">,</span> <span class="n">default_field_name</span><span class="o">=</span><span class="s1">'created_tasks'</span><span class="p">),</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>        <span class="n">Link</span><span class="p">(</span><span class="n">biz</span><span class="o">=</span><span class="s1">'assigned'</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">assigned_loader</span><span class="p">,</span> <span class="n">default_field_name</span><span class="o">=</span><span class="s1">'assigned_tasks'</span><span class="p">),</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="p">]</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="p">)</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="c1"># v4</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'user_id'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="n">loader</span><span class="o">=</span><span class="n">created_loader</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'created_tasks'</span><span class="p">),</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'user_id'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="n">loader</span><span class="o">=</span><span class="n">assigned_loader</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'assigned_tasks'</span><span class="p">),</span>
+</code></pre></div>
+<h3 id="5-deprecated-resolver-parameters-removed">5. Deprecated <code>Resolver</code> parameters removed</h3>
+<p><code>loader_filters</code> and <code>global_loader_filter</code> (deprecated since v1.9.3) have been removed.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># v3 (deprecated, with warning)</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">Resolver</span><span class="p">(</span><span class="n">loader_filters</span><span class="o">=</span><span class="p">{</span><span class="o">...</span><span class="p">},</span> <span class="n">global_loader_filter</span><span class="o">=</span><span class="p">{</span><span class="o">...</span><span class="p">})</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># v4</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="n">Resolver</span><span class="p">(</span><span class="n">loader_params</span><span class="o">=</span><span class="p">{</span><span class="o">...</span><span class="p">},</span> <span class="n">global_loader_param</span><span class="o">=</span><span class="p">{</span><span class="o">...</span><span class="p">})</span>
+</code></pre></div>
+<h3 id="6-field_fn-renamed-to-fk_fn">6. <code>field_fn</code> renamed to <code>fk_fn</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># v3</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'tags'</span><span class="p">,</span> <span class="n">target_kls</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">Tag</span><span class="p">],</span> <span class="n">field_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">))</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># v4</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'tags'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">Tag</span><span class="p">],</span> <span class="n">fk_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'tags'</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="7-__pydantic_resolve_relationships__-removed">7. <code>__pydantic_resolve_relationships__</code> removed</h3>
+<p>Use <code>__relationships__</code> only.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># v3</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskEntity</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">BaseEntity</span><span class="p">):</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">__pydantic_resolve_relationships__</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="c1"># v4</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskEntity</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">BaseEntity</span><span class="p">):</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    <span class="n">__relationships__</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="8-loaderdepend-removed">8. <code>LoaderDepend</code> removed</h3>
+<p>Use <code>Loader</code> only.</p>
+<h3 id="9-model_config-decorator-removed">9. <code>model_config</code> decorator removed</h3>
+<p>Use <code>serialization</code> only.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># v3</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_resolve</span><span class="w"> </span><span class="kn">import</span> <span class="n">model_config</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="nd">@model_config</span><span class="p">()</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">Data</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="n">hidden</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># v4</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_resolve</span><span class="w"> </span><span class="kn">import</span> <span class="n">serialization</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="nd">@serialization</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">Data</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    <span class="n">hidden</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="n">schema</span> <span class="o">=</span> <span class="n">Data</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">'serialization'</span><span class="p">)</span>
+</code></pre></div>
+<p><code>serialization</code> recursively processes nested models, applies <code>exclude=True</code> handling, and sets <code>required</code> fields in serialization schema.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../api_use_case_mcp/" class="md-footer__link md-footer__link--prev" aria-label="Previous: UseCase MCP API">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                UseCase MCP API
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../changelog/" class="md-footer__link md-footer__link--next" aria-label="Next: Changelog">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Changelog
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.top", "navigation.footer", "toc.follow", "header.autohide", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.links.target_blank"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

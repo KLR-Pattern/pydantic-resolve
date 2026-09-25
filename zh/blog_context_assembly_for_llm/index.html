@@ -1,0 +1,2536 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="LLM 上下文装配是数据装配问题，不是 prompt 工程问题。pydantic-resolve 的 resolve_*、post_*、Collector 一一对应三类真实痛点（N+1 LLM 调用、跨子树聚合、prompt 形状耦合），并以 open-webui 等生产级 AI 代码佐证。">
+      
+      
+        <meta name="author" content="tangkikodo">
+      
+      
+        <link rel="canonical" href="https://allmonday.github.io/pydantic-resolve/zh/blog_context_assembly_for_llm/">
+      
+      
+        <link rel="prev" href="../blog_rest_graphql_and_er_diagram/">
+      
+      
+      
+        
+          <link rel="alternate" href="../../blog_context_assembly_for_llm/" hreflang="en">
+        
+          <link rel="alternate" href="./" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>把「上下文窗口」当作数据装配问题：pydantic-resolve 在 AI 工作流里的位置 - Pydantic-resolve</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-9P2E638G4H"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-9P2E638G4H",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-9P2E638G4H",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pydantic-resolve-ai" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../" title="Pydantic-resolve" class="md-header__button md-logo" aria-label="Pydantic-resolve" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pydantic-resolve
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              把「上下文窗口」当作数据装配问题：pydantic-resolve 在 AI 工作流里的位置
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="light-blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="light-blue"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="选择当前语言">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../blog_context_assembly_for_llm/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/allmonday/pydantic-resolve" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    allmonday/pydantic-resolve
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../dataloader_deep_dive/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  进阶
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api_resolver/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API 参考
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../migration/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  参考
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture_entity_first/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  文章
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../" title="Pydantic-resolve" class="md-nav__button md-logo" aria-label="Pydantic-resolve" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pydantic-resolve
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/allmonday/pydantic-resolve" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    allmonday/pydantic-resolve
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    指南
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    指南
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick_start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core_api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心 API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../post_processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    后处理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross_layer_data_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    跨层数据流
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../erd_and_autoload/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ERD 与 AutoLoad
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    进阶
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    进阶
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataloader_deep_dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataLoader 深入
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../erd_define_subset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ERD 与 DefineSubset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../orm_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ORM 集成
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fastapi_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FastAPI 集成
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../graphql_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL 指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp_service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP 服务
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use_case_mcp_service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UseCase MCP 服务
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../voyager_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Voyager 可视化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API 参考
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API 参考
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_resolver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Resolver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_dataloader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataLoader 工具
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_cross_layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    跨层注解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_erd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ER 图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_subset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DefineSubset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_graphql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_use_case_mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UseCase MCP API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    参考
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    参考
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    迁移指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    文章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    文章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_entity_first/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python 的整洁架构实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog_pydantic_resolve_vs_orm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    重塑数据构建的开发体验：pydantic-resolve vs SQLAlchemy ORM 查询对比
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog_rest_graphql_and_er_diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST 与 GraphQL 之争，漏掉了关键的一层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    把「上下文窗口」当作数据装配问题：pydantic-resolve 在 AI 工作流里的位置
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    把「上下文窗口」当作数据装配问题：pydantic-resolve 在 AI 工作流里的位置
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一段典型的 AI 代码
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        「上下文窗口」其实是数据装配问题
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        三类典型的装配痛点
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="三类典型的装配痛点">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#n1-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        痛点一：N+1 LLM 调用
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        痛点二：跨子树聚合没有归宿
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        痛点三：prompt 形状和数据获取耦合
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        重新定义：LLM 上下文 = 响应树
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        机制映射
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        走查：客服 Agent 上下文
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="走查：客服 Agent 上下文">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        对比：与其他方案的差异
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entity-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        同一个 Entity graph，驱动四类消费者
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        什么时候用，什么时候别用
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一段典型的 AI 代码
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        「上下文窗口」其实是数据装配问题
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        三类典型的装配痛点
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="三类典型的装配痛点">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#n1-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        痛点一：N+1 LLM 调用
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        痛点二：跨子树聚合没有归宿
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        痛点三：prompt 形状和数据获取耦合
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        重新定义：LLM 上下文 = 响应树
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        机制映射
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        走查：客服 Agent 上下文
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="走查：客服 Agent 上下文">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        对比：与其他方案的差异
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entity-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        同一个 Entity graph，驱动四类消费者
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        什么时候用，什么时候别用
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="pydantic-resolve-ai">把「上下文窗口」当作数据装配问题：pydantic-resolve 在 AI 工作流里的位置</h1>
+<h2 id="ai">一段典型的 AI 代码</h2>
+<p>打开你项目里任何一个调用 LLM 的服务，你大概率会看到这样的函数：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">build_support_context</span><span class="p">(</span><span class="n">ticket_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">ticket</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Ticket</span><span class="p">,</span> <span class="n">ticket_id</span><span class="p">)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">customer</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Customer</span><span class="p">,</span> <span class="n">ticket</span><span class="o">.</span><span class="n">customer_id</span><span class="p">)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">recent_tickets</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Ticket</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="n">Ticket</span><span class="o">.</span><span class="n">customer_id</span> <span class="o">==</span> <span class="n">customer</span><span class="o">.</span><span class="n">id</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">Ticket</span><span class="o">.</span><span class="n">created_at</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="c1"># 召回相似的历史工单</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">embedding</span> <span class="o">=</span> <span class="k">await</span> <span class="n">embed</span><span class="p">(</span><span class="n">ticket</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">similar</span> <span class="o">=</span> <span class="k">await</span> <span class="n">vector_store</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="c1"># 每个相似工单都要拉一下它的解决记录</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">similar_with_resolution</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">similar</span><span class="p">:</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="n">resolution</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Resolution</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>            <span class="n">Resolution</span><span class="o">.</span><span class="n">ticket_id</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">id</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="n">similar_with_resolution</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>            <span class="s2">"title"</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>            <span class="s2">"resolution"</span><span class="p">:</span> <span class="n">resolution</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">resolution</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="p">})</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="c1"># 拼标签</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">all_tags</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">recent_tickets</span><span class="p">:</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="n">all_tags</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="c1"># 最后再让 LLM 总结一遍</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">llm</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>        <span class="n">customer</span><span class="o">=</span><span class="n">customer</span><span class="p">,</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>        <span class="n">recent_tickets</span><span class="o">=</span><span class="n">recent_tickets</span><span class="p">,</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>        <span class="n">similar</span><span class="o">=</span><span class="n">similar_with_resolution</span><span class="p">,</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>    <span class="p">)</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">"""</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="s2">Customer: </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (id=</span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="s2">Recent tickets: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">recent_tickets</span><span class="p">)</span><span class="si">}</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="s2">Tags: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_tags</span><span class="p">))</span><span class="si">}</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="s2">Similar past cases:</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="si">{</span><span class="n">format_similar</span><span class="p">(</span><span class="n">similar_with_resolution</span><span class="p">)</span><span class="si">}</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="s2">Summary: </span><span class="si">{</span><span class="n">summary</span><span class="si">}</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="s2">"""</span>
+</code></pre></div>
+<p>函数不算长，但已经能看出问题：<strong>这是一个 <code>build_context()</code> 函数，本质上在做数据装配，但形状完全是过程式的</strong>。</p>
+<p>它和 pydantic-resolve 在 <a href="../architecture_entity_first/">Clean Architecture for Python</a> 里批评的那段 FastAPI 代码是同构的——只是把"组装 API 响应"换成了"组装 prompt 上下文"。问题没变：</p>
+<ul>
+<li>数据获取逻辑散落在函数体里，没有结构。</li>
+<li>派生字段（<code>all_tags</code>、<code>summary</code>）的依赖关系靠注释和顺序维系。</li>
+<li>向量召回、数据库查询、LLM 调用混在一个函数里，每加一类上下文就要修改这个函数。</li>
+<li>如果要做并发优化（同时召回多个相似工单），需要重写。</li>
+<li>如果要复用其中一部分（比如只要 <code>recent_tickets</code> 给前端用），做不到。</li>
+</ul>
+<p>这段代码不是写得不好。<strong>是它没有家</strong>。</p>
+<h2 id="_1">「上下文窗口」其实是数据装配问题</h2>
+<p>讨论 LLM 应用时，注意力通常会先落在 prompt 模板、模型选择、温度参数上。这些当然重要，但当应用规模变大之后，<strong>真正的瓶颈会从 prompt 工程转移到上下文装配</strong>。</p>
+<p>原因是：prompt 模板是稳定的，模型选择是稳定的，<strong>但「要喂给 LLM 什么数据」每次调用都不一样</strong>。一个客服 Agent 处理工单 A 和工单 B，prompt 模板可以完全一样，但底层数据装配的逻辑可能要走完全不同的路径——A 是 VIP 客户、要拉 SLA、要召回相似工单；B 是普通客户、只要基本上下文。</p>
+<p>这种"同一个模板，不同的数据装配路径"的需求，<strong>就是 API 响应组装的需求</strong>。你的 FastAPI 项目里早就在解决它——为不同的 endpoint 组装不同的响应树。LLM 上下文只是又一个 endpoint，只是消费者不是 HTTP 客户端，而是 LLM。</p>
+<p>把这个视角切换过来之后，问题就具体了。pydantic-resolve 在 API 那一侧解决得很好的事情，在 LLM 这一侧同样成立：</p>
+<table>
+<thead>
+<tr>
+<th>API 响应装配</th>
+<th>LLM 上下文装配</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多层嵌套（Sprint → Task → Owner）</td>
+<td>多层嵌套（Customer → Ticket → Similar Ticket）</td>
+</tr>
+<tr>
+<td>关联数据批量加载</td>
+<td>关联上下文批量召回</td>
+</tr>
+<tr>
+<td>派生字段（<code>task_count</code>、<code>contributors</code>）</td>
+<td>派生上下文（<code>summary</code>、<code>aggregated_tags</code>）</td>
+</tr>
+<tr>
+<td>N+1 数据库查询</td>
+<td>N+1 向量召回 + N+1 LLM 调用</td>
+</tr>
+<tr>
+<td>跨子树聚合（所有 owner 去重）</td>
+<td>跨子树聚合（所有相似工单的证据合并）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>右列的每一项，左列早就有解。</strong> 我们只需要把同一套机制搬过来。</p>
+<h2 id="_2">三类典型的装配痛点</h2>
+<p>把上面那段 <code>build_support_context</code> 拆开看，可以归出三类症状。这三类症状不只在客服场景出现，几乎在所有 LLM 应用里都会反复出现。</p>
+<h3 id="n1-llm">痛点一：N+1 LLM 调用</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">similar</span><span class="p">:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">resolution</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Resolution</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">...</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</code></pre></div>
+<p>这段代码在 ORM 那一侧就是经典的 N+1。在 LLM 场景里更严重——你可能在循环里调用 LLM：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">similar</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">s</span><span class="o">.</span><span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">llm</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>   <span class="c1"># 5 个相似工单 = 5 次串行 LLM 调用</span>
+</code></pre></div>
+<p>LLM 调用比数据库查询贵一个数量级，串行 N+1 直接放大成本和延迟。<strong>而没有 batching 抽象的代码，最后都会演化成这样</strong>——因为没有人会在过程式代码里主动维护一个 batch queue。</p>
+<div class="admonition example">
+<p class="admonition-title">真实代码佐证：open-webui</p>
+<p><code>backend/open_webui/utils/middleware.py:2635</code>（commit <code>02dc3e6</code>, 2026-06）</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">all_skill_ids</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">if</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">accessible_skill_ids</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="n">s</span> <span class="o">=</span> <span class="k">await</span> <span class="n">SkillsModel</span><span class="o">.</span><span class="n">get_skill_by_id</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>   <span class="c1"># 串行 N+1</span>
+</code></pre></div>
+<p>同文件至少还有 3 处同类模式（folder lookup、tool connection、access check），都是循环里 <code>await</code> IO。open-webui 是生产级 AI 应用，依然落入这个陷阱——证明这不是"写得不好"，是过程式代码本身缺 batching 抽象。</p>
+</div>
+<h3 id="_3">痛点二：跨子树聚合没有归宿</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">all_tags</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">recent_tickets</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">all_tags</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span>
+</code></pre></div>
+<p>这种"遍历子树收集一些东西"的逻辑，在过程式代码里只能写成全局变量 + for 循环。一旦聚合需求变多——所有相似工单的 resolution、所有涉及的产品、所有提及的功能——就会出现一堆 <code>all_xxx = []</code> 列表，散落在函数各处，靠人为约定维系。</p>
+<p>更糟糕的是，<strong>这些聚合逻辑本属于"父节点对子节点的依赖"</strong>，但在过程式代码里它和子节点的获取逻辑分开了。子节点获取在 <code>for t in recent_tickets</code> 上面，聚合在下面，父节点对子节点的依赖关系变成了"代码行号顺序"。</p>
+<div class="admonition example">
+<p class="admonition-title">真实代码佐证：open-webui</p>
+<p><code>backend/open_webui/utils/middleware.py</code> 的 chat completion 编排（commit <code>02dc3e6</code>, 2026-06）</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">sources</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">flags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'sources'</span><span class="p">,</span> <span class="p">[]))</span>   <span class="c1"># line 2882</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">sources</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">flags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'sources'</span><span class="p">,</span> <span class="p">[]))</span>   <span class="c1"># line 2892</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span> <span class="k">if</span> <span class="o">...</span><span class="p">]</span>      <span class="c1"># line 2909：中途重新过滤</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">'sources'</span><span class="p">:</span> <span class="n">sources</span><span class="p">})</span>        <span class="c1"># line 2916：又一个累加器</span>
+</code></pre></div>
+<p><code>sources</code> 和 <code>events</code> 没有任何"父子依赖"的结构化声明，靠 <code>extend</code> 在多个 handler 之间手工维系。这就是上一节说的"聚合没有归宿"——它不是某个项目的偶然缺陷，而是过程式代码处理多源上下文的必然形态。</p>
+</div>
+<h3 id="prompt">痛点三：prompt 形状和数据获取耦合</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">return</span> <span class="sa">f</span><span class="s2">"""</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="s2">Customer: </span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (id=</span><span class="si">{</span><span class="n">customer</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="s2">...</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="s2">Summary: </span><span class="si">{</span><span class="n">summary</span><span class="si">}</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="s2">"""</span>
+</code></pre></div>
+<p>最后这个 f-string 把所有事情焊在了一起：<strong>数据获取、派生计算、prompt 格式</strong>。改 prompt 模板要碰数据代码，改数据获取要碰 prompt 文本，加一个字段要从头改到尾。</p>
+<p>这就是过程式代码的极限：<strong>它没有结构，所以一切变化都是侵入式的</strong>。</p>
+<div class="admonition example">
+<p class="admonition-title">真实代码佐证：open-webui</p>
+<p><code>backend/open_webui/utils/middleware.py:931</code> 的 <code>get_source_context</code>（commit <code>02dc3e6</code>, 2026-06）</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_source_context</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">context_string</span> <span class="o">=</span> <span class="s1">''</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="k">for</span> <span class="n">doc</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'document'</span><span class="p">,</span> <span class="p">[]),</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>                             <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'metadata'</span><span class="p">,</span> <span class="p">[])):</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>            <span class="n">context_string</span> <span class="o">+=</span> <span class="p">(</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>                <span class="sa">f</span><span class="s1">'&lt;source id="</span><span class="si">{</span><span class="o">...</span><span class="si">}</span><span class="s1">" name="</span><span class="si">{</span><span class="o">...</span><span class="si">}</span><span class="s1">"&gt;</span><span class="si">{</span><span class="n">body</span><span class="si">}</span><span class="s1">&lt;/source&gt;</span><span class="se">\n</span><span class="s1">'</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>            <span class="p">)</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="k">return</span> <span class="n">context_string</span>
+</code></pre></div>
+<p>数据遍历、XML 模板字符串、f-string 格式化全焊在一个函数里——和本文开篇那段虚构的 <code>build_support_context()</code> 在结构上完全一致。这不是巧合，而是过程式 LLM 代码的典型形态。</p>
+</div>
+<h2 id="llm">重新定义：LLM 上下文 = 响应树</h2>
+<p>有了上面三类痛点的诊断，解法就清楚了：<strong>把 LLM 上下文当作一棵响应树来组装</strong>。</p>
+<p>在 API 那一侧，你已经熟悉这套语言了：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SprintView</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">tasks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TaskView</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">task_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>           <span class="c1"># post_*</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">Loader</span><span class="p">(</span><span class="n">task_loader</span><span class="p">)):</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        <span class="k">return</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">post_task_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span>
+</code></pre></div>
+<p>把这套语言搬到 LLM 场景，只需要换个视角：<strong>树根不是 Sprint，是某个对话上下文；叶子不是 Task，是某个会被 LLM 读到的字段</strong>。最终你 <code>model_dump()</code> 出来，要么直接喂给 prompt 模板，要么 JSON 序列化之后作为 tool call 的参数。</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph Tree["上下文响应树"]
+        Ctx["SupportContext&lt;br/&gt;对话上下文"]
+        Cust["CustomerView"]
+        Tickets["list[TicketView]"]
+        Similar["list[SimilarTicketView]"]
+        Summary["summary (post_*)"]
+        Ctx --&gt; Cust
+        Ctx --&gt; Tickets
+        Tickets --&gt; Similar
+        Ctx --&gt; Summary
+    end
+    Tree --&gt;|model_dump + prompt template| LLM["LLM"]</code></pre>
+<p>树的形状由你的 Pydantic 模型决定，数据由 <code>resolve_*</code> 拉取，派生字段由 <code>post_*</code> 计算，跨子树聚合由 <code>Collector</code> 完成。<strong>和 API 响应用的是同一套机制、同一个 Resolver、同一套 batch loader。</strong></p>
+<h2 id="_4">机制映射</h2>
+<p>把上一节的视角落实到 API，就是三组一一对应的映射：</p>
+<table>
+<thead>
+<tr>
+<th>AI 装配需求</th>
+<th>pydantic-resolve 原语</th>
+<th>在 LLM 场景里的角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>拉外部知识（DB、向量库、外部 API）</td>
+<td><code>resolve_*</code> + <code>Loader</code></td>
+<td>召回相关文档、相似工单、用户画像</td>
+</tr>
+<tr>
+<td>子树就绪后调用 LLM 做派生</td>
+<td><code>post_*</code>（支持 async）</td>
+<td>摘要、分类、风险评估——<code>post_*</code> 的执行点保证子树已完整</td>
+</tr>
+<tr>
+<td>跨子树聚合证据 / 标签 / 片段</td>
+<td><code>Collector</code> + <code>SendTo</code></td>
+<td>把分散在叶子节点的信号汇聚到根，喂给 LLM 作为 grounding</td>
+</tr>
+</tbody>
+</table>
+<p>三个原语正好覆盖了上一节诊断的三类痛点。下面用一个具体例子走查。</p>
+<h2 id="agent">走查：客服 Agent 上下文</h2>
+<p>把开篇那段 <code>build_support_context</code> 用 pydantic-resolve 重写。先看模型定义：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Optional</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_resolve</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">Collector</span><span class="p">,</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">Resolver</span><span class="p">,</span> <span class="n">SendTo</span><span class="p">,</span> <span class="n">build_list</span><span class="p">,</span> <span class="n">build_object</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">)</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1"># ---------- 数据访问层（loader） ----------</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">customer_loader</span><span class="p">(</span><span class="n">customer_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CustomerView</span><span class="p">]:</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Customer</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Customer</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">customer_ids</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="k">return</span> <span class="n">build_object</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">customer_ids</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ticket_loader</span><span class="p">(</span><span class="n">ticket_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="c1"># 用于按 customer_id 拉最近工单</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    <span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Ticket</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>        <span class="n">Ticket</span><span class="o">.</span><span class="n">customer_id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">ticket_ids</span><span class="p">)</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">Ticket</span><span class="o">.</span><span class="n">created_at</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">ticket_ids</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>    <span class="k">return</span> <span class="n">build_list</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ticket_ids</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">customer_id</span><span class="p">)</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">similar_ticket_loader</span><span class="p">(</span><span class="n">ticket_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]:</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>    <span class="c1"># 一次批量向量召回：对所有 query embedding 同时检索</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>    <span class="n">queries</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Ticket</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Ticket</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">ticket_ids</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>    <span class="n">embeddings</span> <span class="o">=</span> <span class="k">await</span> <span class="n">embed_batch</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">description</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">])</span>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">vector_store</span><span class="o">.</span><span class="n">batch_search</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>        <span class="n">t</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>    <span class="p">}</span>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a>
+<a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a><span class="c1"># ---------- 上下文模型树 ----------</span>
+<a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a>
+<a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a><span class="k">class</span><span class="w"> </span><span class="nc">SimilarTicketView</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a>    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a>    <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<a id="__codelineno-9-38" name="__codelineno-9-38" href="#__codelineno-9-38"></a>
+<a id="__codelineno-9-39" name="__codelineno-9-39" href="#__codelineno-9-39"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">Loader</span><span class="p">(</span><span class="n">resolution_loader</span><span class="p">)):</span>
+<a id="__codelineno-9-40" name="__codelineno-9-40" href="#__codelineno-9-40"></a>        <span class="k">return</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<a id="__codelineno-9-41" name="__codelineno-9-41" href="#__codelineno-9-41"></a>
+<a id="__codelineno-9-42" name="__codelineno-9-42" href="#__codelineno-9-42"></a>
+<a id="__codelineno-9-43" name="__codelineno-9-43" href="#__codelineno-9-43"></a><span class="k">class</span><span class="w"> </span><span class="nc">TicketView</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-9-44" name="__codelineno-9-44" href="#__codelineno-9-44"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-9-45" name="__codelineno-9-45" href="#__codelineno-9-45"></a>    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-9-46" name="__codelineno-9-46" href="#__codelineno-9-46"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-9-47" name="__codelineno-9-47" href="#__codelineno-9-47"></a>    <span class="n">customer_id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-9-48" name="__codelineno-9-48" href="#__codelineno-9-48"></a>    <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-9-49" name="__codelineno-9-49" href="#__codelineno-9-49"></a>    <span class="n">similar</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SimilarTicketView</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-9-50" name="__codelineno-9-50" href="#__codelineno-9-50"></a>    <span class="n">resolution_summary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>   <span class="c1"># post_*, LLM 派生</span>
+<a id="__codelineno-9-51" name="__codelineno-9-51" href="#__codelineno-9-51"></a>
+<a id="__codelineno-9-52" name="__codelineno-9-52" href="#__codelineno-9-52"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_similar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">Loader</span><span class="p">(</span><span class="n">similar_ticket_loader</span><span class="p">)):</span>
+<a id="__codelineno-9-53" name="__codelineno-9-53" href="#__codelineno-9-53"></a>        <span class="k">return</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<a id="__codelineno-9-54" name="__codelineno-9-54" href="#__codelineno-9-54"></a>
+<a id="__codelineno-9-55" name="__codelineno-9-55" href="#__codelineno-9-55"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post_resolution_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-9-56" name="__codelineno-9-56" href="#__codelineno-9-56"></a>        <span class="c1"># 子树就绪后调用 LLM：相似工单的 resolution 都已 resolve 完</span>
+<a id="__codelineno-9-57" name="__codelineno-9-57" href="#__codelineno-9-57"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">similar</span><span class="p">:</span>
+<a id="__codelineno-9-58" name="__codelineno-9-58" href="#__codelineno-9-58"></a>            <span class="k">return</span> <span class="s2">""</span>
+<a id="__codelineno-9-59" name="__codelineno-9-59" href="#__codelineno-9-59"></a>        <span class="k">return</span> <span class="k">await</span> <span class="n">llm</span><span class="o">.</span><span class="n">summarize_resolutions</span><span class="p">(</span>
+<a id="__codelineno-9-60" name="__codelineno-9-60" href="#__codelineno-9-60"></a>            <span class="n">ticket_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+<a id="__codelineno-9-61" name="__codelineno-9-61" href="#__codelineno-9-61"></a>            <span class="n">resolutions</span><span class="o">=</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">resolution</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">similar</span><span class="p">],</span>
+<a id="__codelineno-9-62" name="__codelineno-9-62" href="#__codelineno-9-62"></a>        <span class="p">)</span>
+<a id="__codelineno-9-63" name="__codelineno-9-63" href="#__codelineno-9-63"></a>
+<a id="__codelineno-9-64" name="__codelineno-9-64" href="#__codelineno-9-64"></a>
+<a id="__codelineno-9-65" name="__codelineno-9-65" href="#__codelineno-9-65"></a><span class="k">class</span><span class="w"> </span><span class="nc">SupportContext</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-9-66" name="__codelineno-9-66" href="#__codelineno-9-66"></a><span class="w">    </span><span class="sd">"""根上下文：直接对应一次 LLM 调用需要的信息。"""</span>
+<a id="__codelineno-9-67" name="__codelineno-9-67" href="#__codelineno-9-67"></a>    <span class="n">ticket_id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-9-68" name="__codelineno-9-68" href="#__codelineno-9-68"></a>    <span class="n">ticket</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TicketView</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-9-69" name="__codelineno-9-69" href="#__codelineno-9-69"></a>    <span class="n">customer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CustomerView</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-9-70" name="__codelineno-9-70" href="#__codelineno-9-70"></a>    <span class="n">recent_tickets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TicketView</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-9-71" name="__codelineno-9-71" href="#__codelineno-9-71"></a>
+<a id="__codelineno-9-72" name="__codelineno-9-72" href="#__codelineno-9-72"></a>    <span class="c1"># Collector 聚合所有子节点的标签</span>
+<a id="__codelineno-9-73" name="__codelineno-9-73" href="#__codelineno-9-73"></a>    <span class="n">all_tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-9-74" name="__codelineno-9-74" href="#__codelineno-9-74"></a>    <span class="c1"># 根节点的 LLM 摘要：等整个子树 ready 后才跑</span>
+<a id="__codelineno-9-75" name="__codelineno-9-75" href="#__codelineno-9-75"></a>    <span class="n">grounded_summary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<a id="__codelineno-9-76" name="__codelineno-9-76" href="#__codelineno-9-76"></a>
+<a id="__codelineno-9-77" name="__codelineno-9-77" href="#__codelineno-9-77"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_ticket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">Loader</span><span class="p">(</span><span class="n">ticket_by_id_loader</span><span class="p">)):</span>
+<a id="__codelineno-9-78" name="__codelineno-9-78" href="#__codelineno-9-78"></a>        <span class="k">return</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ticket_id</span><span class="p">)</span>
+<a id="__codelineno-9-79" name="__codelineno-9-79" href="#__codelineno-9-79"></a>
+<a id="__codelineno-9-80" name="__codelineno-9-80" href="#__codelineno-9-80"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_customer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">Loader</span><span class="p">(</span><span class="n">customer_loader</span><span class="p">)):</span>
+<a id="__codelineno-9-81" name="__codelineno-9-81" href="#__codelineno-9-81"></a>        <span class="k">return</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ticket</span><span class="o">.</span><span class="n">customer_id</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ticket</span> <span class="k">else</span> <span class="kc">None</span>
+<a id="__codelineno-9-82" name="__codelineno-9-82" href="#__codelineno-9-82"></a>
+<a id="__codelineno-9-83" name="__codelineno-9-83" href="#__codelineno-9-83"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_recent_tickets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">Loader</span><span class="p">(</span><span class="n">ticket_loader</span><span class="p">)):</span>
+<a id="__codelineno-9-84" name="__codelineno-9-84" href="#__codelineno-9-84"></a>        <span class="k">return</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">customer</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer</span> <span class="k">else</span> <span class="p">[]</span>
+<a id="__codelineno-9-85" name="__codelineno-9-85" href="#__codelineno-9-85"></a>
+<a id="__codelineno-9-86" name="__codelineno-9-86" href="#__codelineno-9-86"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">post_all_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collector</span><span class="o">=</span><span class="n">Collector</span><span class="p">(</span><span class="s2">"tag_pool"</span><span class="p">)):</span>
+<a id="__codelineno-9-87" name="__codelineno-9-87" href="#__codelineno-9-87"></a>        <span class="c1"># Collector 在所有子 TicketView 上游收集标签</span>
+<a id="__codelineno-9-88" name="__codelineno-9-88" href="#__codelineno-9-88"></a>        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">collector</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+<a id="__codelineno-9-89" name="__codelineno-9-89" href="#__codelineno-9-89"></a>
+<a id="__codelineno-9-90" name="__codelineno-9-90" href="#__codelineno-9-90"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post_grounded_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-9-91" name="__codelineno-9-91" href="#__codelineno-9-91"></a>        <span class="c1"># 整棵树就绪后调用 LLM</span>
+<a id="__codelineno-9-92" name="__codelineno-9-92" href="#__codelineno-9-92"></a>        <span class="k">return</span> <span class="k">await</span> <span class="n">llm</span><span class="o">.</span><span class="n">summarize_context</span><span class="p">(</span>
+<a id="__codelineno-9-93" name="__codelineno-9-93" href="#__codelineno-9-93"></a>            <span class="n">customer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">customer</span><span class="p">,</span>
+<a id="__codelineno-9-94" name="__codelineno-9-94" href="#__codelineno-9-94"></a>            <span class="n">ticket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ticket</span><span class="p">,</span>
+<a id="__codelineno-9-95" name="__codelineno-9-95" href="#__codelineno-9-95"></a>            <span class="n">recent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">recent_tickets</span><span class="p">,</span>
+<a id="__codelineno-9-96" name="__codelineno-9-96" href="#__codelineno-9-96"></a>            <span class="n">all_tags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">all_tags</span><span class="p">,</span>
+<a id="__codelineno-9-97" name="__codelineno-9-97" href="#__codelineno-9-97"></a>        <span class="p">)</span>
+<a id="__codelineno-9-98" name="__codelineno-9-98" href="#__codelineno-9-98"></a>
+<a id="__codelineno-9-99" name="__codelineno-9-99" href="#__codelineno-9-99"></a>
+<a id="__codelineno-9-100" name="__codelineno-9-100" href="#__codelineno-9-100"></a><span class="k">class</span><span class="w"> </span><span class="nc">TicketView</span><span class="p">(</span><span class="n">TicketView</span><span class="p">):</span>  <span class="c1"># 同一个 TicketView 既能作为根的 recent，也能向上送标签</span>
+<a id="__codelineno-9-101" name="__codelineno-9-101" href="#__codelineno-9-101"></a>    <span class="n">tags</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">SendTo</span><span class="p">(</span><span class="s2">"tag_pool"</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[]</span>
+</code></pre></div>
+<p>调用方式：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">ctx</span> <span class="o">=</span> <span class="n">SupportContext</span><span class="p">(</span><span class="n">ticket_id</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">ctx</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Resolver</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">prompt</span> <span class="o">=</span> <span class="n">render_prompt</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">model_dump</span><span class="p">())</span>  <span class="c1"># 直接喂模板</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">llm</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="_5">执行流程</h3>
+<pre class="mermaid"><code>flowchart TB
+    A["Resolver().resolve(SupportContext(ticket_id=42))"] --&gt; B["resolve_ticket&lt;br/&gt;拉取主工单"]
+    B --&gt; C["resolve_customer&lt;br/&gt;拉取客户"]
+    C --&gt; D["resolve_recent_tickets&lt;br/&gt;批量拉取客户最近 5 个工单"]
+    D --&gt; E["每个 TicketView.resolve_similar&lt;br/&gt;批量向量召回"]
+    E --&gt; F["每个 SimilarTicketView.resolve_resolution&lt;br/&gt;批量拉取解决记录"]
+    F --&gt; G["每个 TicketView.post_resolution_summary&lt;br/&gt;批量调用 LLM 摘要"]
+    G --&gt; H["SupportContext.post_all_tags&lt;br/&gt;Collector 聚合所有 tags"]
+    H --&gt; I["SupportContext.post_grounded_summary&lt;br/&gt;根节点 LLM 摘要"]
+    I --&gt; J["ctx.model_dump()"]</code></pre>
+<p>关键点逐条对照之前的三类痛点：</p>
+<ul>
+<li><strong>痛点一（N+1 LLM 调用）</strong>：所有 <code>TicketView.post_resolution_summary</code> 在同一层级，pydantic-resolve 会<strong>批量调度</strong>它们的 LLM 调用——你不再需要在循环里手动 <code>gather</code>，框架替你做了。如果你愿意进一步批量化，可以把 LLM 调用本身也封进一个 <code>Loader</code>（同模板的多个请求合并成一次 batch API 调用）。</li>
+<li><strong>痛点二（跨子树聚合）</strong>：<code>all_tags</code> 通过 <code>Collector("tag_pool")</code> 聚合，<code>TicketView.tags</code> 用 <code>SendTo("tag_pool")</code> 声明它要送什么上去。聚合逻辑有了固定的家，不再靠 for 循环和全局变量。</li>
+<li><strong>痛点三（形状与获取耦合）</strong>：prompt 模板和模型定义分离——<code>render_prompt(ctx.model_dump())</code>。改 prompt 文本不动模型代码；加字段不改 prompt 模板；数据获取逻辑各自独立在 <code>resolve_*</code> 里。</li>
+</ul>
+<h3 id="_6">输出结果</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">"ticket_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">"ticket"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Login button unresponsive on Safari"</span><span class="p">,</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="nt">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"auth"</span><span class="p">,</span><span class="w"> </span><span class="s2">"safari"</span><span class="p">],</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="nt">"similar"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Safari click event issue"</span><span class="p">,</span><span class="w"> </span><span class="nt">"resolution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">187</span><span class="p">,</span><span class="w"> </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WebKit pointer-events bug"</span><span class="p">,</span><span class="w"> </span><span class="nt">"resolution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="nt">"resolution_summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Likely a WebKit pointer-events issue; see ticket #187."</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">  </span><span class="nt">"customer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Acme Corp"</span><span class="p">,</span><span class="w"> </span><span class="nt">"tier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"enterprise"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">  </span><span class="nt">"recent_tickets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">],</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">  </span><span class="nt">"all_tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"auth"</span><span class="p">,</span><span class="w"> </span><span class="s2">"billing"</span><span class="p">,</span><span class="w"> </span><span class="s2">"safari"</span><span class="p">,</span><span class="w"> </span><span class="s2">"webkit"</span><span class="p">],</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">  </span><span class="nt">"grounded_summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Enterprise customer Acme Corp reported a Safari-specific login issue..."</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="p">}</span>
+</code></pre></div>
+<p>这棵树既可以直接序列化喂给 LLM，也可以拆开使用——比如把 <code>recent_tickets</code> 字段单独返回给前端 dashboard，零额外代码。</p>
+<h2 id="_7">对比：与其他方案的差异</h2>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>数据装配位置</th>
+<th>N+1 防护</th>
+<th>跨子树聚合</th>
+<th>与 API 响应复用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>手写 <code>build_context()</code></td>
+<td>函数体内联</td>
+<td>无</td>
+<td>全局变量 / for 循环</td>
+<td>无法复用</td>
+</tr>
+<tr>
+<td>LangChain retrieval chain</td>
+<td>Chain 节点串联</td>
+<td>取决于实现</td>
+<td>通过 chain 拼接</td>
+<td>与 API 完全分离</td>
+</tr>
+<tr>
+<td>裸 RAG（embed → search → stuff）</td>
+<td>几行内联代码</td>
+<td>通常单次</td>
+<td>无</td>
+<td>与 API 完全分离</td>
+</tr>
+<tr>
+<td>pydantic-resolve 上下文树</td>
+<td>模型字段声明</td>
+<td>内建 batching</td>
+<td><code>Collector</code> / <code>SendTo</code></td>
+<td>与 API 响应同源</td>
+</tr>
+</tbody>
+</table>
+<p>值得说明的是和 LangChain 的关系——<strong>这不是替代关系</strong>。LangChain 解决的是"LLM 调用链的编排"，pydantic-resolve 解决的是"调用链每一步要消费的数据怎么装配"。在复杂的 Agent 流水线里，两者完全可以叠用：pydantic-resolve 负责为每一步准备好结构化上下文，LangChain（或任何 agent 框架）负责调度执行。</p>
+<h2 id="entity-graph">同一个 Entity graph，驱动四类消费者</h2>
+<p>走到这一步，一个更深层的收益浮现出来了。</p>
+<p>当你的项目用 ERD 模式之后，<strong>REST、GraphQL、MCP、LLM Context 这四类消费者，全部从同一份 Entity graph 派生</strong>：</p>
+<pre class="mermaid"><code>flowchart TB
+    ERD["Entity + ER Diagram&lt;br/&gt;关系定义的唯一来源"]
+    ERD --&gt; REST["REST Response&lt;br/&gt;传统 API 消费者"]
+    ERD --&gt; GQL["GraphQL&lt;br/&gt;灵活查询消费者"]
+    ERD --&gt; MCP["MCP Service&lt;br/&gt;AI Agent 工具消费者"]
+    ERD --&gt; CTX["LLM Context Tree&lt;br/&gt;AI Agent 上下文消费者"]
+    REST --&gt; Resolver["同一个 Resolver 引擎"]
+    GQL --&gt; Resolver
+    CTX --&gt; Resolver
+    MCP --&gt; GQL</code></pre>
+<p>也就是说：</p>
+<ul>
+<li>你为客服 dashboard 写的 <code>TicketView</code>，<strong>就是</strong>给 LLM 用的 <code>TicketView</code>，<strong>就是</strong>给 MCP 暴露的 GraphQL 节点。</li>
+<li>"Task 有一个 owner"这条关系定义只写一次，四类消费者全部自动复用。</li>
+<li>关系变了，四个地方同时更新；新增消费者，关系定义不动。</li>
+</ul>
+<p>这是 pydantic-resolve 在 AI 工作流里真正的位置——<strong>不是又一个 LLM 框架，而是给 AI 上下文一个稳定的数据装配家</strong>。当 AI Agent 逐渐成为你系统的标准消费者之一时，这种"同源"的收益会越来越显著。</p>
+<h2 id="_8">什么时候用，什么时候别用</h2>
+<p><strong>值得用的场景：</strong></p>
+<ul>
+<li>LLM 上下文需要 2 层以上嵌套（根对象 + 关联数据 + 关联的关联）。</li>
+<li>同一份领域模型既要给 API 又要给 LLM 用。</li>
+<li>出现了"per-item 调用 LLM"的循环——N+1 在烧钱。</li>
+<li>跨子树要聚合证据 / 标签 / 片段喂给 LLM 做 grounding。</li>
+<li>Agent 多步流程里，每一步都需要装配上下文。</li>
+</ul>
+<p><strong>不值得用的场景：</strong></p>
+<ul>
+<li>上下文就是一段静态文本 + 几个变量——直接 f-string 就好。</li>
+<li>一次性脚本、原型——过程式代码更快。</li>
+<li>LLM 调用只有一次、没有关联数据拉取——<code>resolve_*</code> 是多余的抽象。</li>
+<li>已经在用 LangChain 且 chain 编排已经稳定——再叠一层 pydantic-resolve 反而增加认知负担。</li>
+</ul>
+<p>判断标准很简单：<strong>当你开始写第二个 <code>build_xxx_context()</code> 函数，且发现它和第一个有重叠时，就该考虑迁移了</strong>。这正是 pydantic-resolve 在 API 那一侧的 adoption 信号——只是这一次，消费者从浏览器换成了 LLM。</p>
+<h2 id="_9">结论</h2>
+<p>LLM 应用的代码复杂度，最终会落在<strong>上下文装配</strong>上，而不是 prompt 模板上。今天的 AI 项目里到处是手写的 <code>build_context()</code> 函数，承担着当年 FastAPI 项目里 Service/Route 的散落逻辑——而那一类问题，pydantic-resolve 已经在 API 那一侧解过一遍了。</p>
+<p>把 LLM 上下文当作响应树来看，三个原语刚好覆盖三类痛点：</p>
+<ul>
+<li><code>resolve_*</code> 拉外部知识，自带 batching，干掉 N+1。</li>
+<li><code>post_*</code> 作为 LLM 钩子，在子树就绪后批量调度，prompt 形状和数据获取解耦。</li>
+<li><code>Collector</code> / <code>SendTo</code> 给跨子树聚合一个固定的家，不再靠全局变量。</li>
+</ul>
+<p>更宏观的收益是：你的 Entity graph 第一次有了<strong>四类标准消费者</strong>——REST、GraphQL、MCP、LLM Context——关系定义只写一次。AI 不是又一个需要重新建图的特殊场景，它就是同一棵树的另一个读者。</p>
+<p><strong>投资你的领域模型，而不是投资 prompt 模板。</strong> 当上下文窗口越长、Agent 流程越复杂，这个原则的红利就越大。</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../blog_rest_graphql_and_er_diagram/" class="md-footer__link md-footer__link--prev" aria-label="上一页: REST 与 GraphQL 之争，漏掉了关键的一层">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                REST 与 GraphQL 之争，漏掉了关键的一层
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.top", "navigation.footer", "toc.follow", "header.autohide", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.links.target_blank"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

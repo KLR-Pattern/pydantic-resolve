@@ -1,0 +1,4326 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Release-by-release changelog for pydantic-resolve, following semver — major for breaking changes, minor for new features, patch for bug fixes. Most recent: 6.2.0.">
+      
+      
+        <meta name="author" content="tangkikodo">
+      
+      
+        <link rel="canonical" href="https://allmonday.github.io/pydantic-resolve/changelog/">
+      
+      
+        <link rel="prev" href="../migration/">
+      
+      
+        <link rel="next" href="../benchmark/">
+      
+      
+        
+          <link rel="alternate" href="./" hreflang="en">
+        
+          <link rel="alternate" href="../zh/changelog/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Changelog - Pydantic-resolve</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-9P2E638G4H"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-9P2E638G4H",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-9P2E638G4H",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Pydantic-resolve" class="md-header__button md-logo" aria-label="Pydantic-resolve" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pydantic-resolve
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="light-blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="light-blue"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../zh/changelog/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/allmonday/pydantic-resolve" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    allmonday/pydantic-resolve
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../dataloader_deep_dive/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Advanced
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api_resolver/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../migration/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../architecture_entity_first/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Articles
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Pydantic-resolve" class="md-nav__button md-logo" aria-label="Pydantic-resolve" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pydantic-resolve
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/allmonday/pydantic-resolve" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    allmonday/pydantic-resolve
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick_start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core_api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../post_processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Post Processing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross_layer_data_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Layer Data Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../erd_and_autoload/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ERD and AutoLoad
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Advanced
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataloader_deep_dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataLoader Deep Dive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../erd_define_subset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ERD with DefineSubset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../orm_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ORM Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fastapi_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FastAPI Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../graphql_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp_service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use_case_mcp_service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UseCase MCP Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../voyager_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Voyager Visualization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_resolver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Resolver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_dataloader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataLoader Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_cross_layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Layer Annotations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_erd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ER Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_subset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DefineSubset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_graphql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_use_case_mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UseCase MCP API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#620-2026-09-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.0 (2026-09-26)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#611-2026-09-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1.1 (2026-09-23)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#610-2026-8-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1.0 (2026-8-2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#60" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#600-2026-7-31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.0.0 (2026-7-31)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#510" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.10">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5105-2026-6-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.5 (2026-6-30)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5104-2026-6-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.4 (2026-6-25)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5103-2026-6-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.3 (2026-6-25)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5102-2026-6-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.2 (2026-6-24)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5101-2026-6-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.1 (2026-6-24)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5100-2026-6-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.0 (2026-6-19)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#58" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.8
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.8">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#580-2026-6-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.8.0 (2026-6-8)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#59" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.9
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.9">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#590-2026-6-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.9.0 (2026-6-9)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#57" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.7
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.7">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#570-2026-5-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.7.0 (2026-5-21)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#56" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.6">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#563-2026-5-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6.3 (2026-5-21)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#562-2026-5-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6.2 (2026-5-20)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#561-2026-5-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6.1 (2026-5-20)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#560-2026-5-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6.0 (2026-5-9)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#550-2026-5-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5.0 (2026-5-9)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#540-2026-5-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4.0 (2026-5-8)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#531-2026-4-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.1 (2026-4-22)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#530-2026-4-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.0 (2026-4-22)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#520-2026-4-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2.0 (2026-4-18)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#510-2026-4-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1.0 (2026-4-13)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#50" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#501-2026-4-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.0.1 (2026-4-11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#500-2026-4-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.0.0 (2026-4-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.1
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v4.1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v410-2026-4-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.1.0 (2026-4-2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v40" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v4.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v401-2026-4-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.0.1 (2026-4-1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v400-2026-3-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.0.0 (2026-3-29)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.3
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3.3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#330-2026-3-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.0 (2026-3-27)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v323-2026-3-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2.3 (2026-3-24)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v322-2026-3-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2.2 (2026-3-23)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v321-2026-3-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2.1 (2026-3-22)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v320-2026-3-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2.0 (2026-3-19)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.1
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3.1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v311-2026-3-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.1.1 (2026-3-18)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v310-2026-3-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.1.0 (2026-3-16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v307-2026-3-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.7 (2026-3-5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v306-2026-3-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.6 (2026-3-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v305-2026-3-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.5 (2026-3-2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v304-2026-3-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.4 (2026-3-1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v303-2026-3-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.3 (2026-3-1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v302-2026-3-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.2 (2026-3-1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v301-2026-2-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.1 (2026-2-28)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v300-2026-2-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.0 (2026-2-27)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v250-2026-2-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.0 (2026-2-21)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v250alpha2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.0alpha2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v250alpha1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.0alpha1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v250alpha" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.0alpha
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.4
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v247-2026-1-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.4.7 (2026-1-29)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v246-2026-1-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.4.6 (2026-1-28)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Articles
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Articles
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_entity_first/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clean Architecture for Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog_pydantic_resolve_vs_orm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reframing Data Assembly: pydantic-resolve vs SQLAlchemy ORM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog_rest_graphql_and_er_diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST vs GraphQL and the Missing Layer: ER Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog_context_assembly_for_llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Treat the Context Window as a Data Assembly Problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#620-2026-09-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.0 (2026-09-26)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#611-2026-09-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1.1 (2026-09-23)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#610-2026-8-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1.0 (2026-8-2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#60" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#600-2026-7-31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.0.0 (2026-7-31)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#510" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.10">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5105-2026-6-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.5 (2026-6-30)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5104-2026-6-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.4 (2026-6-25)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5103-2026-6-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.3 (2026-6-25)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5102-2026-6-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.2 (2026-6-24)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5101-2026-6-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.1 (2026-6-24)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5100-2026-6-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10.0 (2026-6-19)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#58" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.8
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.8">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#580-2026-6-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.8.0 (2026-6-8)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#59" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.9
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.9">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#590-2026-6-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.9.0 (2026-6-9)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#57" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.7
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.7">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#570-2026-5-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.7.0 (2026-5-21)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#56" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.6">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#563-2026-5-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6.3 (2026-5-21)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#562-2026-5-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6.2 (2026-5-20)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#561-2026-5-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6.1 (2026-5-20)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#560-2026-5-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6.0 (2026-5-9)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#550-2026-5-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5.0 (2026-5-9)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#540-2026-5-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4.0 (2026-5-8)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#531-2026-4-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.1 (2026-4-22)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#530-2026-4-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.0 (2026-4-22)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#520-2026-4-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2.0 (2026-4-18)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#510-2026-4-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1.0 (2026-4-13)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#50" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#501-2026-4-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.0.1 (2026-4-11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#500-2026-4-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.0.0 (2026-4-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.1
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v4.1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v410-2026-4-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.1.0 (2026-4-2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v40" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v4.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v401-2026-4-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.0.1 (2026-4-1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v400-2026-3-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.0.0 (2026-3-29)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.3
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3.3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#330-2026-3-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.0 (2026-3-27)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v323-2026-3-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2.3 (2026-3-24)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v322-2026-3-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2.2 (2026-3-23)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v321-2026-3-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2.1 (2026-3-22)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v320-2026-3-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2.0 (2026-3-19)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.1
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3.1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v311-2026-3-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.1.1 (2026-3-18)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v310-2026-3-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.1.0 (2026-3-16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v307-2026-3-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.7 (2026-3-5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v306-2026-3-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.6 (2026-3-3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v305-2026-3-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.5 (2026-3-2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v304-2026-3-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.4 (2026-3-1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v303-2026-3-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.3 (2026-3-1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v302-2026-3-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.2 (2026-3-1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v301-2026-2-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.1 (2026-2-28)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v300-2026-2-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.0 (2026-2-27)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.5">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v250-2026-2-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.0 (2026-2-21)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v250alpha2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.0alpha2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v250alpha1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.0alpha1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v250alpha" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.0alpha
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.4
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v247-2026-1-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.4.7 (2026-1-29)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v246-2026-1-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.4.6 (2026-1-28)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="changelog">Changelog</h1>
+<ul>
+<li><strong>Major (X.0.0)</strong>: Major new features or breaking changes</li>
+<li><strong>Minor (x.Y.0)</strong>: New features, backward compatible</li>
+<li><strong>Patch (x.y.Z)</strong>: Bug fixes and minor improvements</li>
+</ul>
+<h2 id="62">6.2</h2>
+<h3 id="620-2026-09-26">6.2.0 (2026-09-26)</h3>
+<p>Compose query composition release: <strong>GraphQL variables</strong>, <strong>method-level aliases</strong>, and <strong>three-state mutation feedback</strong> on the compose surface (#314), plus scalar <code>Literal</code> typing fixed on the graphql main path (#316, #317).</p>
+<ul>
+<li>feat:</li>
+<li><strong>GraphQL variables on compose</strong> (#314): <code>UseCaseResources.compose(query, context, variables)</code> and the <code>compose_query</code> MCP tool accept a <code>variables</code> dict; <code>$var</code> references in arguments resolve from it (object/list values recurse). Declared-but-missing variables fail fast before any execution, and declared defaults (<code>$t: String = "x"</code>) are never auto-applied — every declared variable must be passed explicitly. Multi-operation documents are rejected loudly (compose has no <code>operationName</code> channel).</li>
+<li><strong>Method-level aliases with independent invocations</strong> (#314): <code>a: get_task(task_id: 1) b: get_task(task_id: 2)</code> runs two independent calls; the response is keyed by the alias (service-level aliases work the same way). Duplicate response keys — alias repeats, alias/field-name collisions, plain duplicate fields — raise <code>ResponseKeyConflictError</code>, since every <code>(service, method, args)</code> tuple is a real invocation and merging would silently drop calls. Nested (DTO-level) aliases are rejected with a shared message; the entity-first executor keeps rejecting all aliases.</li>
+<li>
+<p><strong>Three-state mutation feedback</strong> (#314): within one compose call, <code>@mutation</code> methods run serially in declaration order — a succeeded call keeps its result, a failed call nulls only its own response key with <code>MUTATION_FAILED</code>, and every later mutation is skipped with <code>SKIPPED_PRIOR_FAILURE</code>. Queries run concurrently, each failure isolated to its own key (<code>QUERY_FAILED</code>). Already-executed writes are never erased from the response: query-shape validation (unknown fields, missing selections, DTO-leaf arguments) runs BEFORE any method executes, and a runtime projection failure nulls only its own key (<code>PROJECTION_FAILED</code>). <code>compose()</code> now returns the <code>{"data": ..., "errors": [...]}</code> envelope; execution failures surface in <code>errors</code> instead of raising.</p>
+</li>
+<li>
+<p>fix:</p>
+</li>
+<li><strong>Scalar <code>Literal</code> annotations map to their shared GraphQL scalar on the graphql main path</strong> (#316, #317): previously every <code>Literal</code> fell through <code>map_scalar_type</code>'s lenient string-matching fallback and became <code>String</code> — <code>Literal[1, 2]</code> rendered <code>String!</code> (clients generated string inputs for int/bool literals), and <code>Literal[..., None]</code> was forced <code>NON_NULL</code> although the Python type allows null. <code>map_scalar_type</code> now maps a Literal to the scalar shared by its values and raises at schema-build time for Literals with no correct mapping: mixed value types (with a "use an Enum instead" recommendation — enum members may mix value types), enum members, and all-<code>None</code>. A <code>None</code> member renders the input field nullable, matching the <code>Optional[T]</code> treatment. The validation rules now live in <code>graphql/type_mapping.py</code> as the single source shared by the compose and entity-first paths. <code>Allowed values: ...</code> also surfaces on the entity-first path: introspection entity fields, input fields, and method args carry it in their descriptions, and SDL emits docstring blocks on Literal fields (schemas without Literals are byte-identical). <strong>SDL surface change</strong>: Literal fields of int/bool/float values change from <code>String</code> to <code>Int</code> / <code>Boolean</code> / <code>Float</code>; SDL consumers should regenerate types.</li>
+<li><strong>Four shared-lineage backports</strong> (#313): compose enum wire-name coercion (<code>_promote_enum_names</code> — the compose schema renders enum members by <em>name</em> while Pydantic validates by <em>value</em>); entity-first enum arguments now convert name-first with value fallback and raise <code>EnumWireError</code> loudly on invalid wire values (previously swallowed and passed into the method body as a raw string); compose scalar-Literal support (superseded by the #317 main-path extraction above); multi-operation document rejection (also in #314).</li>
+</ul>
+<h2 id="61">6.1</h2>
+<h3 id="611-2026-09-23">6.1.1 (2026-09-23)</h3>
+<p>Python 3.14 compatibility release — the project always claimed 3.13/3.14 support in classifiers, but 6.1.0 shipped two 3.14-specific regressions (PEP 649/749 lazy annotations) that this version fixes. CI now actually exercises 3.12/3.13/3.14.</p>
+<ul>
+<li>fix:</li>
+<li><strong><code>DefineSubset</code> extra fields are detected on Python 3.14</strong> (#307, #308): Python 3.14 (PEP 649/749) no longer puts an eager <code>__annotations__</code> dict in the raw class namespace handed to a metaclass — it carries a lazy <code>__annotate_func__</code> instead, and the dict only materializes after <code>type.__new__</code>. <code>SubsetMeta</code> builds its model via <code>create_model</code> and never passes the namespace through <code>type.__new__</code>, so <code>_extract_extra_fields_from_namespace</code> always saw <code>{}</code> on 3.14 and silently dropped every field declared directly on a <code>DefineSubset</code> class body — including its AutoLoad hidden-FK injection and the "duplicates subset field" validation. <code>_get_namespace_annotations</code> now evaluates <code>__annotate_func__</code> on 3.14+ (with a <code>Format.FORWARDREF</code> fallback for names not yet resolvable) and reads <code>__annotations__</code> on older versions.</li>
+<li><strong>class-field annotations are read on Python 3.14</strong> (#309, #310): Python 3.14 computes class annotations lazily and no longer stores <code>__annotations__</code> in the class <code>__dict__</code> (modules using <code>from __future__ import annotations</code> keep the legacy eager dict and were unaffected — which masked the breakage in the existing loader-context tests). <code>get_class_field_annotations</code> therefore returned nothing on 3.14 for plain modules, silently disabling loader <code>_context</code> detection (<code>_loader_requires_context</code> → context never injected, <code>LoaderContextNotProvidedError</code> never raised) and <code>copy_dataloader_kls</code> param inheritance. <code>_get_class_own_annotations</code> now falls back to <code>annotationlib.get_annotations</code> on 3.14+ (own-annotations-only semantics identical to the old <code>__dict__</code> read; <code>Format.FORWARDREF</code> fallback for unresolvable deferred names — a plain attribute-access fallback would silently drop the whole annotation set on <code>NameError</code>). Also relaxes the <code>get_core_types</code> order assertions to multiset comparison: on 3.14 <code>typing._tp_cache</code> deduplicates subscripted generics by set-equality (<code>List[Union[int, str]] is List[Union[str, int]]</code>), so union member order follows whichever same-member alias the process materialized first — order is not part of <code>get_core_types</code>' contract and no caller depends on it.</li>
+<li>
+<p><strong><code>use_case</code> entity scanning works on Python 3.14</strong> (#312): <code>asyncio.iscoroutinefunction</code> (deprecated on 3.14, removed in 3.16) replaced with <code>inspect.iscoroutinefunction</code> in <code>business.py</code> — under <code>filterwarnings = error</code> the old call raised during import of every <code>use_case</code> service module on 3.14.</p>
+</li>
+<li>
+<p>ci:</p>
+</li>
+<li>Test matrix now runs Python <strong>3.12 / 3.13 / 3.14</strong> (previously 3.12 only — both 3.14 regressions above were invisible to it), adds a <code>pull_request</code> trigger so fork PRs get CI, and <code>make test-matrix</code> mirrors the matrix locally.</li>
+</ul>
+<h3 id="610-2026-8-2">6.1.0 (2026-8-2)</h3>
+<ul>
+<li>fix:</li>
+<li>
+<p><strong><code>UUID</code> / <code>DateTime</code> / <code>Date</code> / <code>Time</code> are now first-class GraphQL scalars</strong> (port of nexusx #104 / #92 / #105): <code>uuid.UUID</code>, <code>datetime</code>, <code>date</code>, and <code>time</code> previously fell back to <code>String</code> everywhere — the scalar map only knew <code>int</code>/<code>str</code>/<code>float</code>/<code>bool</code>, and <code>map_scalar_type</code> used fragile substring matching. SDL rendered <code>id: UUID</code> as <code>id: String!</code>, introspection never advertised the scalars, and <code>@query</code> / <code>@mutation</code> params of these types (including <code>list[UUID]</code>, <code>list[datetime]</code>, <code>Optional[T]</code>) arrived as raw strings — crashing SQLAlchemy/SQLModel on <code>UUID</code> / <code>datetime</code> column binding. They now render as <code>UUID!</code> / <code>DateTime!</code> / <code>Date!</code> / <code>Time!</code> in SDL, are advertised as scalars in <code>__schema</code>, and are coerced to real Python objects on the input side. The introspection scalar list and <code>TypeRegistry._scalars</code> are now derived from the single <code>SCALAR_TYPES</code> registry so they can't drift.</p>
+<p><strong>SDL surface change</strong> (why this is a minor, not a patch): fields/args of these types change from <code>String</code> to <code>UUID</code> / <code>DateTime</code> / <code>Date</code> / <code>Time</code>. Transport is unchanged (still string-serialized ISO 8601 / UUID). SDL consumers (graphql-codegen, Apollo) will see new scalar names and should regenerate types. <code>Decimal</code> is unchanged (still <code>String</code>).</p>
+</li>
+</ul>
+<h2 id="60">6.0</h2>
+<h3 id="600-2026-7-31">6.0.0 (2026-7-31)</h3>
+<p><strong>BREAKING CHANGES</strong> — entity <code>@query</code> / <code>@mutation</code> operations are now grouped by entity under <code>{Entity}Query</code> / <code>{Entity}Mutation</code> types. Client GraphQL queries, the response shape, and the MCP schema tools must all be updated. The Python surface (<code>Entity</code>, <code>@query</code> / <code>@mutation</code> decorators, <code>GraphQLHandler</code>) is unchanged. See <a href="../migration/">Migration Guide</a> for details.</p>
+<ul>
+<li>break:</li>
+<li><strong>Grouped entity operations</strong>: each entity's <code>@query</code> / <code>@mutation</code> methods are now the fields of a <code>{Entity}Query</code> / <code>{Entity}Mutation</code> group OBJECT, and the root <code>Query</code> / <code>Mutation</code> mounts one NON_NULL field per entity. Method names are used <strong>verbatim</strong> — the old <code>entityPrefix + MethodCamel</code> camelCase (<code>userEntityGetAll</code>) is gone.<ul>
+<li>Client queries: <code>{ userEntityGetAll(limit: 10) { id } }</code> → <code>{ UserEntity { get_all(limit: 10) { id } } }</code>.</li>
+<li>Response shape: <code>data["userEntityGetAll"]</code> → <code>data["UserEntity"]["get_all"]</code> (nested per entity group).</li>
+<li>Selecting a bare group <code>{ UserEntity }</code> with no method subselection now returns a <code>BARE_GROUP_FIELD</code> error listing available methods; unknown group / method errors carry a GraphQL <code>path</code> (<code>["UserEntity"]</code> / <code>["UserEntity", "get_all"]</code>).</li>
+</ul>
+</li>
+<li><strong>MCP tool signatures</strong> (<code>get_query_schema</code> / <code>get_mutation_schema</code>): the single <code>name: str</code> argument becomes <code>entity: str, method: str</code>. <code>list_queries</code> / <code>list_mutations</code> now return one entry per method — <code>{entity, method, name ("&lt;entity&gt;.&lt;method&gt;"), description}</code> — instead of a flat root-field list. This keeps identifiers unique when two entities share a method name.</li>
+<li>
+<p><strong>Removed dead naming utils</strong>: <code>pydantic_resolve/graphql/utils/naming.py</code> (<code>to_camel_case</code>, <code>to_graphql_field_name</code>) is deleted. The only naming helper now is <code>group_type_name(entity_name, suffix)</code> in <code>pydantic_resolve/graphql/utils/__init__.py</code>.</p>
+</li>
+<li>
+<p>feat:</p>
+</li>
+<li><strong>Centralized group-type naming</strong>: <code>group_type_name(entity_name, "Query" | "Mutation")</code> is the single source of truth for <code>{Entity}Query</code> / <code>{Entity}Mutation</code> type names, shared by the SDL generator, the introspection generator, and the executor's error messages so they cannot drift apart.</li>
+<li>
+<p><strong>Eager scan-time conflict detection</strong> (<code>pydantic_resolve/graphql/schema_errors.py</code>): new <code>ReservedEntityError</code> (entity class named <code>Query</code> / <code>Mutation</code> / <code>Subscription</code>), <code>ReservedMethodFieldError</code> (<code>__</code>-prefixed method field), and <code>DuplicateMethodError</code> (two methods resolving to the same field name) all fire at scan time instead of last-writer-wins. The checks live in <code>scan_grouped_methods</code>, shared by <code>GraphQLHandler.__init__</code> <strong>and</strong> standalone <code>SchemaBuilder.build_schema()</code>, so a broken entity graph fails fast regardless of entry point — previously the standalone SDL path silently emitted invalid duplicate-field SDL.</p>
+</li>
+<li>
+<p>fix:</p>
+</li>
+<li><strong><code>generate_operation_sdl</code> reflects the grouped layout</strong>: the per-operation SDL used for MCP progressive disclosure now renders the root mount (<code>UserEntity: UserEntityQuery!</code>) plus the <code>{Entity}Query</code> group type wrapping the method, instead of a misleading flat root field — so AI consumers construct valid grouped queries rather than <code>{ get_all { } }</code> at the root.</li>
+<li><strong>Execution-time errors carry <code>path</code></strong>: query and mutation method failures now include <code>path: [entity, method]</code>, matching the validation errors (previously the location was only embedded as a dotted label inside <code>message</code>).</li>
+</ul>
+<h2 id="510">5.10</h2>
+<h3 id="5105-2026-6-30">5.10.5 (2026-6-30)</h3>
+<ul>
+<li>fix:</li>
+<li>
+<p><strong><code>copy_dataloader_kls</code> copies inherit the parent loader's annotated fields (#302)</strong>: <code>get_class_field_annotations</code> in <code>pydantic_resolve/utils/types.py</code> now walks <code>cls.__mro__</code> and merges <code>__annotations__</code> from every class in the chain, instead of reading only <code>cls.__dict__['__annotations__']</code>. Without this fix, <code>copy_dataloader_kls('Foo', ParentLoader)</code> produces a <code>class NewLoader(ParentLoader): pass</code> whose own <code>__dict__['__annotations__']</code> is empty, so <code>_create_loader_instance</code> could no longer see fields like <code>user_id: int</code> / <code>permission: str</code> declared on the parent — the <code>setattr</code> injection loop ran zero times and the loader instance later raised <code>AttributeError: 'Foo' object has no attribute 'user_id'</code> from inside <code>batch_load_fn</code>. Direct subclasses of <code>DataLoader</code> (the common case) were unaffected because their own <code>__dict__</code> carried the annotations.</p>
+<p><strong>Bug history</strong> — the <code>cls.__dict__.get('__annotations__')</code> lookup was a latent bug from <code>e637541</code> (2023-04-06, "global filter"), present for 3+ years. It was masked until <code>ba8762e</code> (2026-05-14, "Replace type() factory with inheritance in empty loaders and <code>copy_dataloader_kls</code>") changed <code>copy_dataloader_kls</code> from <code>type(name, loader_kls.__bases__, dict(loader_kls.__dict__))</code> to the standard <code>class NewLoader(loader_kls): pass</code>. The old <code>type()</code> factory shallow-copied the parent's <code>__dict__</code> into the new class — including <code>__annotations__</code> — so the lookup accidentally worked. The refactor correctly fixed the original state-isolation bug (#265/#266: copies sharing mutable class attributes via shallow <code>__dict__</code>), but in doing so dropped the <code>__annotations__</code> copy and activated this latent issue. Symptom window: ~6 weeks (2026-05-14 → 2026-06-30).</p>
+<p><strong>Why not <code>cls.__annotations__.keys()</code></strong> — Python's attribute lookup returns the <em>first</em> <code>__annotations__</code> found in the MRO, not a merge. So <code>class Child(Parent): extra: str</code> would yield only <code>{'extra': str}</code> and drop the parent's fields. The explicit <code>reversed(cls.__mro__)</code> walk merges annotations across all levels (subclass overrides win on key collision).</p>
+<p><strong>Side effects</strong> — (1) <code>analysis.py</code>'s <code>_is_loader_context_required</code> uses the same function, so copies of <code>_context</code>-aware loaders are now correctly recognized as needing context injection (previously silently skipped). (2) Walking the full MRO also surfaces <code>aiodataloader.DataLoader</code>'s own annotated fields (<code>batch</code>, <code>cache</code>, <code>max_batch_size</code>); all of these have class-level defaults, so <code>_create_loader_instance</code>'s existing <code>if has_default and field not in param_config: continue</code> branch skips them unchanged. (3) Two existing tests in <code>tests/utils/test_types.py</code> and <code>tests/utils/test_utils.py</code> had been encoding the old "only-this-class" behavior with explicit comments; both are updated to assert the merged-MRO semantics, and a new <code>test_copy_dataloader_kls_inherits_parent_annotations</code> regression covers the reported scenario.</p>
+</li>
+</ul>
+<h3 id="5104-2026-6-25">5.10.4 (2026-6-25)</h3>
+<ul>
+<li>fix:</li>
+<li><strong>Compose JSON serialization for UUID-like values</strong>: <code>use_case.compose</code> now serializes projected <code>BaseModel</code> results in Pydantic JSON mode, recursively serializes <code>dict</code> payloads, and applies JSON-mode fallback serialization for scalar values such as <code>uuid.UUID</code>. This fixes compose responses that previously leaked raw Python objects for UUID fields, especially inside nested dictionaries.</li>
+</ul>
+<h3 id="5103-2026-6-25">5.10.3 (2026-6-25)</h3>
+<ul>
+<li>fix:</li>
+<li><strong>Resolver instance state isolation (#289)</strong>: <code>object_level_collect_alias_map_store</code> is now reset at the start of every <code>resolve()</code> call instead of accumulating across trees; a new <code>_in_resolve</code> guard with <code>try/finally</code> raises a clear <code>RuntimeError</code> when the same <code>Resolver</code> instance is shared across concurrent <code>resolve()</code> calls (previously surfaced as a cryptic <code>KeyError: 'resolve_params'</code>); <code>_make_nodes</code> / <code>_collect_children</code> no longer eagerly evaluate <code>class_util.get_kls_full_name(kls)</code> on every cache hit (<code>dict.get(k, expensive_default)</code> was paying the default argument on every child node — 50 leaves produced 55 calls instead of 4). Documented the one-Resolver-per-concurrent-call contract in <code>Resolver</code>'s class docstring and <code>docs/api_resolver.md</code> / <code>docs/fastapi_integration.md</code> (EN + ZH).</li>
+<li><strong><code>Profile.Timer.timeset</code> no longer grows unboundedly (#290)</strong>: <code>Timer.end()</code> now uses <code>self.timeset.pop(id)</code> instead of <code>self.timeset[id]</code>. Previously every debug-mode <code>resolve()</code> pair added one entry to <code>timeset</code> that was never removed, leaking memory proportional to the number of timed method calls in any long-lived <code>Resolver(debug=True)</code> process.</li>
+<li><strong><code>Resolver(context={})</code> rejected up-front (#291)</strong>: empty dict and non-dict <code>context</code> values are now rejected in <code>__init__</code> with <code>ValueError</code> and <code>TypeError</code> respectively, instead of being silently coerced to <code>None</code> via the <code>if context else None</code> falsy check — which previously surfaced later as the misleading <code>AttributeError: context is missing</code> from the unrelated <code>has_context</code> check. <code>Resolver()</code> and <code>Resolver(context=None)</code> still produce <code>self.context = None</code>.</li>
+<li><strong><code>_validate_expose</code> no longer false-positives on inherited <code>__pydantic_resolve_expose__</code> (#292)</strong>: <code>_prepare_class_context</code> now reads <code>__pydantic_resolve_expose__</code> / <code>__pydantic_resolve_collect__</code> from <code>kls.__dict__</code> instead of via <code>getattr</code>, so a subclass that doesn't override the attribute no longer re-registers the parent's aliases into <code>expose_set</code> and triggers a spurious <code>ValueError: Expose alias name conflicts</code> when both classes appear in the same resolve tree. Same change applied to <code>collect_dict</code> for consistency.</li>
+<li><strong><code>_clone_collector</code> reverts to <code>copy.deepcopy</code> (#293)</strong>: the hand-written clone introduced in <code>5.9.0</code> (commit <code>bfba588</code>) bypassed <code>__init__</code> via <code>cls.__new__(cls)</code> and hard-coded <code>new.val = []</code>, silently dropping any attribute a subclass set in <code>__init__</code> (<code>key_fn</code>, <code>n</code>, etc.) and breaking every collector whose <code>val</code> is a dict/set/custom aggregator. <code>copy.deepcopy</code> handles all <code>ICollector</code> implementations transparently. Micro-benchmark: 2.89 us/call (deepcopy) vs 0.13 us/call (hand-written) — 22x ratio but absolute cost is dwarfed by IO in any realistic <code>post_*</code> workload, and end-to-end benchmarks show 0% impact.</li>
+</ul>
+<h3 id="5102-2026-6-24">5.10.2 (2026-6-24)</h3>
+<ul>
+<li>fix:</li>
+<li><strong>UseCase compose: <code>BaseModel</code> arg types now register as <code>INPUT_OBJECT</code> end-to-end</strong>. The arg-side <code>_collect_reachable_types</code> pass is <code>is_input=True</code>, so a <code>payload: CreateTaskInput</code> parameter produces an <code>INPUT_OBJECT</code> type with <code>inputFields</code> populated (previously only the method-arg type ref claimed <code>INPUT_OBJECT</code> while the schema itself had no such type). <code>FieldInfo.default_value</code> is now populated from each pydantic field's default and rendered into <code>inputFields[i].defaultValue</code> as a GraphQL literal (<code>10</code> / <code>null</code> / <code>"hi"</code>), matching how method-arg defaults are serialized.</li>
+<li><strong><code>describe_compose_method</code> expands <code>INPUT_OBJECT</code> types referenced by args</strong>: <code>_collect_reachable_sdl_types</code> now walks <code>INPUT_OBJECT</code> entries (and recurses their fields), and a new <code>_render_struct_type_sdl(keyword="input")</code> branch emits <code>input X { ... }</code> blocks. Previously the method SDL referenced an input type without defining it.</li>
+<li><strong>Same <code>BaseModel</code> as both return and arg no longer produces a spec-violating schema</strong>: GraphQL forbids a type from serving as both <code>OBJECT</code> and <code>INPUT_OBJECT</code>. <code>build_compose_schema</code> now runs in two phases (all returns first, then all args) and renames the arg-side registration to <code>{Name}Input</code> when the class name is already taken by an <code>OBJECT</code>. <code>_build_type_ref</code> consults the registry so arg / input-field type refs pick up the renamed leaf. Tooling that consumes introspection (<code>GraphiQL</code>, <code>graphql-core</code>) sees a valid schema instead of <code>arg.kind=INPUT_OBJECT</code> pointing at a type defined as <code>OBJECT</code>.</li>
+</ul>
+<h3 id="5101-2026-6-24">5.10.1 (2026-6-24)</h3>
+<ul>
+<li>fix:</li>
+<li><strong>Raise on <code>post_default_handler</code> + <code>default_handler</code> field conflict</strong>: previously, when a class declared both a <code>post_default_handler</code> method (reserved finalizer, no field auto-binding) and a <code>default_handler</code> field, the method's return value was silently discarded while the field sat at its declared default — the <code>post_&lt;field&gt;</code> naming convention misled users into expecting the method to populate the field. <code>_scan_and_validate_methods</code> now detects the conflict at metadata-build time and raises <code>ValueError</code> with clear remediation. Backward-compatible: the finalizer behavior is preserved when only the method exists.</li>
+</ul>
+<h3 id="5100-2026-6-19">5.10.0 (2026-6-19)</h3>
+<p>Introduces a <strong>GraphQL surface for UseCase services</strong> — a way to compose multiple <code>UseCaseService</code> methods in a single GraphQL query, plus the schema/introspection machinery that goes with it. MCP is one consumer of this surface (the AI-agent packaging), but the underlying Python APIs (<code>UseCaseResources.compose</code>, <code>compose_introspect</code>, <code>build_compose_schema</code>) work directly from FastAPI or any HTTP framework. See <code>demo/use_case/app_compose.py</code> for a non-MCP HTTP example.</p>
+<p>The classic 4-tool UseCase MCP server (<code>create_use_case_mcp_server</code> / <code>list_services</code> / <code>describe_service</code> / <code>call_use_case</code>) is removed; the GraphQL compose MCP server (<code>create_use_case_graphql_mcp_server</code>) is now the single MCP entry point. graphql-core's role in this codebase narrows to query parsing — type representation, schema construction, and introspection execution all switch to the existing ErDiagram type infrastructure (<code>TypeMapper</code> + <code>TypeInfo</code> registry).</p>
+<ul>
+<li>feat:</li>
+<li><strong>UseCase GraphQL compose</strong> (<code>UseCaseResources.compose(query, context)</code>): execute a fixed 3-level GraphQL query — root → Service → Method → DTO field selection — and return a nested <code>{service: {method: result}}</code> dict. Each <code>@query</code> method runs concurrently via <code>asyncio.gather</code>; <code>@mutation</code> methods run serially in declaration order. Field selection projects each method's return DTO via <code>build_subset_model</code> before serialization. <code>Resolver</code> / <code>AutoLoad</code> on returned DTOs fire normally — business methods are responsible for resolving their own outputs.</li>
+<li><strong>UseCase GraphQL introspection</strong> (<code>compose_introspect(app, query)</code>): GraphiQL-compatible <code>__schema</code> / <code>__type(name: "...")</code> / <code>__typename</code> queries against the app's cached schema registry. Standard 5 built-in directives (<code>skip</code> / <code>include</code> / <code>deprecated</code> / <code>specifiedBy</code> / <code>oneOf</code>) reported. Walks a hand-built <code>{type_name: TypeInfo}</code> registry instead of going through graphql-core.</li>
+<li><strong><code>build_compose_schema(app)</code></strong>: walks UseCaseService classes once at registration time, producing the <code>{type_name: TypeInfo}</code> registry (services as <code>{Service}Query</code> OBJECT, every reachable DTO + Enum, plus the 5 standard GraphQL scalars). Cached on <code>UseCaseResources.compose_schema</code> so introspection and SDL rendering don't rebuild per call.</li>
+<li><strong><code>FromContext</code> marker</strong> + per-app <code>context_extractor</code>: <code>Annotated[int, FromContext()]</code> parameters are server-injected (e.g. user identity extracted from the Authorization header), not settable from query args. Same service method works unchanged across FastAPI (<code>Depends(get_current_user)</code>) and MCP (<code>context_extractor</code>).</li>
+<li><strong><code>create_use_case_graphql_mcp_server(apps)</code></strong>: MCP packaging of the above. 4-layer progressive disclosure — <code>list_apps</code> → <code>describe_compose_schema</code> (service + method listing) → <code>describe_compose_method</code> (args / returns / focused SDL showing every reachable DTO and Enum) → <code>compose_query</code> (data execution). Pure wrapper around the Python APIs; no MCP-specific business logic.</li>
+<li>
+<p><strong>Spec-compliant SDL rendering</strong>: type descriptions above <code>type X {</code>, field descriptions above each field, both as block strings (<code>"""..."""</code>). Enum types referenced by a method's return DTO appear in SDL alongside OBJECT types. See <code>method_sdl(registry, service, method)</code>.</p>
+</li>
+<li>
+<p>refactor:</p>
+</li>
+<li><strong>graphql-core scope narrowed to query parsing only</strong>. Removed <code>pydantic_resolve/graphql/type_converter.py</code> (236 lines) — its <code>pydantic_to_graphql_type</code> is fully replaced by <code>TypeMapper.map_to_graphql_type</code> from the ErDiagram path. The two paths now share one type system instead of running parallel implementations.</li>
+<li><strong>Classic MCP server removed</strong> (pre-release on a feature branch, no breaking change for downstream users). Drops <code>pydantic_resolve/use_case/server.py</code> (480 lines) and <code>demo/use_case/mcp_server.py</code> + <code>mcp_server_with_context.py</code>.</li>
+<li><strong><code>introspector.py</code> removed</strong> (646 lines): never called from the production path; <code>mcp_server</code> + <code>compose_schema</code> already cover the same surface via different code paths.</li>
+<li>
+<p><strong>Shared utilities consolidated</strong>:</p>
+<ul>
+<li><code>TypeMapper.collect_referenced_types(annotation, *, include_enums=True)</code> — single canonical walker for "find every BaseModel/Enum reachable from this annotation". <code>TypeCollector.collect_nested_pydantic_types</code> and <code>utils/openapi._collect_nested_types</code> become thin wrappers.</li>
+<li><code>utils/field_metadata.iter_fields_with_marker(model_cls, marker_cls)</code> — centralizes the <code>ExposeAs</code> / <code>SendTo</code> / <code>AutoLoad</code> field-scan pattern.</li>
+<li><code>GraphQLTypeInfo.leaf_name</code> property — walks NON_NULL / LIST wrappers to the named leaf.</li>
+<li><code>business.iter_use_case_methods(cls, *, enable_mutation=True)</code> — collapses the <code>getattr + kind-filter</code> pattern duplicated across compose_schema and mcp_server.</li>
+<li><code>context.is_from_context_annotation</code> — consolidates 4 inline copies.</li>
+</ul>
+</li>
+<li>
+<p>fix:</p>
+</li>
+<li><strong>Root Query service fields point at the right OBJECT</strong>: previously degraded to a scalar fallback (<code>String</code> / <code>Int</code>) because TypeMapper didn't recognize <code>UseCaseService</code> subclasses. Now correctly renders <code>NON_NULL(OBJECT({Service}Query))</code>.</li>
+<li><strong>GraphQL duplicate fields rejected</strong> instead of silently merged (affects <code>QueryParser</code>).</li>
+<li>
+<p><strong><code>defaultValue</code> uses <code>json.dumps</code></strong> instead of <code>repr</code> so booleans serialize as <code>true</code> / <code>false</code> (not <code>True</code> / <code>False</code>) and strings use double quotes per GraphQL spec.</p>
+</li>
+<li>
+<p>docs:</p>
+</li>
+<li><code>docs/use_case_mcp_service.md</code> + <code>.zh.md</code> rewritten for the compose server (4-layer walkthrough, FromContext + context_extractor pattern, SDL examples).</li>
+<li><code>docs/api_use_case_mcp.md</code> + <code>.zh.md</code> document only <code>create_use_case_graphql_mcp_server</code>.</li>
+<li><code>demo/use_case/services.py</code> enriched with class docstrings + <code>Field(description=...)</code> + a <code>TaskStatus</code> Enum so the SDL output is meaningful end-to-end.</li>
+</ul>
+<h2 id="58">5.8</h2>
+<h3 id="580-2026-6-8">5.8.0 (2026-6-8)</h3>
+<ul>
+<li>feat:</li>
+<li><strong>BFS execution mode for Resolver</strong>: replace recursive DFS traversal with level-by-level BFS. All <code>resolve_*</code> methods at the same level run concurrently via <code>asyncio.gather</code>, maximizing DataLoader batch sizes. Two-phase design: Phase A resolves top-down, Phase B executes <code>post_*</code> bottom-up</li>
+<li>perf:</li>
+<li>
+<p><strong>DataLoader batch efficiency</strong>: same-level resolves now share a single gather call, significantly increasing DataLoader batch coalescing. SQLite P50 comparison (DFS → BFS):</p>
+<p>Medium (20 users, 10 sprints, 200 tasks)</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>DFS (ms)</th>
+<th>BFS (ms)</th>
+<th>Delta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q1: 1-level</td>
+<td>5.57</td>
+<td>3.71</td>
+<td>-33.4%</td>
+</tr>
+<tr>
+<td>Q2: 2-level</td>
+<td>6.28</td>
+<td>4.42</td>
+<td>-29.6%</td>
+</tr>
+<tr>
+<td>Q3: 3-level linear</td>
+<td>5.90</td>
+<td>4.08</td>
+<td>-30.8%</td>
+</tr>
+<tr>
+<td>Q4: wide parallel</td>
+<td>8.32</td>
+<td>5.96</td>
+<td>-28.4%</td>
+</tr>
+</tbody>
+</table>
+<p>Large (50 users, 20 sprints, 1000 tasks)</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>DFS (ms)</th>
+<th>BFS (ms)</th>
+<th>Delta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q1: 1-level</td>
+<td>25.15</td>
+<td>15.53</td>
+<td>-38.3%</td>
+</tr>
+<tr>
+<td>Q2: 2-level</td>
+<td>26.57</td>
+<td>16.88</td>
+<td>-36.5%</td>
+</tr>
+<tr>
+<td>Q3: 3-level linear</td>
+<td>13.04</td>
+<td>8.37</td>
+<td>-35.8%</td>
+</tr>
+<tr>
+<td>Q4: wide parallel</td>
+<td>19.35</td>
+<td>12.92</td>
+<td>-33.2%</td>
+</tr>
+</tbody>
+</table>
+<p>XLarge (200 users, 50 sprints, 2500 tasks)</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>DFS (ms)</th>
+<th>BFS (ms)</th>
+<th>Delta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q1: 1-level</td>
+<td>95.62</td>
+<td>63.25</td>
+<td>-33.9%</td>
+</tr>
+<tr>
+<td>Q2: 2-level</td>
+<td>97.75</td>
+<td>66.94</td>
+<td>-31.5%</td>
+</tr>
+<tr>
+<td>Q3: 3-level linear</td>
+<td>77.77</td>
+<td>31.11</td>
+<td>-60.0%</td>
+</tr>
+<tr>
+<td>Q4: wide parallel</td>
+<td>107.49</td>
+<td>73.18</td>
+<td>-31.9%</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>fix:</p>
+</li>
+<li><strong><code>post_default_handler</code> ordering</strong>: now runs after all named <code>post_*</code> methods complete at the same level, ensuring consistent data visibility</li>
+<li><strong><code>expose_to_descendant</code> timing</strong>: child ancestor context is now built after all resolves at a level finish, so <code>resolve_</code> methods that set expose fields are visible to children</li>
+<li><strong>Debug/profile mode</strong>: restore timing data collection in BFS traversal</li>
+<li>refactor:</li>
+<li>Remove DFS recursive traversal and ContextVar infrastructure (~379 lines)</li>
+<li>Replace bare tuple with <code>_ResolveJob</code> dataclass for resolve job representation</li>
+<li>Extract <code>_traverse</code> into <code>_phase_a_resolve</code>, <code>_phase_b_prepare_collectors</code>, <code>_phase_b_execute_posts</code> for readability</li>
+<li>docs:</li>
+<li>Redesign landing page with Clean Architecture emphasis</li>
+<li>Improve quick start, post-processing, UseCase MCP, and Voyager guides</li>
+<li>Update README with before/after comparison and advanced examples</li>
+</ul>
+<h2 id="59">5.9</h2>
+<h3 id="590-2026-6-9">5.9.0 (2026-6-9)</h3>
+<ul>
+<li>perf:</li>
+<li>
+<p><strong>BFS resolver hot path optimization</strong>: reduce per-node overhead across all BFS phases. Benchmark comparison (5.8.0 → 5.8.1, pytest-benchmark, mean time):</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>5.8.0 (ms)</th>
+<th>5.8.1 (ms)</th>
+<th>Delta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>very_large_dataset</td>
+<td>53.75</td>
+<td>45.68</td>
+<td>-15.0%</td>
+</tr>
+<tr>
+<td>large_dataset_simple_objects</td>
+<td>29.02</td>
+<td>22.56</td>
+<td>-22.3%</td>
+</tr>
+<tr>
+<td>large_dataset_with_post</td>
+<td>20.28</td>
+<td>17.19</td>
+<td>-15.2%</td>
+</tr>
+<tr>
+<td>expose_three_levels</td>
+<td>25.10</td>
+<td>21.72</td>
+<td>-13.5%</td>
+</tr>
+<tr>
+<td>deep_nesting_standard</td>
+<td>14.92</td>
+<td>13.85</td>
+<td>-7.2%</td>
+</tr>
+<tr>
+<td>dataloader</td>
+<td>27.67</td>
+<td>27.41</td>
+<td>-0.9%</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Optimizations applied:</p>
+<ul>
+<li><code>setattr</code> → <code>object.__setattr__</code> to bypass pydantic validation on already-validated values</li>
+<li><code>copy.deepcopy</code> → lightweight <code>_clone_collector</code> for collector cloning in Phase B</li>
+<li><code>isinstance</code> fast path in <code>try_parse_data_to_target_field_type</code> to skip redundant <code>validate_python</code></li>
+<li>Cache <code>kls_path</code> from metadata instead of repeated f-string construction</li>
+<li>Inline metadata lookups, eliminating per-node function call overhead and intermediate allocation</li>
+</ul>
+</li>
+</ul>
+<h2 id="57">5.7</h2>
+<h3 id="570-2026-5-21">5.7.0 (2026-5-21)</h3>
+<ul>
+<li>feat:</li>
+<li><strong>UseCase MCP selection projection for <code>call_use_case</code></strong>: <code>call_use_case</code> now supports response field selection so clients can request focused subsets of nested result data instead of always receiving the full payload</li>
+<li><strong>Selection metadata in service introspection</strong>: UseCase MCP introspection now exposes selection-aware response information, helping MCP clients discover which fields can be projected</li>
+<li>docs:</li>
+<li>Update English and Chinese UseCase MCP docs with selection projection examples and guidance</li>
+<li>test:</li>
+<li>Add coverage for selection projection behavior across UseCase MCP responses</li>
+</ul>
+<h2 id="56">5.6</h2>
+<h3 id="563-2026-5-21">5.6.3 (2026-5-21)</h3>
+<ul>
+<li>fix:</li>
+<li><strong>UseCase MCP fallback type-hint resolution</strong>: unresolved return forward references no longer break runtime parameter coercion or <code>FromContext</code> injection in <code>call_use_case</code>, so execution now stays consistent with <code>describe_service</code></li>
+<li>refactor:</li>
+<li><strong>Shared type-hint resolution helpers</strong>: move use_case fallback annotation resolution into <code>utils/types.py</code> and reuse it across introspection, runtime coercion, and return annotation extraction</li>
+</ul>
+<h3 id="562-2026-5-20">5.6.2 (2026-5-20)</h3>
+<ul>
+<li>fix:</li>
+<li><strong>UseCase MCP type coercion for <code>call_use_case</code></strong>: arguments received from MCP clients (JSON-native types like <code>int</code> passed where <code>str</code> is expected) are now coerced to the correct Python type using Pydantic <code>TypeAdapter</code> before being passed to the underlying method</li>
+</ul>
+<h3 id="561-2026-5-20">5.6.1 (2026-5-20)</h3>
+<ul>
+<li>fix:</li>
+<li><strong>UseCase MCP FromContext parameters are described as optional</strong>: parameters annotated with <code>Annotated[..., FromContext()]</code> now appear as optional in generated <code>describe_service</code> signatures and parameter metadata, so MCP clients do not need to provide values that are injected from context</li>
+</ul>
+<h3 id="560-2026-5-9">5.6.0 (2026-5-9)</h3>
+<p>This release introduces breaking changes to the UseCaseService API. Methods must now be decorated with <code>@query</code> or <code>@mutation</code> instead of using <code>@classmethod</code>.</p>
+<ul>
+<li>feat:</li>
+<li><strong><code>@query</code> / <code>@mutation</code> decorators for UseCaseService</strong>: UseCaseService methods now use <code>@query</code> and <code>@mutation</code> decorators (from <code>pydantic_resolve</code>) instead of <code>@classmethod</code>. The decorators reuse the same implementation as GraphQL, automatically converting methods to classmethods and setting metadata</li>
+<li><strong><code>enable_mutation</code> app-level control</strong>: New <code>UseCaseAppConfig(enable_mutation=False)</code> option to hide mutation methods from MCP tools. When disabled, <code>list_services</code> excludes mutations from count, <code>describe_service</code> omits mutation methods, and <code>call_use_case</code> blocks mutation calls</li>
+<li><strong><code>kind</code> field in <code>describe_service</code></strong>: Each method in <code>describe_service</code> response now includes a <code>kind</code> field (<code>"query"</code> or <code>"mutation"</code>) for AI agents to distinguish read vs write operations</li>
+<li>break:</li>
+<li><strong>UseCaseService methods require <code>@query</code> / <code>@mutation</code></strong>: Undecorated async classmethods are no longer automatically discovered by <code>BusinessMeta</code>. All existing UseCaseService subclasses must add <code>@query</code> or <code>@mutation</code> decorators</li>
+<li><strong><code>__use_case_methods__</code> structure changed</strong>: value type changed from <code>classmethod</code> descriptor to <code>dict</code> with keys <code>method</code>, <code>kind</code>, <code>description</code></li>
+</ul>
+<h2 id="55">5.5</h2>
+<h3 id="550-2026-5-9">5.5.0 (2026-5-9)</h3>
+<p>This release introduces breaking changes to the AutoLoad API. See <a href="../migration/#v54-to-v55">Migration Guide — v5.4 to v5.5</a> for upgrade instructions.</p>
+<ul>
+<li>feat:</li>
+<li><strong>Implicit AutoLoad</strong>: fields whose names match a relationship <code>name</code> in the ER Diagram are automatically resolved without requiring <code>Annotated[..., AutoLoad()]</code> annotation. Explicit <code>AutoLoad(origin=...)</code> is still needed when the field name differs from the relationship name</li>
+<li><strong>Standalone <code>AutoLoad</code> function</strong>: <code>AutoLoad</code> is now a module-level function (<code>from pydantic_resolve import AutoLoad</code>) instead of a factory created via <code>diagram.create_auto_load()</code>. No diagram binding required</li>
+<li><strong>Ambiguity detection for external ErDiagram</strong>: when multiple <code>ErDiagram</code> instances register conflicting relationships (same name, different FK) for the same entity class, <code>DefineSubset</code> raises <code>ValueError</code> at class-definition time instead of silently using the last registration</li>
+<li>break:</li>
+<li><strong><code>ErDiagram.create_auto_load()</code> removed</strong>: replaced by standalone <code>AutoLoad()</code> function. See <a href="../migration/">Migration Guide</a> for details</li>
+<li><strong><code>LoaderInfo._er_configs_map</code> removed</strong>: no longer used; relationship lookup now goes through MRO + global registry</li>
+<li>refactor:</li>
+<li><code>ErLoaderPreGenerator.prepare()</code> restructured into Phase 1 (explicit AutoLoad) and Phase 2 (implicit matching by field name), consistent with <code>DefineSubset</code> FK injection logic</li>
+<li><code>DefineSubset</code> FK auto-injection unified via <code>_collect_relationship_candidates_from_mro</code> + <code>_select_relationship</code>, removing direct dependency on <code>LoaderInfo._er_configs_map</code></li>
+<li><code>ResponseBuilder</code> uses implicit AutoLoad for dynamic GraphQL response models, removing <code>Annotated[..., AutoLoad()]</code> wrapping</li>
+<li><code>ErDiagram</code> registration changed from overwrite (<code>kls -&gt; Entity</code>) to append (<code>kls -&gt; [Entity]</code>) to support ambiguity detection</li>
+</ul>
+<h2 id="54">5.4</h2>
+<h3 id="540-2026-5-8">5.4.0 (2026-5-8)</h3>
+<ul>
+<li>feat:</li>
+<li><strong>UseCase MCP server</strong>: multi-app management MCP server that exposes UseCaseService methods to AI agents via progressive disclosure (list_apps → list_services → describe_service → call_use_case)</li>
+<li><strong>UseCase <code>FromContext</code> annotation</strong>: methods can declare parameters annotated with <code>FromContext</code> to receive values from request context, with <code>context_extractor</code> support for async extraction</li>
+<li><strong><code>get_return_annotation()</code> utility</strong>: extract return type annotation from methods (handles classmethod, <code>__future__</code> annotations, string fallback) for convenient FastAPI <code>response_model</code> usage</li>
+<li>refactor:</li>
+<li>Update TypeMapper and SDLBuilder to use new mapping methods and improve type resolution</li>
+<li>Remove unused method for collecting types from method parameters</li>
+<li>Consolidate type checking in <code>introspector.py</code> to use shared utilities from <code>utils/types.py</code> (<code>_is_list</code>, <code>_is_optional</code>, <code>get_core_types</code>), eliminating duplicate type-handling code</li>
+<li>Simplify <code>_collect_dto_types</code> with <code>get_core_types</code> for one-pass type unwrapping</li>
+</ul>
+<h2 id="53">5.3</h2>
+<h3 id="531-2026-4-22">5.3.1 (2026-4-22)</h3>
+<ul>
+<li>bug:</li>
+<li>fix pagination in many to many relationship</li>
+</ul>
+<h3 id="530-2026-4-22">5.3.0 (2026-4-22)</h3>
+<ul>
+<li>feat:</li>
+<li><strong>GraphQL limit/offset pagination</strong>: <code>GraphQLHandler(enable_pagination=True)</code> enables server-side pagination for one-to-many relationships. Requires <code>page_loader</code> and <code>order_by</code> configured on <code>Relationship</code>. Supports multi-level nested pagination with independent limit/offset per field</li>
+<li><strong><code>Resolver(resolved_hooks=...)</code> dependency injection</strong>: core Resolver now accepts a list of post-resolve hooks via constructor, decoupling GraphQL-specific pagination logic from the core resolution engine</li>
+<li>refactor:</li>
+<li>Extract <code>inject_nested_pagination</code> into standalone <code>graphql/pagination/injector.py</code> module, injected via <code>resolved_hooks</code> instead of hardcoded in core <code>Resolver</code></li>
+<li>Consolidate pagination hidden field names into <code>constant.py</code> (<code>GRAPHQL_PAGINATION_FIELD_PREFIX</code>, <code>GRAPHQL_PAGINATION_TREE_FIELD</code>)</li>
+</ul>
+<h2 id="52">5.2</h2>
+<h3 id="520-2026-4-18">5.2.0 (2026-4-18)</h3>
+<ul>
+<li>feat:</li>
+<li><strong><code>Resolver(split_loader_by_type=True)</code></strong>: create separate DataLoader instances per request_type so lightweight views (e.g. <code>TaskCard</code> with 2 columns) don't query all columns needed by heavyweight views (e.g. <code>TaskDetail</code> with 20 columns). Incompatible with <code>loader_instances</code>. See <a href="../api_resolver/">Resolver API</a> for details.</li>
+<li>refactor:</li>
+<li>Improved <code>validate_and_create_loader_instance</code> readability with unified split/non-split logic</li>
+<li>Deterministic <code>_query_meta</code> output order</li>
+</ul>
+<h2 id="51">5.1</h2>
+<h3 id="510-2026-4-13">5.1.0 (2026-4-13)</h3>
+<ul>
+<li>feat:</li>
+<li><strong>Request context support for GraphQL</strong>: <code>handler.execute()</code> accepts an optional <code>context</code> dict, passed into <code>@query</code>/<code>@mutation</code> methods via <code>_context</code> parameter and forwarded to the internal <code>Resolver(context=...)</code> for DataLoader context injection</li>
+<li><strong><code>_context</code> parameter in <code>@query</code>/<code>@mutation</code> methods</strong>: declare <code>_context: dict</code> in method signature to receive request-scoped data (e.g. <code>user_id</code> from JWT); the parameter is hidden from GraphQL schema — clients cannot see or set it</li>
+<li><strong><code>_context</code> excluded from SDL and introspection</strong>: <code>SDLBuilder</code> and <code>IntrospectionGenerator</code> skip <code>_context</code> when generating query/mutation field arguments</li>
+<li><strong><code>AppConfig.context_extractor</code> for MCP</strong>: optional callback <code>(Context) -&gt; dict | Awaitable[dict]</code> that extracts request-scoped context from FastMCP HTTP request (e.g. user identity from Authorization header), passed as <code>context=</code> to <code>handler.execute()</code></li>
+<li><strong>RBAC/ABAC demo</strong>: new <code>demo/rbac/</code> showcasing multi-level permission queries with DataLoader batching, FK-based ancestor tracing, ABAC condition evaluation, and mail group permission inheritance</li>
+<li>refactor:</li>
+<li>Entity classes updated for context handling in GraphQL API</li>
+</ul>
+<h2 id="50">5.0</h2>
+<h3 id="501-2026-4-11">5.0.1 (2026-4-11)</h3>
+<ul>
+<li>fix:</li>
+<li>fix minor type issues</li>
+</ul>
+<h3 id="500-2026-4-3">5.0.0 (2026-4-3)</h3>
+<p><strong>BREAKING CHANGES</strong> — <code>ErDiagram.configs</code> renamed to <code>ErDiagram.entities</code>. See <a href="../migration/">Migration Guide</a> for details.</p>
+<ul>
+<li>feat:</li>
+<li><strong>ORM relationship auto-discovery</strong>: new <code>pydantic_resolve/integration</code> module generates <code>Relationship</code> + <code>DataLoader</code> from SQLAlchemy, Django, Tortoise ORM model definitions, eliminating hand-written loaders<ul>
+<li><code>pydantic_resolve.integration.sqlalchemy</code> (<code>pip install pydantic-resolve[sqlalchemy]</code>)</li>
+<li><code>pydantic_resolve.integration.django</code> (<code>pip install pydantic-resolve[django]</code>)</li>
+<li><code>pydantic_resolve.integration.tortoise</code> (<code>pip install pydantic-resolve[tortoise]</code>)</li>
+</ul>
+</li>
+<li>Each ORM adapter supports: Many-to-One, One-to-Many, One-to-One, Reverse One-to-One, Many-to-Many</li>
+<li>Generated loaders leverage <code>_query_meta</code> for field projection (<code>load_only</code> / <code>only</code>)</li>
+<li>Per-mapping <code>filters</code> and <code>default_filter</code> for query filtering</li>
+<li>DTO required-field validation against ORM scalar fields at setup time</li>
+<li><strong><code>Mapping</code> descriptor</strong> (<code>integration.mapping</code>): unified ORM-to-DTO mapping descriptor</li>
+<li><strong><code>ErDiagram.add_relationship()</code></strong>: merge ORM-generated entities into existing ErDiagram, with duplicate detection by relationship/query/mutation name</li>
+<li><strong>Built-in GraphiQL page helper</strong>: export <code>get_graphiql_html()</code> from <code>pydantic_resolve.graphql</code> and add <code>GraphQLHandler.get_graphiql_html()</code> for serving a ready-to-use GraphiQL IDE alongside the GraphQL endpoint</li>
+<li><strong>MCP full-schema tool</strong>: multi-app MCP servers now expose <code>get_full_schema(app_name, response_type='sdl'|'introspection')</code> to fetch the entire schema in one call</li>
+<li><strong>ORM-first GraphQL response validation</strong>: dynamic response models now preserve entity <code>from_attributes=True</code> or enable it via <code>enable_from_attribute_in_type_adapter</code>, and relationship fields use a synthetic <code>validation_alias</code> to avoid premature lazy-loading of ORM relationships before <code>AutoLoad</code> runs</li>
+<li><strong>Forward-ref module path syntax</strong>: <code>base_entity()</code> now resolves relationship targets written as <code>'package.module:ClassName'</code> and <code>list['package.module:ClassName']</code>, reducing same-module ordering constraints</li>
+<li>break:</li>
+<li><strong><code>ErDiagram.configs</code> → <code>ErDiagram.entities</code></strong>: parameter renamed; all internal consumers updated</li>
+</ul>
+<h2 id="v41">v4.1</h2>
+<h3 id="v410-2026-4-2">v4.1.0 (2026-4-2)</h3>
+<ul>
+<li>feat:</li>
+<li><strong>MCP dependencies are now optional</strong>: <code>fastmcp</code> moved from core dependencies to <code>[project.optional-dependencies]</code> under <code>mcp</code> group. Install via <code>pip install pydantic-resolve[mcp]</code>. Core functionality (Resolver, GraphQL, ERD) no longer pulls in <code>fastmcp</code>.</li>
+<li>MCP imports in <code>pydantic_resolve/__init__.py</code> now use <code>try/except</code> for graceful degradation when <code>fastmcp</code> is not installed.</li>
+<li>fix:</li>
+<li>Remove misleading <code>config_global_resolver</code> calls from MCP module docstring examples (<code>__init__.py</code>, <code>server.py</code>). MCP internally uses <code>config_resolver</code> via <code>GraphQLHandler</code> for proper isolation.</li>
+</ul>
+<h2 id="v40">v4.0</h2>
+<h3 id="v401-2026-4-1">v4.0.1 (2026-4-1)</h3>
+<ul>
+<li>fix:</li>
+<li><strong>Auto-added FK fields no longer leak into GraphQL response</strong>: <code>ResponseBuilder._add_fk_fields()</code> now uses <code>Field(exclude=True)</code> instead of <code>...</code>, so fields like <code>id</code> that are auto-added for <code>AutoLoad</code> resolution are excluded from <code>model_dump()</code> serialization while remaining accessible as attributes</li>
+<li><strong>Support scalar target relationships in GraphQL</strong>: <code>_build_relationship_field()</code> now handles scalar targets (e.g., <code>str</code>, <code>int</code>) via <code>_is_scalar_relationship()</code> check, skipping recursive model building for non-BaseModel targets</li>
+<li><strong>Allow scalar relationship fields without sub-selections</strong>: <code>_add_relationship_fields()</code> now permits scalar relationship fields to be included even when no sub-fields are selected</li>
+</ul>
+<h3 id="v400-2026-3-29">v4.0.0 (2026-3-29)</h3>
+<p><strong>BREAKING CHANGES</strong> — ER Diagram API overhaul, simplified Relationship definition. See <a href="../migration/">Migration Guide</a> for details.</p>
+<ul>
+<li>feat:</li>
+<li><strong><code>Relationship</code> parameter renames</strong>: <code>field</code> → <code>fk</code>, <code>target_kls</code> → <code>target</code></li>
+<li><strong><code>Relationship.name</code> replaces <code>default_field_name</code></strong>: each Relationship must declare a unique <code>name</code>, used as GraphQL field name and AutoLoad lookup key</li>
+<li><strong><code>Relationship.fk_fn</code> replaces <code>field_fn</code></strong></li>
+<li><strong><code>Relationship.fk_none_default</code> / <code>fk_none_default_factory</code> replace <code>field_none_default</code> / <code>field_none_default_factory</code></strong></li>
+<li><strong><code>AutoLoad</code> replaces <code>LoadBy</code></strong>: AutoLoad no longer requires FK field name; uses <code>origin</code> parameter to match by relationship name, defaults to field name</li>
+<li><strong>Remove <code>MultipleRelationship</code> and <code>Link</code></strong>: multiple relationships to the same target are now separate <code>Relationship</code> entries with independent <code>name</code></li>
+<li><strong>Remove deprecated <code>Resolver</code> parameters</strong>: <code>loader_filters</code> and <code>global_loader_filter</code> (deprecated since v1.9.3) are removed; use <code>loader_params</code> and <code>global_loader_param</code></li>
+<li>
+<p><strong><code>_resolve_ref</code> searches registered entities</strong>: when module attribute lookup fails, falls back to searching registered entity list, resolving same-module class ordering issues</p>
+</li>
+<li>
+<p>refactor:</p>
+</li>
+<li><code>ResponseBuilder</code> removes <code>RelationshipInfo</code> wrapper, uses <code>Relationship</code> directly</li>
+<li><code>DefineSubset</code> modifier logic extracted into <code>_apply_config_modifiers_to_field</code></li>
+<li><code>DefineSubset</code> auto-adds missing AutoLoad FK fields with <code>exclude=True</code></li>
+<li>SDL / Introspection generators unified on <code>rel.name</code> and <code>rel.target</code>, all <code>MultipleRelationship</code> branches removed</li>
+<li>Removed <code>__pydantic_resolve_relationships__</code> attribute name; use <code>__relationships__</code> only</li>
+<li>Added type compatibility check in <code>ErLoaderPreGenerator.prepare()</code> for early mismatch detection</li>
+</ul>
+<h2 id="v33">v3.3</h2>
+<h3 id="330-2026-3-27">3.3.0 (2026-3-27)</h3>
+<ul>
+<li>feat:</li>
+<li>migrate from mcp to fastmcp ver 3</li>
+</ul>
+<h2 id="v32">v3.2</h2>
+<h3 id="v323-2026-3-24">v3.2.3 (2026-3-24)</h3>
+<ul>
+<li>feat:</li>
+<li><strong>GraphQL hides relationship fields without loaders</strong>: <code>Relationship</code> fields with <code>loader=None</code> are now hidden from GraphQL SDL and introspection, preventing runtime errors when querying unresolvable fields</li>
+<li>Applies to both <code>SDLBuilder</code> and <code>IntrospectionGenerator</code></li>
+<li>test:</li>
+<li>Add <code>TestHideRelationshipsWithoutLoader</code> test class in <code>tests/graphql/test_sdl_builder.py</code></li>
+</ul>
+<h3 id="v322-2026-3-23">v3.2.2 (2026-3-23)</h3>
+<ul>
+<li>fix:</li>
+<li><strong>GraphQL datetime serialization</strong>: Changed <code>model_dump(by_alias=True)</code> to <code>model_dump(mode='json', by_alias=True)</code> in executor to ensure datetime, date, time, Decimal, and other non-JSON types are properly serialized to JSON-compatible formats</li>
+<li>Before: <code>TypeError: Object of type datetime is not JSON serializable</code></li>
+<li>After: datetime fields are automatically serialized to ISO-8601 strings</li>
+<li>test:</li>
+<li>Add <code>tests/graphql/test_datetime_support.py</code> for datetime, date, time, Decimal serialization</li>
+</ul>
+<h3 id="v321-2026-3-22">v3.2.1 (2026-3-22)</h3>
+<ul>
+<li>fix:</li>
+<li><strong>GraphQL introspection now includes <code>Relationship.target_kls</code> types</strong>: <code>IntrospectionGenerator._collect_all_types</code> now collects types from <code>Relationship.target_kls</code> when the target type is not explicitly registered in <code>er_diagram.configs</code>, ensuring consistency with SDL generation</li>
+<li>Before: Introspection types list was missing types referenced in relationships, causing field type references to point to undefined types</li>
+<li>After: Both SDL and introspection include the same types, field type references are always valid</li>
+<li>test:</li>
+<li>Add <code>tests/graphql/test_missing_target_type.py</code> for introspection/SDL consistency</li>
+<li>Add <code>tests/graphql/test_forward_ref_resolution.py</code> for string reference resolution in <code>__relationships__</code></li>
+</ul>
+<h3 id="v320-2026-3-19">v3.2.0 (2026-3-19)</h3>
+<ul>
+<li>feat:</li>
+<li><strong>DataLoader context injection</strong>: Class-type DataLoaders can now declare a <code>_context</code> attribute to access Resolver's global context</li>
+<li>Early validation: Raises <code>LoaderContextNotProvidedError</code> if a DataLoader requires context but Resolver doesn't provide one</li>
+<li>Useful for permission filtering scenarios where <code>user_id</code> needs to be passed to loaders</li>
+<li>Example:
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">UserLoader</span><span class="p">(</span><span class="n">DataLoader</span><span class="p">):</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">_context</span><span class="p">:</span> <span class="nb">dict</span>  <span class="c1"># Declare context requirement</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">batch_load_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'user_id'</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="c1"># Use user_id for permission filtering</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="o">...</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># Resolver automatically injects context</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">resolver</span> <span class="o">=</span> <span class="n">Resolver</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s1">'user_id'</span><span class="p">:</span> <span class="mi">123</span><span class="p">})</span>
+</code></pre></div></li>
+</ul>
+<h2 id="v31">v3.1</h2>
+<h3 id="v311-2026-3-18">v3.1.1 (2026-3-18)</h3>
+<ul>
+<li>feat:<ul>
+<li><strong>Auto-add missing AutoLoad FK fields in DefineSubset</strong>: When using <code>AutoLoad</code> annotation in <code>DefineSubset</code>, the referenced FK field (e.g., <code>user_id</code> in <code>AutoLoad('user_id')</code>) is now automatically added with <code>exclude=True</code> if not explicitly defined in the subset</li>
+<li><strong>Early validation for invalid FK references</strong>: If <code>AutoLoad</code> references a field that doesn't exist in the parent class, a <code>ValueError</code> is raised at class definition time instead of during <code>resolve()</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="v310-2026-3-16">v3.1.0 (2026-3-16)</h3>
+<ul>
+<li>feature:<ul>
+<li>add MCP support based on ER diagram, add query/mutation decorator</li>
+</ul>
+</li>
+</ul>
+<h2 id="v30">v3.0</h2>
+<h3 id="v307-2026-3-5">v3.0.7 (2026-3-5)</h3>
+<ul>
+<li>perf:</li>
+<li><strong>Two-level METADATA_CACHE with resolver_class isolation</strong>: Cache structure changed from <code>METADATA_CACHE[root_class]</code> to <code>METADATA_CACHE[id(resolver_class)][root_class]</code>, isolating caches for different resolver configurations (created via <code>config_resolver</code>)</li>
+<li><strong>Pre-analysis in ResponseBuilder</strong>: Dynamic response models are now pre-analyzed immediately after creation in <code>ResponseBuilder._create_model()</code>, avoiding repeated analysis in <code>Resolver.resolve()</code></li>
+<li><strong>Concurrent query execution in GraphQL executor</strong>: Moved <code>query_method</code> execution from Phase 1 (serial) to Phase 2 (concurrent), enabling parallel I/O operations for multiple root queries</li>
+<li>Before: Phase 1 executes query_methods serially → Phase 2 resolves concurrently</li>
+<li>After: Phase 1 builds models only → Phase 2 executes (query_method + transform + resolve) concurrently</li>
+</ul>
+<h3 id="v306-2026-3-3">v3.0.6 (2026-3-3)</h3>
+<ul>
+<li>feat:</li>
+<li><strong>GraphQL schema now includes <code>Relationship.target_kls</code> types</strong>: Pydantic types referenced in relationships are automatically collected and generated as GraphQL types, even if not explicitly registered in <code>er_diagram.configs</code></li>
+<li>Supports <code>Relationship</code> with <code>list[T]</code> generics and <code>load_many=True</code></li>
+</ul>
+<h3 id="v305-2026-3-2">v3.0.5 (2026-3-2)</h3>
+<ul>
+<li>feat:</li>
+<li><strong>Enum support for GraphQL</strong>: Full enum type support across SDL generation, introspection, query execution, and mutation input</li>
+<li>Enum fields now serialize to enum name (e.g., <code>"ADMIN"</code>) conforming to GraphQL convention</li>
+<li>Enum default values in introspection formatted correctly (e.g., <code>"USER"</code> instead of <code>"UserRole.USER"</code>)</li>
+<li>Mutation arguments accept enum names and convert to Python enum members</li>
+<li>refactor:</li>
+<li><strong>Enum serialization optimization</strong>: Replaced recursive <code>_convert_enum_to_name</code> post-processing with Pydantic <code>PlainSerializer</code> for better performance</li>
+<li>Extracted <code>_add_enum_definitions()</code> helper in SDL generator to reduce code duplication</li>
+<li>Fixed <code>_format_default_value()</code> return type and moved Enum import to module level in introspection generator</li>
+<li>Added enum handling in <code>_map_python_type_to_gql_for_input()</code> for input types</li>
+</ul>
+<h3 id="v304-2026-3-1">v3.0.4 (2026-3-1)</h3>
+<ul>
+<li>feat:</li>
+<li>add LRU cache for GraphQL response model generation in <code>ResponseBuilder</code></li>
+<li><code>FieldSelection</code> now implements <code>__hash__</code> and <code>__eq__</code> to support caching (arguments excluded from comparison)</li>
+<li>same query structure with different arguments will hit cache, improving performance</li>
+<li>cache size: 256 entries with LRU eviction</li>
+</ul>
+<h3 id="v303-2026-3-1">v3.0.3 (2026-3-1)</h3>
+<ul>
+<li>refactor:</li>
+<li><code>GraphQLHandler</code> now creates diagram-specific resolver internally using <code>config_resolver</code>, removing <code>resolver_class</code> parameter</li>
+<li>ensures <code>AutoLoad</code> annotations work without requiring <code>config_global_resolver()</code> to be called</li>
+<li>convert all relative imports to absolute imports in <code>pydantic_resolve/</code> directory</li>
+</ul>
+<h3 id="v302-2026-3-1">v3.0.2 (2026-3-1)</h3>
+<ul>
+<li>fix:</li>
+<li>fix introspection for scalar return types (bool, int, float, str) in mutations</li>
+</ul>
+<h3 id="v301-2026-2-28">v3.0.1 (2026-2-28)</h3>
+<ul>
+<li>refactor:</li>
+<li>graphql interface</li>
+</ul>
+<h3 id="v300-2026-2-27">v3.0.0 (2026-2-27)</h3>
+<ul>
+<li>add support for auto-generating graphql interface for ERD.</li>
+</ul>
+<h2 id="v25">v2.5</h2>
+<h3 id="v250-2026-2-21">v2.5.0 (2026-2-21)</h3>
+<ul>
+<li>stable release</li>
+</ul>
+<h3 id="v250alpha2">v2.5.0alpha2</h3>
+<ul>
+<li>refactor:</li>
+<li><strong>serialization decorator</strong>: Use <code>json_schema_extra</code> mechanism instead of monkey-patching<ul>
+<li>Collects all nested Pydantic types at decoration time via <code>_collect_nested_types</code></li>
+<li>Sets <code>json_schema_extra</code> on root class and all nested types automatically</li>
+<li>Respects existing configurations (skips types that already have <code>json_schema_extra</code>)</li>
+<li>Removes ~100 lines of code (<code>_process_schema</code>, <code>_process_nested_type</code>, <code>_process_reference</code>)</li>
+<li>File: <code>pydantic_resolve/utils/openapi.py</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="v250alpha1">v2.5.0alpha1</h3>
+<ul>
+<li>feat:</li>
+<li><strong>NEW</strong>: <code>@serialization</code> decorator for recursive JSON schema processing<ul>
+<li>No-parameter decorator, use <code>@serialization</code> directly</li>
+<li>Example:
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nd">@serialization</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Person</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">''</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">address</span><span class="p">:</span> <span class="n">Address</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">schema</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">'serialization'</span><span class="p">)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># All nested models (Address) will have required fields set correctly</span>
+</code></pre></div></li>
+</ul>
+</li>
+</ul>
+<h3 id="v250alpha">v2.5.0alpha</h3>
+<ul>
+<li>test:</li>
+<li>
+<p>Add edge case tests for Pydantic model resolution and collector handling</p>
+<ul>
+<li>Empty classes, missing fields, collector validation, expose conflicts</li>
+<li>Self-reference and circular reference handling</li>
+<li>Inheritance chain testing</li>
+<li>File: <code>tests/analysis/test_analysis_edge_cases.py</code></li>
+</ul>
+</li>
+<li>
+<p>refactor:</p>
+</li>
+<li>
+<p><strong>loader management</strong>: Enhance loader classes and validation with new architecture</p>
+<ul>
+<li>Improved loader instance creation and validation</li>
+<li>Better error messages for missing or invalid loader configurations</li>
+<li>File: <code>pydantic_resolve/loader_manager.py</code></li>
+</ul>
+</li>
+<li>
+<p><strong>ContextVar optimization</strong>: Optimize ancestor and collector management</p>
+<ul>
+<li>Use single dict-based ContextVar instead of multiple ContextVars</li>
+<li>Reduces context variable overhead from N+1 to 1 per category</li>
+<li>Pre-create parent ContextVar to avoid repeated creation</li>
+<li>File: <code>pydantic_resolve/resolver.py</code></li>
+</ul>
+</li>
+<li>
+<p>doc:</p>
+</li>
+<li>
+<p>Add Entity-First architecture discussion</p>
+<ul>
+<li>Comprehensive documentation on Entity-First design pattern</li>
+<li>Examples of data assembly with automatic resolver</li>
+<li>GraphQL-inspired concepts for FastAPI + Pydantic</li>
+<li>Files:</li>
+<li><code>docs/fastapi-pydantic-architecture-outline.md</code></li>
+<li><code>docs/fastapi-pydantic-architecture-outline.en.md</code></li>
+</ul>
+</li>
+<li>
+<p>Update README with detailed Pydantic response schemas and examples</p>
+</li>
+<li>Clarify ORM and Pydantic schema relationship</li>
+</ul>
+<h2 id="v24">v2.4</h2>
+<h3 id="v247-2026-1-29">v2.4.7 (2026-1-29)</h3>
+<ul>
+<li>refactor:<ul>
+<li>use modern type annotation</li>
+<li>logger</li>
+<li>analysis.py for better readibility</li>
+<li>improve doc, add more details about ErDiagram</li>
+</ul>
+</li>
+</ul>
+<h3 id="v246-2026-1-28">v2.4.6 (2026-1-28)</h3>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../migration/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Migration Guide">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Migration Guide
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../benchmark/" class="md-footer__link md-footer__link--next" aria-label="Next: Benchmark">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Benchmark
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.top", "navigation.footer", "toc.follow", "header.autohide", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.links.target_blank"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

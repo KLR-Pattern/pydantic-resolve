@@ -1,0 +1,2547 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The REST vs GraphQL debate misses the point — both protocols answer the same domain-model questions, just at different layers. Once relationships are centralized in an ER Diagram, the protocol choice becomes technical, not architectural.">
+      
+      
+        <meta name="author" content="tangkikodo">
+      
+      
+        <link rel="canonical" href="https://allmonday.github.io/pydantic-resolve/blog_rest_graphql_and_er_diagram/">
+      
+      
+        <link rel="prev" href="../blog_pydantic_resolve_vs_orm/">
+      
+      
+        <link rel="next" href="../blog_context_assembly_for_llm/">
+      
+      
+        
+          <link rel="alternate" href="./" hreflang="en">
+        
+          <link rel="alternate" href="../zh/blog_rest_graphql_and_er_diagram/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>REST vs GraphQL and the Missing Layer: ER Diagram - Pydantic-resolve</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-9P2E638G4H"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-9P2E638G4H",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-9P2E638G4H",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rest-graphql" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Pydantic-resolve" class="md-header__button md-logo" aria-label="Pydantic-resolve" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pydantic-resolve
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              REST vs GraphQL and the Missing Layer: ER Diagram
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="light-blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="light-blue"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../zh/blog_rest_graphql_and_er_diagram/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/allmonday/pydantic-resolve" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    allmonday/pydantic-resolve
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../dataloader_deep_dive/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Advanced
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api_resolver/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../migration/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture_entity_first/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Articles
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Pydantic-resolve" class="md-nav__button md-logo" aria-label="Pydantic-resolve" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pydantic-resolve
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/allmonday/pydantic-resolve" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    allmonday/pydantic-resolve
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick_start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core_api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../post_processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Post Processing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross_layer_data_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Layer Data Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../erd_and_autoload/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ERD and AutoLoad
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Advanced
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataloader_deep_dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataLoader Deep Dive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../erd_define_subset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ERD with DefineSubset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../orm_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ORM Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fastapi_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FastAPI Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../graphql_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp_service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use_case_mcp_service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UseCase MCP Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../voyager_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Voyager Visualization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_resolver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Resolver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_dataloader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataLoader Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_cross_layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Layer Annotations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_erd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ER Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_subset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DefineSubset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_graphql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_use_case_mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UseCase MCP API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Articles
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Articles
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_entity_first/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clean Architecture for Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog_pydantic_resolve_vs_orm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reframing Data Assembly: pydantic-resolve vs SQLAlchemy ORM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST vs GraphQL and the Missing Layer: ER Diagram
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST vs GraphQL and the Missing Layer: ER Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一个错误的二选一
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        底下那层到底是什么
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="底下那层到底是什么">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        共同的隐藏依赖
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orm-er" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        传统 ORM 的问题：查询结果和 ER 关系的依赖感知脱钩
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#er-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ER Diagram 作为"可执行的关系层"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据构建的两个环节
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rest-graphql_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        REST 和 GraphQL 各自的短板
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="REST 和 GraphQL 各自的短板">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        REST 没有处理好数据获取
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rest-graphql_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        REST 和 GraphQL 都没有原生处理好数据后处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        共同的缺失
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#er-diagram-autoload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        收敛到 ER Diagram + AutoLoad
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="收敛到 ER Diagram + AutoLoad">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题的本质
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#er-diagram-autoload_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ER Diagram + AutoLoad 的解法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graphql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GraphQL 变成薄薄一层
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GraphQL 变成薄薄一层">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resolver" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        同一个 Resolver 引擎
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graphql-schema-er-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GraphQL schema 应该是 ER Diagram 的投影
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graphql_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GraphQL 的边界：数据获取工具，不是业务平台
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        回到你的架构决策
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog_context_assembly_for_llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Treat the Context Window as a Data Assembly Problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一个错误的二选一
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        底下那层到底是什么
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="底下那层到底是什么">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        共同的隐藏依赖
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orm-er" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        传统 ORM 的问题：查询结果和 ER 关系的依赖感知脱钩
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#er-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ER Diagram 作为"可执行的关系层"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据构建的两个环节
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rest-graphql_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        REST 和 GraphQL 各自的短板
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="REST 和 GraphQL 各自的短板">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        REST 没有处理好数据获取
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rest-graphql_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        REST 和 GraphQL 都没有原生处理好数据后处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        共同的缺失
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#er-diagram-autoload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        收敛到 ER Diagram + AutoLoad
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="收敛到 ER Diagram + AutoLoad">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题的本质
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#er-diagram-autoload_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ER Diagram + AutoLoad 的解法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graphql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GraphQL 变成薄薄一层
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GraphQL 变成薄薄一层">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resolver" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        同一个 Resolver 引擎
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graphql-schema-er-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GraphQL schema 应该是 ER Diagram 的投影
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graphql_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GraphQL 的边界：数据获取工具，不是业务平台
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        回到你的架构决策
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="rest-graphql">REST 和 GraphQL 之争，漏掉了关键的一层</h1>
+<h2 id="_1">一个错误的二选一</h2>
+<p>你的团队大概也经历过这样的讨论：新项目该用 REST 还是 GraphQL？</p>
+<p>争论的焦点通常落在几个熟悉的维度上：查询灵活性、over-fetching、schema 演进、学习曲线、调试体验……每个人都能列出一张对比表。这种讨论本身并不坏，但它暗含了一个前提——<strong>REST 和 GraphQL 是互斥的架构选择，你必须选一个</strong>。</p>
+<p>这个前提是错的。</p>
+<p>如果你把视角拉高一层，会发现一个有趣的事实：不管你选了哪个协议，你最终都要回答同一组问题：</p>
+<ul>
+<li>系统里有哪些实体？</li>
+<li>实体之间是什么关系？</li>
+<li>如何批量加载关联数据？</li>
+<li>拿到原始数据之后，怎么计算派生字段？</li>
+</ul>
+<p>这些问题跟协议无关。它们是更底层的领域模型问题。REST 和 GraphQL 只是回答这些问题的不同"语法"——一个把答案散落在 endpoint 实现里，另一个把答案集中在 schema 声明里，但两者都在回答同一组问题。</p>
+<p>所以真正值得讨论的不是"REST 还是 GraphQL"，而是：<strong>你的领域模型定义在哪里？它能不能同时驱动两种协议？</strong></p>
+<h2 id="_2">底下那层到底是什么</h2>
+<h3 id="_3">共同的隐藏依赖</h3>
+<p>不管用 REST 还是 GraphQL，你的代码里都隐含了一份 ER Diagram（实体关系模型）。区别只在于，GraphQL 把它写成了 schema，REST 把它藏在了 endpoint 代码里。</p>
+<p>以一个常见的场景为例：Sprint 有多个 Task，Task 有一个 Owner（User）。不管你用什么协议，这三个实体和它们之间的关系是确定的：</p>
+<pre class="mermaid"><code>erDiagram
+    Sprint ||--o{ Task : "has many"
+    Task }o--|| User : "owned by"</code></pre>
+<h3 id="orm-er">传统 ORM 的问题：查询结果和 ER 关系的依赖感知脱钩</h3>
+<p>你可能会想：我的 ORM 已经定义了这些关系——SQLAlchemy 的 <code>relationship()</code>、Django 的 <code>ForeignKey</code>——这不就是 ER Diagram 吗？</p>
+<p>ORM 确实能通过 <code>selectinload</code> / <code>joinedload</code> 自动加载关联数据：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/sprints/</span><span class="si">{sprint_id}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_sprint</span><span class="p">(</span><span class="n">sprint_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">Session</span><span class="p">):</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">sprint</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Sprint</span><span class="p">)</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="n">selectinload</span><span class="p">(</span><span class="n">Sprint</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span><span class="o">.</span><span class="n">selectinload</span><span class="p">(</span><span class="n">Task</span><span class="o">.</span><span class="n">owner</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Sprint</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">sprint_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">return</span> <span class="n">SprintResponse</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">sprint</span><span class="p">)</span>
+</code></pre></div>
+<p>这段代码看起来干净，但问题在于：<strong>加载策略（<code>selectinload</code>）和 ER 关系定义是分离的。</strong></p>
+<p><code>selectinload(Sprint.tasks).selectinload(Task.owner)</code> 这行代码本质上是在<strong>手动描述 ER Diagram 的遍历路径</strong>——先加载 tasks，再加载 owner。ORM 的 <code>relationship()</code> 定义了"关系是什么"，但每次查询时你都得重新告诉它"沿着哪条路径加载、加载到多深"。这个遍历路径的知识不在 ER Diagram 里，而是在你的脑子里，写在每个 endpoint 的 <code>options()</code> 里。</p>
+<p>后果是：</p>
+<ol>
+<li>
+<p><strong>每个 endpoint 各自描述加载路径</strong>。<code>GET /sprints</code> 需要 tasks + owner，<code>GET /tasks</code> 只需要 owner，<code>GET /users/{id}/tasks</code> 需要 tasks 的 owner……每个 endpoint 都要写一遍自己的 <code>options()</code>。这些 options 之间的逻辑关系（"Task 有 owner"这条关系被多处用到）是隐含的，没有集中管理。</p>
+</li>
+<li>
+<p><strong>响应模型对关系加载无感知</strong>。<code>SprintResponse</code> 只是一个数据容器，它不知道 <code>tasks</code> 字段需要触发 <code>selectinload</code>，不知道 <code>owner</code> 字段依赖 <code>owner_id</code>。加载策略在 ORM 查询层，响应结构在 Pydantic 模型层，两者之间没有连接。</p>
+</li>
+<li>
+<p><strong>跨 endpoint 的关系复用困难</strong>。当 "Task → owner" 的加载逻辑需要变化时（比如加一层缓存、换一个数据源），你得到所有用了这个关系的 endpoint 里逐一修改。</p>
+</li>
+</ol>
+<p>这就是"依赖感知的脱钩"：<strong>ER Diagram 定义了关系，查询时手动指定遍历路径，查询结果转成响应 DTO 后，响应模型对底层关系一无所知。</strong> 关系知识散落在三层地方——ORM 定义、查询 options、响应模型——彼此之间没有联动。</p>
+<h3 id="er-diagram">ER Diagram 作为"可执行的关系层"</h3>
+<p>问题的根源在于：传统 ORM 的 ER Diagram 是<strong>描述性的</strong>，它告诉你"关系是什么"，但不告诉你"怎么用"。查询层用 <code>options()</code> 手动指定遍历路径，响应层对关系一无所知。我们需要的是一个<strong>可执行的关系层</strong>——不仅定义关系，还绑定数据加载策略（loader），让关系定义和实际执行联动起来。</p>
+<p>这就是 pydantic-resolve 的 ER Diagram 所做的事：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_resolve</span><span class="w"> </span><span class="kn">import</span> <span class="n">Relationship</span><span class="p">,</span> <span class="n">base_entity</span><span class="p">,</span> <span class="n">config_global_resolver</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">BaseEntity</span> <span class="o">=</span> <span class="n">base_entity</span><span class="p">()</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">UserEntity</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">BaseEntity</span><span class="p">):</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskEntity</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">BaseEntity</span><span class="p">):</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">__relationships__</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'owner_id'</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'owner'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">UserEntity</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">user_loader</span><span class="p">)</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="p">]</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="k">class</span><span class="w"> </span><span class="nc">SprintEntity</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">BaseEntity</span><span class="p">):</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="n">__relationships__</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'id'</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'tasks'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">TaskEntity</span><span class="p">],</span> <span class="n">loader</span><span class="o">=</span><span class="n">task_loader</span><span class="p">,</span> <span class="n">load_many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="p">]</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+<p>关键区别：<code>Relationship</code> 不仅声明了"Task 有一个 owner"，还绑定了 <code>user_loader</code>——一个批量加载函数。关系定义变成了<strong>可执行的</strong>，不再是纸上谈兵。</p>
+<h2 id="_4">数据构建的两个环节</h2>
+<p>在讨论 REST 和 GraphQL 各自的缺陷之前，需要先建立一个分析框架。</p>
+<p>看一段常见的 ORM 代码。你要构建一个 Sprint 列表接口，返回每个 sprint 的信息、它的 tasks、每个 task 的 owner，以及 <code>task_count</code> 和 <code>contributor_names</code> 两个派生字段，最后还要汇总全局统计：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/sprints"</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_sprints</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">Session</span><span class="p">):</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="c1"># 环节一：数据获取</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">sprints</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Sprint</span><span class="p">)</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">selectinload</span><span class="p">(</span><span class="n">Sprint</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span><span class="o">.</span><span class="n">selectinload</span><span class="p">(</span><span class="n">Task</span><span class="o">.</span><span class="n">owner</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="c1"># 环节二：数据后处理——遍历计算每个 sprint 的派生字段</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">sprint_list</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="k">for</span> <span class="n">sprint</span> <span class="ow">in</span> <span class="n">sprints</span><span class="p">:</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="n">task_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sprint</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="n">contributor_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>            <span class="n">t</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">sprint</span><span class="o">.</span><span class="n">tasks</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">owner</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="p">})</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="n">sprint_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>            <span class="s2">"id"</span><span class="p">:</span> <span class="n">sprint</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>            <span class="s2">"name"</span><span class="p">:</span> <span class="n">sprint</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>            <span class="s2">"task_count"</span><span class="p">:</span> <span class="n">task_count</span><span class="p">,</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>            <span class="s2">"contributor_names"</span><span class="p">:</span> <span class="n">contributor_names</span><span class="p">,</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>            <span class="s2">"tasks"</span><span class="p">:</span> <span class="p">[</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>                <span class="p">{</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>                    <span class="s2">"id"</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>                    <span class="s2">"title"</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>                    <span class="s2">"owner"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">name</span><span class="p">}</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">owner</span> <span class="k">else</span> <span class="kc">None</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>                <span class="p">}</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">sprint</span><span class="o">.</span><span class="n">tasks</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>            <span class="p">]</span>
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>        <span class="p">})</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>    <span class="c1"># 全局汇总</span>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>    <span class="n">total_tasks</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s2">"task_count"</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sprint_list</span><span class="p">)</span>
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>    <span class="n">all_contributors</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span>
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>        <span class="n">name</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sprint_list</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">s</span><span class="p">[</span><span class="s2">"contributor_names"</span><span class="p">]</span>
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>    <span class="p">})</span>
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>        <span class="s2">"sprints"</span><span class="p">:</span> <span class="n">sprint_list</span><span class="p">,</span>
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>        <span class="s2">"total_tasks"</span><span class="p">:</span> <span class="n">total_tasks</span><span class="p">,</span>
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>        <span class="s2">"all_contributors"</span><span class="p">:</span> <span class="n">all_contributors</span><span class="p">,</span>
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>    <span class="p">}</span>
+</code></pre></div>
+<p>这段代码清晰地区分了两个环节：</p>
+<pre class="mermaid"><code>flowchart LR
+    A["数据获取&lt;br/&gt;selectinload 批量加载"] --&gt; B["逐 sprint 后处理&lt;br/&gt;task_count / contributor_names"]
+    B --&gt; C["全局汇总&lt;br/&gt;total_tasks / all_contributors"]
+    C --&gt; D["最终响应"]</code></pre>
+<p><strong>环节一，数据获取</strong>：用 <code>selectinload</code> 批量加载 tasks 和 owner。核心挑战是 N+1 查询——如果逐个 task 去查 owner，查询数会爆炸。</p>
+<p><strong>环节二，数据后处理</strong>：分为两层。第一层是逐 sprint 遍历，计算 <code>task_count</code> 和 <code>contributor_names</code>——它们依赖每个 task 的 owner，必须等关联数据全部就绪。第二层是全局汇总——<code>total_tasks</code> 和 <code>all_contributors</code> 必须等每个 sprint 的后处理都完成之后才能计算。</p>
+<p>两个环节有严格的依赖关系：后处理必须等数据获取完成，全局汇总必须等逐条后处理完成。<strong>一个完整的数据组装方案必须同时覆盖这两个环节。</strong> 接下来我们看看 REST 和 GraphQL 各自在哪个环节出了问题。</p>
+<h2 id="rest-graphql_1">REST 和 GraphQL 各自的短板</h2>
+<h3 id="rest">REST 没有处理好数据获取</h3>
+<p>前面看到，即使用了 <code>selectinload</code>，加载策略仍然和 ER 关系定义是分离的。每个 endpoint 要自己描述遍历路径，响应模型对关系加载无感知。这是 REST 在数据获取环节的根本问题：<strong>缺少一个声明式的、可复用的关系加载机制。</strong></p>
+<p>具体表现有两个：</p>
+<p><strong>第一，加载策略绑定在查询层，不绑定在响应模型上。</strong> 同一个 <code>Task.owner</code> 关系，在 <code>GET /tasks</code> 里是 <code>selectinload(Task.owner)</code>，在 <code>GET /sprints</code> 里嵌套在 <code>selectinload(Sprint.tasks).selectinload(Task.owner)</code> 里。关系是同一个关系，但每个 endpoint 都要自己组织 <code>options()</code> 的调用链。<code>selectinload</code> 解决了 SQL 层面的 N+1 问题，但没有解决架构层面的关系复用问题。</p>
+<p><strong>第二，响应模型是纯数据容器，不参与加载决策。</strong> <code>SprintResponse</code> 不知道 <code>tasks</code> 字段需要触发什么加载，不知道 <code>owner</code> 字段依赖 <code>owner_id</code>。加载在查询层做完了，响应模型只是被动接收数据。这意味着如果响应结构变了（比如加了一层嵌套），你得回到查询层去改 <code>options()</code>。</p>
+<p>pydantic-resolve 的 <code>resolve_*</code> + DataLoader 把加载策略搬到了响应模型上——响应模型自己声明"我需要什么数据、从哪里加载"。但这只是第一步。如果每个响应模型都要手写 <code>resolve_owner</code>，关系定义仍然是分散的——只是从"散落在 <code>options()</code> 里"变成了"散落在 resolve 方法里"。</p>
+<h3 id="rest-graphql_2">REST 和 GraphQL 都没有原生处理好数据后处理</h3>
+<p>GraphQL 在数据获取上确实做得好——schema 声明了关系，客户端按需查询，DataLoader 自动批量加载。但如果把视角拉回到"协议本身"，REST 和 GraphQL 在数据后处理上其实都有明显短板。</p>
+<p>问题在于：两者都擅长表达"我要什么数据"，却都不擅长表达"拿到数据之后怎么加工"。REST 通常把这部分逻辑散落在 endpoint 的循环和组装代码里；GraphQL 通常把它塞进 resolver 或 computed field。它们都缺少一个显式的、可组合的 post-processing 阶段。</p>
+<p>看一个具体的例子。Sprint 接口需要返回 <code>task_count</code> 和 <code>contributor_names</code> 这两个派生字段。在 REST 或 GraphQL 里，你通常都有几个选择：</p>
+<p><strong>方案 A：在 endpoint / resolver 里计算。</strong> 但这意味着 endpoint 或 resolver 既要负责数据获取，又要负责业务计算。如果 <code>contributor_names</code> 需要所有 task 的 owner 都加载完才能汇总，你还得在这层手动处理依赖顺序——查询逻辑和计算逻辑纠缠在一起。</p>
+<p><strong>方案 B：定义成额外的组装字段。</strong> REST 里你会在 DTO 构建阶段临时补字段，GraphQL 里你会定义 computed field。技术上都可行，但协议本身都没有内置的"等后代数据就绪后再计算"机制，依赖顺序仍然要靠你自己维护。</p>
+<p><strong>方案 C：推给客户端计算。</strong> 让前端自己数 task 数量、自己汇总 contributor。这等于把后端的职责推给了前端，而且意味着接口返回的是原始数据而非业务语义。</p>
+<p>这三个方案都不理想。根本原因不是某个协议单独有缺陷，而是 REST 和 GraphQL 都缺少一个明确的 <strong>post-processing 阶段</strong>——一个"等所有数据都就绪了，再统一计算派生字段"的机制。<code>pydantic-resolve</code> 里的 <code>post_*</code> 正是在协议之上补出的这一层能力，它不是 REST 的原生优势，也不是 GraphQL 的内建特性。</p>
+<h3 id="_5">共同的缺失</h3>
+<table>
+<thead>
+<tr>
+<th>环节</th>
+<th>REST</th>
+<th>GraphQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据获取</td>
+<td>过程式，N+1 风险高</td>
+<td>声明式，DataLoader 自动批量</td>
+</tr>
+<tr>
+<td>数据后处理</td>
+<td>原生机制分散在 endpoint 组装代码里</td>
+<td>原生机制分散在 resolver / computed field 里</td>
+</tr>
+<tr>
+<td>关系定义</td>
+<td>散落在 endpoint 代码里</td>
+<td>集中在 schema 里，但与 REST 不共享</td>
+</tr>
+</tbody>
+</table>
+<p>两个协议都缺少一层<strong>显式的、可执行的关系层</strong>：在数据获取上，它体现为 ER Diagram + loader；在数据后处理上，它体现为 <code>post_*</code> 这样的统一模型机制。只有把这两层都从协议实现里抽出来，REST 和 GraphQL 才能真正共享同一套领域组装逻辑。</p>
+<h2 id="er-diagram-autoload">收敛到 ER Diagram + AutoLoad</h2>
+<h3 id="_6">问题的本质</h3>
+<p>回顾前面的分析，关系定义重复和分散，根源在于<strong>没有关系知识的中心</strong>。每个响应模型都在独立回答"Task 的 owner 怎么加载"这个问题。</p>
+<p>当你的代码库里出现以下信号时，说明需要一层抽象：</p>
+<ul>
+<li><code>TaskCard.resolve_owner</code></li>
+<li><code>TaskDetail.resolve_owner</code></li>
+<li><code>SprintBoard.resolve_tasks</code></li>
+<li><code>SprintReport.resolve_tasks</code></li>
+</ul>
+<p>同一个关系，被四五个响应模型反复实现。关系修改时（比如换了一个 loader），你需要改四五个地方。</p>
+<h3 id="er-diagram-autoload_1">ER Diagram + AutoLoad 的解法</h3>
+<p>pydantic-resolve 的 ER Diagram 把关系定义收敛到一个中心，<code>AutoLoad</code> 注解让响应模型自动获得数据加载能力：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># 定义 ER Diagram（只写一次）</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">BaseEntity</span> <span class="o">=</span> <span class="n">base_entity</span><span class="p">()</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">UserEntity</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">BaseEntity</span><span class="p">):</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskEntity</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">BaseEntity</span><span class="p">):</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">__relationships__</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'owner_id'</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'owner'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">UserEntity</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">user_loader</span><span class="p">)</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="p">]</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="k">class</span><span class="w"> </span><span class="nc">SprintEntity</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">BaseEntity</span><span class="p">):</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    <span class="n">__relationships__</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>        <span class="n">Relationship</span><span class="p">(</span><span class="n">fk</span><span class="o">=</span><span class="s1">'id'</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'tasks'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">TaskEntity</span><span class="p">],</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>                     <span class="n">loader</span><span class="o">=</span><span class="n">task_loader</span><span class="p">,</span> <span class="n">load_many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>    <span class="p">]</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="c1"># 创建 diagram 和 AutoLoad 工厂</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="n">diagram</span> <span class="o">=</span> <span class="n">BaseEntity</span><span class="o">.</span><span class="n">get_diagram</span><span class="p">()</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="n">AutoLoad</span> <span class="o">=</span> <span class="n">diagram</span><span class="o">.</span><span class="n">create_auto_load</span><span class="p">()</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="n">config_global_resolver</span><span class="p">(</span><span class="n">diagram</span><span class="p">)</span>
+</code></pre></div>
+<p>然后在响应模型里，只需要一个注解：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># 之前：每个响应模型都要写 resolve_owner</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskCard</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">owner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">UserEntity</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_owner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="n">Loader</span><span class="p">(</span><span class="n">user_loader</span><span class="p">)):</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="k">return</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">owner_id</span><span class="p">)</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># 之后：一个 AutoLoad 注解搞定</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskCard</span><span class="p">(</span><span class="n">TaskEntity</span><span class="p">):</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="n">owner</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">UserEntity</span><span class="p">],</span> <span class="n">AutoLoad</span><span class="p">()]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="c1"># 不需要 resolve_owner，ER Diagram 已经知道怎么加载</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaskDetail</span><span class="p">(</span><span class="n">TaskEntity</span><span class="p">):</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="n">owner</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">UserEntity</span><span class="p">],</span> <span class="n">AutoLoad</span><span class="p">()]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="c1"># 同样不需要 resolve_owner</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="k">class</span><span class="w"> </span><span class="nc">SprintBoard</span><span class="p">(</span><span class="n">SprintEntity</span><span class="p">):</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="n">tasks</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">TaskCard</span><span class="p">],</span> <span class="n">AutoLoad</span><span class="p">()]</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="n">task_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">post_task_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span>
+</code></pre></div>
+<p>注意几件事：</p>
+<ol>
+<li><strong>关系定义只写一次</strong>。<code>Task.owner</code> 的加载逻辑收敛到了 ER Diagram 的 <code>Relationship</code> 里。</li>
+<li><strong>post_* 完全不变</strong>。ER Diagram 只收敛了"数据获取"层，不碰"数据后处理"。<code>post_task_count</code> 的写法和之前一模一样。</li>
+<li><strong>响应模型保持灵活</strong>。<code>TaskCard</code> 和 <code>TaskDetail</code> 可以有不同的字段组合，但共享同一个 owner 加载逻辑。</li>
+</ol>
+<h3 id="_7">运行机制</h3>
+<p>AutoLoad 的背后并不复杂：</p>
+<ol>
+<li><code>config_global_resolver(diagram)</code> 把 ER Diagram 注入到 Resolver 类</li>
+<li>Resolver 扫描响应模型时，发现 <code>AutoLoad()</code> 注解</li>
+<li>根据 ER Diagram 中对应的 <code>Relationship</code>，<strong>动态生成 <code>resolve_*</code> 方法</strong></li>
+<li>生成的 resolve 方法使用 <code>Relationship</code> 中定义的 loader，走标准的 DataLoader 批量加载流程</li>
+</ol>
+<p>本质上，AutoLoad 是一个代码生成器——它替你写了那些重复的 <code>resolve_owner</code> 和 <code>resolve_tasks</code>。</p>
+<h2 id="graphql">GraphQL 变成薄薄一层</h2>
+<h3 id="resolver">同一个 Resolver 引擎</h3>
+<p>到了这里，文章的核心论点可以揭示了：<strong>有了 ER Diagram 之后，GraphQL 不需要自己的实现。</strong></p>
+<p>pydantic-resolve 的 GraphQL 集成做了这么一件事：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_resolve.graphql</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphQLHandler</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># 传入同一个 diagram</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">handler</span> <span class="o">=</span> <span class="n">GraphQLHandler</span><span class="p">(</span><span class="n">diagram</span><span class="p">)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1"># 执行 GraphQL 查询</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handler</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"""</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="s2">{</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="s2">    sprintEntities {</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="s2">        id</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="s2">        name</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="s2">        tasks {</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="s2">            id</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="s2">            title</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="s2">            owner {</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="s2">                id</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="s2">                name</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="s2">            }</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="s2">        }</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="s2">    }</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="s2">}</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="s2">"""</span><span class="p">)</span>
+</code></pre></div>
+<p>内部的执行链路：</p>
+<pre class="mermaid"><code>flowchart TB
+    Q["GraphQL 查询字符串"] --&gt; P["QueryParser&lt;br/&gt;提取字段选择树"]
+    P --&gt; R["ResponseBuilder&lt;br/&gt;动态构建 Pydantic 模型&lt;br/&gt;+ 注入 AutoLoad"]
+    R --&gt; E["QueryExecutor&lt;br/&gt;调用 @query 方法获取根数据"]
+    E --&gt; S["Resolver.resolve()&lt;br/&gt;同一个引擎"]
+    S --&gt; D["DataLoader&lt;br/&gt;同一个批量加载"]
+    D --&gt; J["JSON 响应"]</code></pre>
+<p>关键在于 <code>ResponseBuilder</code>：它根据 GraphQL 查询中的字段选择，<strong>动态构建 Pydantic 响应模型</strong>，并在关系字段上自动注入 <code>AutoLoad()</code> 注解。然后调用 <code>Resolver.resolve()</code>——和 REST 侧用的是<strong>完全同一个 Resolver</strong>、同一套 DataLoader、同一套 N+1 预防机制。</p>
+<p>REST 和 GraphQL 的唯一区别是：REST 的响应模型是你手写的，GraphQL 的响应模型是根据查询动态生成的。底层跑的是同一套代码。</p>
+<h3 id="graphql-schema-er-diagram">GraphQL schema 应该是 ER Diagram 的投影</h3>
+<p>一个常见的误用是按 UI 需求来设计 GraphQL schema。比如：</p>
+<ul>
+<li>前端有个 Sprint Dashboard 页面，于是定义 <code>SprintDashboardQuery</code></li>
+<li>前端有个 Task Card 组件，于是定义 <code>TaskCardQuery</code></li>
+<li>前端有个 User Avatar，于是定义 <code>UserAvatarQuery</code></li>
+</ul>
+<p>这会导致 schema 急剧膨胀。每个页面都要一套独立的 query 和 type，命名开始混乱（<code>SprintDashboardTask</code> vs <code>SprintBoardTask</code> vs <code>SprintReportTask</code>），而且和 domain 模型严重脱节——当你修改了 Task 的某个关系时，你不知道要改多少个"页面级 type"。</p>
+<p>正确的做法是：<strong>GraphQL schema 直接反映 ER Diagram 的实体和关系</strong>。客户端通过字段选择来表达自己的需求，而不是要求后端为每个页面定制一套 schema。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c"># 不是按页面定义 query，而是按实体查询，客户端按需选择字段</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="p">{</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">sprintEntities</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">        </span><span class="n">id</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">        </span><span class="n">name</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">        </span><span class="n">tasks</span><span class="w"> </span><span class="p">{</span><span class="w">          </span><span class="c"># Sprint -&gt; Task 关系，来自 ER Diagram</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">            </span><span class="n">id</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">            </span><span class="n">title</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">            </span><span class="n">owner</span><span class="w"> </span><span class="p">{</span><span class="w">      </span><span class="c"># Task -&gt; User 关系，来自 ER Diagram</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">                </span><span class="n">id</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">                </span><span class="n">name</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="p">}</span>
+</code></pre></div>
+<p>这也恰好证明了 ER Diagram 才是本质层——GraphQL schema 不应该是独立的模型体系，而应该是 ER Diagram 的一种视图。schema 是投影，ER Diagram 是光源。</p>
+<h3 id="graphql_1">GraphQL 的边界：数据获取工具，不是业务平台</h3>
+<p>明确了 GraphQL 的定位之后，它的边界也就清楚了：<strong>GraphQL 是数据获取工具，等价于数据库查询层。</strong></p>
+<p>它告诉你"能查什么、怎么查"。但以下事情不应该由 GraphQL 来承担：</p>
+<ul>
+<li><strong>权限管理</strong>：谁能查什么数据，这是业务层的职责。把它塞进 GraphQL resolver 会导致权限逻辑散落在每个字段解析器里，难以维护和审计。</li>
+<li><strong>缓存策略</strong>：数据该缓存多久、什么时候失效，这是基础设施层的事。GraphQL 的 <code>@cache</code> 指令只是在把基础设施问题拉进了查询层。</li>
+<li><strong>业务编排</strong>：跨实体的复杂操作（比如"创建 Sprint 并自动分配 Task"）应该在 REST/业务层处理，不应该变成 GraphQL mutation 里的复杂逻辑。</li>
+</ul>
+<p>正确的分层：</p>
+<pre class="mermaid"><code>flowchart TB
+    A["ER Diagram&lt;br/&gt;定义实体和关系"] --&gt; B["GraphQL&lt;br/&gt;数据获取和查询表达"]
+    A --&gt; C["REST / 业务层&lt;br/&gt;权限、缓存、编排"]
+    B --&gt; D["Resolver 引擎&lt;br/&gt;统一执行"]
+    C --&gt; D</code></pre>
+<p>把权限、缓存塞进 GraphQL resolver 的结果就是复杂度失控——查询逻辑和业务逻辑纠缠不清，resolver 变成了"上帝函数"。GraphQL 的价值在于灵活的查询表达，保持这个价值的前提是不让它越界。</p>
+<h2 id="_8">回到你的架构决策</h2>
+<p>总结一下决策框架：</p>
+<p><strong>场景一：少量实体，一两个接口。</strong> 直接用 <code>resolve_*</code> + <code>post_*</code> 的 Core API 就够了。手写几个 resolve 方法比搭建 ER Diagram 更快。不需要纠结。</p>
+<p><strong>场景二：3 个以上实体，关系定义开始重复。</strong> 把关系收敛到 ER Diagram。用 <code>AutoLoad</code> 消除重复的 resolve 方法，用 <code>DefineSubset</code> 控制字段暴露。这一步的收益是代码的维护性和一致性。</p>
+<p><strong>场景三：需要灵活的查询能力。</strong> 在 ER Diagram 上加一层 GraphQL。因为底层是同一个 Resolver 引擎，这不是重写，而是增量添加。schema 直接反映 ER Diagram，不需要额外设计。</p>
+<p><strong>场景四：需要给 AI Agent 提供结构化数据访问。</strong> 同一个 ER Diagram 还可以驱动 MCP 服务——但这已经是另一个话题了。</p>
+<p>核心原则只有一个：<strong>投资你的领域模型，而不是投资协议之争。</strong> ER Diagram 是领域知识的载体，REST 和 GraphQL 只是它的两种消费方式。当你把领域模型做好了，协议的选择就不再是架构决策，而是技术选型——哪个场景适合哪个，就用哪个。</p>
+<hr />
+<p><em>本文中的代码示例基于 <a href="https://github.com/allmonday/pydantic_resolve">pydantic-resolve</a>，一个基于 Pydantic 的声明式数据组装工具。</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../blog_pydantic_resolve_vs_orm/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Reframing Data Assembly: pydantic-resolve vs SQLAlchemy ORM">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Reframing Data Assembly: pydantic-resolve vs SQLAlchemy ORM
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../blog_context_assembly_for_llm/" class="md-footer__link md-footer__link--next" aria-label="Next: Treat the Context Window as a Data Assembly Problem">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Treat the Context Window as a Data Assembly Problem
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.top", "navigation.footer", "toc.follow", "header.autohide", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.links.target_blank"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

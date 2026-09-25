@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/api_cross_layer/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_cross_layer/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_cross_layer/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/api_dataloader/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_dataloader/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_dataloader/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/api_erd/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_erd/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_erd/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/api_graphql/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_graphql/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_graphql/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/api_mcp/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_mcp/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_mcp/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/api_resolver/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_resolver/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_resolver/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/api_subset/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_subset/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_subset/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/api_use_case_mcp/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_use_case_mcp/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_use_case_mcp/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/architecture_entity_first/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/architecture_entity_first/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/architecture_entity_first/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/benchmark/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/benchmark/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/benchmark/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/blog_context_assembly_for_llm/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/blog_context_assembly_for_llm/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/blog_context_assembly_for_llm/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/blog_pydantic_resolve_vs_orm/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/blog_pydantic_resolve_vs_orm/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/blog_pydantic_resolve_vs_orm/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/blog_rest_graphql_and_er_diagram/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/blog_rest_graphql_and_er_diagram/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/blog_rest_graphql_and_er_diagram/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/changelog/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/changelog/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/changelog/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/core_api/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/core_api/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/core_api/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/cross_layer_data_flow/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/cross_layer_data_flow/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/cross_layer_data_flow/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/dataloader_deep_dive/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/dataloader_deep_dive/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/dataloader_deep_dive/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/erd_and_autoload/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/erd_and_autoload/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/erd_and_autoload/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/erd_define_subset/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/erd_define_subset/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/erd_define_subset/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/fastapi_integration/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/fastapi_integration/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/fastapi_integration/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/graphql_and_mcp/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/graphql_and_mcp/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/graphql_and_mcp/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/graphql_guide/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/graphql_guide/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/graphql_guide/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/mcp_service/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/mcp_service/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/mcp_service/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/migration/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/migration/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/migration/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/orm_integration/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/orm_integration/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/orm_integration/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/post_processing/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/post_processing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/post_processing/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/quick_start/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/quick_start/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/quick_start/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/reference_bridge/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/reference_bridge/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/reference_bridge/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/scenario_contract/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/scenario_contract/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/scenario_contract/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/source_mapping/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/source_mapping/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/source_mapping/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/use_case_mcp_service/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/use_case_mcp_service/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/use_case_mcp_service/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/voyager_guide/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/voyager_guide/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/voyager_guide/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/api_cross_layer/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_cross_layer/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_cross_layer/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/api_dataloader/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_dataloader/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_dataloader/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/api_erd/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_erd/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_erd/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/api_graphql/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_graphql/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_graphql/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/api_mcp/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_mcp/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_mcp/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/api_resolver/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_resolver/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_resolver/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/api_subset/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_subset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_subset/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/api_use_case_mcp/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/api_use_case_mcp/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/api_use_case_mcp/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/architecture_entity_first/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/architecture_entity_first/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/architecture_entity_first/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/benchmark/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/benchmark/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/benchmark/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/blog_context_assembly_for_llm/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/blog_context_assembly_for_llm/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/blog_context_assembly_for_llm/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/blog_pydantic_resolve_vs_orm/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/blog_pydantic_resolve_vs_orm/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/blog_pydantic_resolve_vs_orm/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/blog_rest_graphql_and_er_diagram/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/blog_rest_graphql_and_er_diagram/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/blog_rest_graphql_and_er_diagram/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/changelog/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/changelog/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/changelog/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/core_api/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/core_api/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/core_api/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/cross_layer_data_flow/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/cross_layer_data_flow/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/cross_layer_data_flow/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/dataloader_deep_dive/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/dataloader_deep_dive/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/dataloader_deep_dive/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/erd_and_autoload/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/erd_and_autoload/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/erd_and_autoload/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/erd_define_subset/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/erd_define_subset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/erd_define_subset/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/fastapi_integration/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/fastapi_integration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/fastapi_integration/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/graphql_and_mcp/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/graphql_and_mcp/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/graphql_and_mcp/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/graphql_guide/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/graphql_guide/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/graphql_guide/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/mcp_service/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/mcp_service/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/mcp_service/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/migration/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/migration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/migration/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/orm_integration/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/orm_integration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/orm_integration/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/post_processing/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/post_processing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/post_processing/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/pydantic_resolve_vs_orm/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/pydantic_resolve_vs_orm/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/quick_start/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/quick_start/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/quick_start/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/reference_bridge/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/reference_bridge/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/reference_bridge/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/scenario_contract/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/scenario_contract/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/scenario_contract/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/source_mapping/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/source_mapping/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/source_mapping/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/use_case_mcp_service/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/use_case_mcp_service/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/use_case_mcp_service/"/>
+    </url>
+    <url>
+        <loc>https://allmonday.github.io/pydantic-resolve/zh/voyager_guide/</loc>
+        <lastmod>2026-09-25</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://allmonday.github.io/pydantic-resolve/zh/voyager_guide/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://allmonday.github.io/pydantic-resolve/voyager_guide/"/>
+    </url>
+</urlset>
