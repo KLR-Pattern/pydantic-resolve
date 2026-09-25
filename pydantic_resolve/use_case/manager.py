@@ -87,12 +87,24 @@ class UseCaseResources:
                 Service → Method → DTO field selection).
             context: Request-scoped context dict. Flows into method params
                 annotated with ``FromContext``.
+            variables: Values for variables declared in the query
+                (``query ($id: Int!) ...``). Every declared variable must be
+                provided explicitly — declared defaults are never applied.
 
         Returns:
-            Nested dict ``{service: {method: result}}``.
+            ``{"data": {service: {responseKey: result}}, "errors": [...]}``.
+            ``responseKey`` is the alias when present, otherwise the method
+            name. A failed invocation nulls only its own response key and
+            appends an entry to ``errors`` (``extensions.code``:
+            ``QUERY_FAILED`` / ``MUTATION_FAILED`` /
+            ``SKIPPED_PRIOR_FAILURE`` / ``PROJECTION_FAILED``).
 
         Raises:
-            ComposeError: For any validation or execution failure.
+            ComposeError: For validation failures only (parse errors,
+                unknown services/methods, duplicate response keys, missing
+                variables, invalid field selections) — all detected before
+                any method executes. Execution failures do NOT raise; they
+                surface in ``errors`` with partial data.
         """
         return await _compose_and_resolve(self, query, context, variables)
 

@@ -254,6 +254,7 @@ Returns detailed info for a single method: args (with types + defaults), return 
 compose_query(
     app_name: str,
     query: str,
+    variables: dict[str, Any] | None = None,
 ) -> dict
 ```
 
@@ -261,7 +262,8 @@ Executes a GraphQL data query against the compose surface. Fixed 3-level hierarc
 
 **Rules:**
 
-- No aliases (GraphQL `field:` syntax). Each field name must be unique within its parent.
+- Method-level aliases are supported (GraphQL `alias: field` syntax): each aliased invocation is an independent call and the response is keyed by the alias. Nested (DTO-level) aliases are not supported. Each response key must be unique within its parent — use aliases to invoke one method multiple times with different arguments.
+- Pass string arguments via `variables` (declared as `query ($name: Type!) ...`) — never inline them as GraphQL literals if they might contain quotes, backslashes or newlines; `variables` sidesteps all escaping. Every declared variable must be provided explicitly (declared defaults are not applied).
 - Service / method names must match the schema. Use `describe_compose_schema` to discover valid names.
 - Method arguments go in parentheses on the method field: `get_sprint(sprint_id: 1)`.
 - Parameters marked `FromContext` cannot be set from query arguments — they are server-injected.
@@ -274,8 +276,10 @@ Executes a GraphQL data query against the compose surface. Fixed 3-level hierarc
 - `@query` methods run concurrently.
 - `@mutation` methods run serially in declaration order.
 - The relative ordering between queries and mutations within a single `compose_query` call is NOT guaranteed. For create-then-read semantics, issue them as separate calls.
+- Validation failures (unknown fields, duplicate response keys, missing variables, ...) are detected before any method executes and fail the whole call. Execution failures are isolated per field: the failed response key is `null` and the call still returns `success=True` with partial data plus an `errors` list (`extensions.code`: `QUERY_FAILED` / `MUTATION_FAILED` / `SKIPPED_PRIOR_FAILURE` / `PROJECTION_FAILED`).
+- Mutation feedback is three-state: a succeeded call keeps its result, a failed call nulls only its own key with `MUTATION_FAILED`, and every later mutation in the same call is skipped with `SKIPPED_PRIOR_FAILURE`. Already-executed writes are never erased from the response.
 
-**Response shape** mirrors the request: each Service becomes a key whose value is a dict of method-name → result.
+**Response shape** mirrors the request: each Service becomes a key whose value is a dict of response key (alias when present, otherwise method name) → result.
 
 ```python
 compose_query(

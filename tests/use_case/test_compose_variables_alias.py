@@ -122,10 +122,12 @@ class TestMethodLevelAliases:
             )
 
     def test_alias_name_collision_rejected(self):
+        # An alias that equals another field's response key is a collision,
+        # distinct from a plain duplicate field.
         with pytest.raises(ComposeError, match="Duplicate response key 'get_task'"):
             asyncio.run(
                 _app().compose(
-                    "{ TaskService { get_task(task_id: 1) get_task(task_id: 2) } }"
+                    "{ TaskService { get_task(task_id: 1) get_task: get_task(task_id: 2) } }"
                 )
             )
 

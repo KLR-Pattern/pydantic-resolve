@@ -28,7 +28,7 @@ from pydantic_resolve.utils.types import (
     get_core_types,
 )
 from pydantic_resolve.graphql.exceptions import GraphQLError
-from pydantic_resolve.graphql.query_parser import QueryParser
+from pydantic_resolve.graphql.query_parser import QueryParser, reject_all_aliases
 from pydantic_resolve.graphql.utils import group_type_name
 from pydantic_resolve.graphql.response_builder import ResponseBuilder
 
@@ -115,8 +115,6 @@ class QueryExecutor:
         parsed = self.parser.parse(query)
         # Entity-first projects DTOs by field name — aliases are rejected
         # (compose supports method-level aliases; see query_parser gates).
-        from pydantic_resolve.graphql.query_parser import reject_all_aliases
-
         reject_all_aliases(parsed.field_tree)
         logger.debug(f"Query parsed: {len(parsed.field_tree)} root groups found")
 
@@ -238,8 +236,6 @@ class QueryExecutor:
         parsed = self.parser.parse(query)
         # Entity-first projects DTOs by field name — aliases are rejected
         # (compose supports method-level aliases; see query_parser gates).
-        from pydantic_resolve.graphql.query_parser import reject_all_aliases
-
         reject_all_aliases(parsed.field_tree)
         logger.debug(f"Mutation parsed: {len(parsed.field_tree)} root groups found")
 

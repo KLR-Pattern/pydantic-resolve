@@ -162,6 +162,38 @@ class SeqService(UseCaseService):
         return "fast_mutation"
 
 
+# Module-level log so ProjectionService can prove a mutation side effect
+# actually executed even when the response projection fails.
+_projection_log: list[str] = []
+
+
+class ProjectionItem(BaseModel):
+    id: int
+
+
+class ProjectionService(UseCaseService):
+    """Methods whose return values violate their own annotations.
+
+    Exercises the two projection guarantees: query-shape errors fail before
+    any execution, while runtime projection failures null only their own
+    response key.
+    """
+
+    @query
+    async def good(cls) -> ProjectionItem:
+        return ProjectionItem(id=1)
+
+    @query
+    async def bad_query(cls) -> ProjectionItem:
+        return {"nope": "garbage"}  # missing 'id' — fails projection at runtime
+
+    @mutation
+    async def bad_write(cls) -> ProjectionItem:
+        # Side effect commits, then the return value fails projection.
+        _projection_log.append("bad_write")
+        return {"nope": "garbage"}
+
+
 # ──────────────────────────────────────────────────
 # Manager / app fixtures
 # ──────────────────────────────────────────────────
@@ -173,12 +205,15 @@ def _make_manager(
     context_extractor=None,
     with_seq: bool = False,
     with_uuid: bool = False,
+    with_projection: bool = False,
 ) -> UseCaseManager:
     services = [SprintService, TaskService]
     if with_uuid:
         services.append(UuidService)
     if with_seq:
         services.append(SeqService)
+    if with_projection:
+        services.append(ProjectionService)
     return UseCaseManager(
         apps=[
             UseCaseAppConfig(
@@ -227,7 +262,7 @@ class TestComposeHappyPath:
     @pytest.mark.asyncio
     async def test_single_service_single_method(self):
         app = _make_manager().get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ SprintService { list_sprints { id name } } }",
         )
         assert list(result.keys()) == ["SprintService"]
@@ -239,7 +274,7 @@ class TestComposeHappyPath:
     @pytest.mark.asyncio
     async def test_single_service_multiple_methods(self):
         app = _make_manager().get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ SprintService { list_sprints { id } get_sprint(sprint_id: 1) { name } } }",
         )
         svc = result["SprintService"]
@@ -249,7 +284,7 @@ class TestComposeHappyPath:
     @pytest.mark.asyncio
     async def test_multiple_services_parallel(self):
         app = _make_manager().get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             """
             {
               SprintService { list_sprints { id } }
@@ -263,7 +298,7 @@ class TestComposeHappyPath:
     @pytest.mark.asyncio
     async def test_method_with_argument_int_coercion(self):
         app = _make_manager().get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ TaskService { get_task(task_id: 42) { id title } } }",
         )
         assert result["TaskService"]["get_task"] == {"id": 42, "title": "Task 42"}
@@ -272,7 +307,7 @@ class TestComposeHappyPath:
     async def test_optional_argument_with_default_omitted(self):
         app = _make_manager().get_app("project")
         # include_owner has default=True; omit it.
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ TaskService { get_task(task_id: 1) { id } } }",
         )
         assert result["TaskService"]["get_task"]["id"] == 1
@@ -280,7 +315,7 @@ class TestComposeHappyPath:
     @pytest.mark.asyncio
     async def test_list_return_with_projection(self):
         app = _make_manager().get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ SprintService { list_sprints { id name } } }",
         )
         sprints = result["SprintService"]["list_sprints"]
@@ -289,7 +324,7 @@ class TestComposeHappyPath:
     @pytest.mark.asyncio
     async def test_optional_dto_returning_none(self):
         app = _make_manager().get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ SprintService { get_sprint(sprint_id: 999) { name } } }",
         )
         assert result["SprintService"]["get_sprint"] is None
@@ -297,7 +332,7 @@ class TestComposeHappyPath:
     @pytest.mark.asyncio
     async def test_uuid_field_serializes_to_json_string(self):
         app = _make_manager(with_uuid=True).get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ UuidService { get_one { id } } }",
         )
         assert result["UuidService"]["get_one"] == {
@@ -307,7 +342,7 @@ class TestComposeHappyPath:
     @pytest.mark.asyncio
     async def test_dict_payload_recursively_serializes_uuid_values(self):
         app = _make_manager(with_uuid=True).get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ UuidService { get_payload } }",
         )
         assert result["UuidService"]["get_payload"] == {
@@ -321,7 +356,7 @@ class TestComposeHappyPath:
     async def test_self_resolved_method_result_is_projected(self):
         """DTO.resolve_owner fires inside the method (self-resolve); compose just projects."""
         app = _make_manager().get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ TaskService { get_task(task_id: 1) { id owner { id name } } } }",
         )
         task = result["TaskService"]["get_task"]
@@ -330,7 +365,7 @@ class TestComposeHappyPath:
     @pytest.mark.asyncio
     async def test_mutation_allowed_when_enabled(self):
         app = _make_manager(enable_mutation=True).get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             '{ TaskService { create_task(title: "New") { id title } } }',
         )
         assert result["TaskService"]["create_task"]["title"] == "New"
@@ -338,7 +373,7 @@ class TestComposeHappyPath:
     @pytest.mark.asyncio
     async def test_from_context_param_injection(self):
         app = _make_context_manager().get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ ContextService { get_my_tasks { id title } } }",
             context={"user_id": 7},
         )
@@ -405,7 +440,7 @@ class TestComposeValidation:
     async def test_unknown_service(self):
         app = _make_manager().get_app("project")
         with pytest.raises(ComposeError, match="Service 'NoSuchService'"):
-            await _compose(app, 
+            await _compose(app,
                 "{ NoSuchService { anything { id } } }",
             )
 
@@ -413,7 +448,7 @@ class TestComposeValidation:
     async def test_unknown_method(self):
         app = _make_manager().get_app("project")
         with pytest.raises(ComposeError, match="Method 'no_such_method'"):
-            await _compose(app, 
+            await _compose(app,
                 "{ SprintService { no_such_method { id } } }",
             )
 
@@ -450,7 +485,7 @@ class TestComposeValidation:
     async def test_mutation_when_disabled(self):
         app = _make_manager(enable_mutation=False).get_app("project")
         with pytest.raises(ComposeError, match="mutations are disabled"):
-            await _compose(app, 
+            await _compose(app,
                 '{ TaskService { create_task(title: "x") { id } } }',
             )
 
@@ -458,7 +493,7 @@ class TestComposeValidation:
     async def test_dto_method_requires_selection(self):
         app = _make_manager().get_app("project")
         with pytest.raises(ComposeError, match="requires field selection"):
-            await _compose(app, 
+            await _compose(app,
                 "{ SprintService { get_sprint(sprint_id: 1) } }",
             )
 
@@ -466,7 +501,7 @@ class TestComposeValidation:
     async def test_dto_leaf_arguments_rejected(self):
         app = _make_manager().get_app("project")
         with pytest.raises(ComposeError, match="Arguments are not allowed on DTO field"):
-            await _compose(app, 
+            await _compose(app,
                 "{ TaskService { get_task(task_id: 1) { owner(limit: 5) { id } } } }",
             )
 
@@ -474,7 +509,7 @@ class TestComposeValidation:
     async def test_service_level_arguments_rejected(self):
         app = _make_manager().get_app("project")
         with pytest.raises(ComposeError, match="not allowed on Service"):
-            await _compose(app, 
+            await _compose(app,
                 "{ SprintService(limit: 5) { list_sprints { id } } }",
             )
 
@@ -482,7 +517,7 @@ class TestComposeValidation:
     async def test_unknown_field_in_selection(self):
         app = _make_manager().get_app("project")
         with pytest.raises(ComposeError, match="Unknown field"):
-            await _compose(app, 
+            await _compose(app,
                 "{ SprintService { list_sprints { nonexistent } } }",
             )
 
@@ -492,7 +527,7 @@ class TestComposeValidation:
         # recover without a separate schema discovery call.
         app = _make_manager().get_app("project")
         with pytest.raises(ComposeError, match="Available fields:") as exc_info:
-            await _compose(app, 
+            await _compose(app,
                 "{ SprintService { list_sprints { nonexistent } } }",
             )
         assert "id" in str(exc_info.value)
@@ -502,9 +537,69 @@ class TestComposeValidation:
     async def test_sub_selection_on_scalar_rejected(self):
         app = _make_manager().get_app("project")
         with pytest.raises(ComposeError):
-            await _compose(app, 
+            await _compose(app,
                 "{ SprintService { list_sprints { id { foo } } } }",
             )
+
+
+# ──────────────────────────────────────────────────
+# Projection isolation: committed results are never discarded
+# ──────────────────────────────────────────────────
+
+
+class TestComposeProjectionIsolation:
+    """Two guarantees around projection failures.
+
+    - Query-shape problems (unknown fields, missing selection) are caught
+      at plan time, BEFORE any method executes — a raising query has no
+      side effects.
+    - Runtime projection failures (a method returning data that violates
+      its own return annotation) null only their own response key with
+      ``PROJECTION_FAILED`` — already-committed results, including
+      mutations, stay in the response.
+    """
+
+    @pytest.mark.asyncio
+    async def test_selection_error_fails_before_execution(self):
+        app = _make_manager(with_projection=True).get_app("project")
+        _projection_log.clear()
+        with pytest.raises(ComposeError, match="Unknown field 'nonexistent'"):
+            await app.compose(
+                "{ ProjectionService { bad_write { id } good { nonexistent } } }",
+            )
+        # The mutation never ran — validation failed before execution.
+        assert _projection_log == []
+
+    @pytest.mark.asyncio
+    async def test_runtime_projection_failure_nulls_only_its_key(self):
+        app = _make_manager(with_projection=True).get_app("project")
+        result = await app.compose(
+            "{ ProjectionService { good { id } bad_query { id } } }",
+        )
+        assert result["errors"] != []
+        assert result["data"]["ProjectionService"]["good"] == {"id": 1}
+        assert result["data"]["ProjectionService"]["bad_query"] is None
+        error = result["errors"][0]
+        assert error["path"] == ["ProjectionService", "bad_query"]
+        assert error["extensions"]["code"] == "PROJECTION_FAILED"
+        assert error["extensions"]["service_method"] == "ProjectionService.bad_query"
+
+    @pytest.mark.asyncio
+    async def test_committed_write_survives_projection_failure(self):
+        # The invariant from _execute_plans: already-executed writes are
+        # never erased from the response — even by a later projection
+        # failure on the same request.
+        app = _make_manager(with_projection=True).get_app("project")
+        _projection_log.clear()
+        result = await app.compose(
+            "{ ProjectionService { bad_write { id } good { id } } }",
+        )
+        assert _projection_log == ["bad_write"]  # side effect committed
+        assert result["data"]["ProjectionService"]["bad_write"] is None
+        assert result["data"]["ProjectionService"]["good"] == {"id": 1}
+        error = result["errors"][0]
+        assert error["extensions"]["code"] == "PROJECTION_FAILED"
+        assert error["path"] == ["ProjectionService", "bad_write"]
 
 
 # ──────────────────────────────────────────────────
@@ -538,7 +633,7 @@ class TestComposeFromContextSecurity:
         app = _make_context_manager().get_app("project")
         # context_extractor returns {"user_id": ctx.get("user_id", 0)},
         # so passing user_id=7 in context yields tasks for user 7.
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ ContextService { get_my_tasks { id title } } }",
             context={"user_id": 7},
         )
@@ -569,7 +664,7 @@ class TestComposeExecutionOrdering:
         # would be ["fast_mutation", "slow_mutation"]. Serial execution
         # preserves declaration order: ["slow_mutation", "fast_mutation"].
         app = _make_manager(with_seq=True).get_app("project")
-        await _compose(app, 
+        await _compose(app,
             "{ SeqService { slow_mutation fast_mutation } }",
         )
         assert _seq_log == ["slow_mutation", "fast_mutation"]
@@ -580,7 +675,7 @@ class TestComposeExecutionOrdering:
         # would always complete before fast_query. Concurrent execution
         # lets fast_query win — log = ["fast_query", "slow_query"].
         app = _make_manager(with_seq=True).get_app("project")
-        await _compose(app, 
+        await _compose(app,
             "{ SeqService { slow_query fast_query } }",
         )
         assert _seq_log == ["fast_query", "slow_query"]
@@ -589,7 +684,7 @@ class TestComposeExecutionOrdering:
     async def test_single_mutation_works(self):
         # Sanity: a lone mutation executes and returns a value.
         app = _make_manager(with_seq=True).get_app("project")
-        result = await _compose(app, 
+        result = await _compose(app,
             "{ SeqService { fast_mutation } }",
         )
         assert result["SeqService"]["fast_mutation"] == "fast_mutation"

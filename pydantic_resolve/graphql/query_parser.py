@@ -327,14 +327,23 @@ def find_nested_alias(sel: FieldSelection) -> tuple[str, str] | None:
     return _walk(sel)
 
 
-def nested_alias_message(dotted: str, field_name: str) -> str:
-    """Error text for a nested-field alias, shared by every reject site."""
+def nested_alias_message(
+    dotted: str, field_name: str, *, method_level_ok: bool = True
+) -> str:
+    """Error text for a nested-field alias, shared by every reject site.
+
+    ``method_level_ok`` tailors the remedy to the calling path: compose
+    supports method-level aliases (the default), while the entity-first
+    executor rejects aliases everywhere.
+    """
     alias_key = dotted.rsplit(".", 1)[-1]
-    return (
+    message = (
         "Field aliases are not supported at nested level "
-        f"('{field_name}' aliased to '{alias_key}'); "
-        "only method-level aliases are supported"
+        f"('{field_name}' aliased to '{alias_key}')"
     )
+    if method_level_ok:
+        return message + "; only method-level aliases are supported"
+    return message + ". Use the original field name."
 
 
 def reject_all_aliases(field_tree: dict[str, FieldSelection]) -> None:
@@ -352,4 +361,6 @@ def reject_all_aliases(field_tree: dict[str, FieldSelection]) -> None:
             )
         nested = find_nested_alias(sel)
         if nested is not None:
-            raise QueryParseError(nested_alias_message(nested[0], nested[1]))
+            raise QueryParseError(
+                nested_alias_message(nested[0], nested[1], method_level_ok=False)
+            )

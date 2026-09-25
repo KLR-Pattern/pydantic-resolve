@@ -300,8 +300,6 @@ def create_use_case_graphql_mcp_server(
           GraphQL literals if they might contain quotes, backslashes or
           newlines; ``variables`` sidesteps all escaping. Every declared
           variable must be provided (declared defaults are not applied).
-        - Each field name must be
-          unique within its parent.
         - Service / method names must match the schema. Use
           ``describe_compose_schema`` to discover valid names.
         - Method arguments go in parentheses on the method field:
@@ -326,16 +324,26 @@ def create_use_case_graphql_mcp_server(
           ``compose_query`` calls.
 
         The response shape mirrors the request: each Service becomes a
-        key whose value is a dict of method-name → result.
+        key whose value is a dict of response key (alias when present,
+        otherwise method name) → result.
 
         Args:
             app_name: Application name (from ``list_apps``).
             query: GraphQL data query string (introspection is rejected).
+            variables: Values for variables declared in the query
+                (``query ($id: Int!) ...``). Every declared variable must
+                be provided explicitly — declared defaults are never
+                applied.
             ctx: MCP request context (used for context_extractor).
 
         Returns:
-            ``{success, data: {service: {method: result}}, hint}`` on
-            success. On failure: ``success=False``, ``error``,
+            ``{success, data: {service: {responseKey: result}}, hint}`` on
+            success. Field-level failures still return ``success=True``
+            with partial data: the failed response key is ``null`` and an
+            ``errors`` list carries ``path`` plus ``extensions.code``
+            (``QUERY_FAILED`` / ``MUTATION_FAILED`` /
+            ``SKIPPED_PRIOR_FAILURE`` / ``PROJECTION_FAILED``).
+            On validation failure: ``success=False``, ``error``,
             ``error_type`` (one of: validation_error, type_not_found,
             operation_not_found, query_execution_error,
             mutation_execution_error, app_not_found, internal_error).
@@ -382,7 +390,8 @@ def create_use_case_graphql_mcp_server(
                 # Field-level failures: partial data is still a success at
                 # the protocol level; failed response keys are null and each
                 # error carries path + extensions.code
-                # (QUERY_FAILED / MUTATION_FAILED / SKIPPED_PRIOR_FAILURE).
+                # (QUERY_FAILED / MUTATION_FAILED /
+                # SKIPPED_PRIOR_FAILURE / PROJECTION_FAILED).
                 response["errors"] = result["errors"]
             response["hint"] = (
                 f"Composed query executed for app '{app_name}'. "

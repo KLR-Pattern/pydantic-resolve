@@ -83,6 +83,12 @@ class ServiceExecutionPlan:
     # resolution uses the original names above.
     service_key: str = ""
     method_key: str = ""
+    # Projection target prepared at plan time: the return annotation with
+    # its DTO core swapped for the selection's subset model. ``None`` when
+    # there is nothing to project (scalar/unannotated return). Prepared by
+    # ``_prepare_projection`` BEFORE any method executes so selection
+    # errors fail fast with no side effects.
+    projected_anno: Any = None
 
     def __post_init__(self) -> None:
         if not self.service_key:
@@ -111,15 +117,27 @@ async def _compose_and_resolve(
             first).
         context: Request-scoped context dict. Flows into method params
             annotated with ``FromContext``.
+        variables: Values for variables declared in the query
+            (``query ($id: Int!) ...``). Every declared variable must be
+            provided explicitly — declared defaults are never applied.
 
     Returns:
-        Nested dict shaped like ``{service: {method: result}}``.
+        ``{"data": {service: {responseKey: result}}, "errors": [...]}``.
+        ``responseKey`` is the alias when present, otherwise the method
+        name. A failed invocation nulls only its own response key and
+        appends an entry to ``errors`` with ``path`` and
+        ``extensions.code`` (``QUERY_FAILED`` / ``MUTATION_FAILED`` /
+        ``SKIPPED_PRIOR_FAILURE`` / ``PROJECTION_FAILED``).
 
     Raises:
-        ComposeError: For any validation or execution failure. The
-            ``error_type`` attribute carries the MCP error code. An
-            introspection query passed here will surface as
-            ``type_not_found`` (``__schema`` etc. are not services).
+        ComposeError: For validation failures only — parse errors, unknown
+            services/methods, duplicate response keys, missing variables,
+            invalid field selections. All of these are detected BEFORE any
+            method executes, so a raising query never has side effects.
+            Execution failures do NOT raise; they surface in ``errors``
+            with partial data. An introspection query passed here will
+            surface as ``type_not_found`` (``__schema`` etc. are not
+            services).
 
     Note:
         Compose does NOT run ``Resolver`` on the returned DTOs. Business
@@ -140,11 +158,32 @@ async def _compose_and_resolve(
     output: dict[str, Any] = {}
     for plan in plans:
         svc_dict = output.setdefault(plan.service_key, {})
-        svc_dict[plan.method_key] = (
-            None
-            if plan_to_result[id(plan)] is _ERRORED
-            else _project_one(plan_to_result[id(plan)], plan)
-        )
+        result = plan_to_result[id(plan)]
+        if result is _ERRORED:
+            svc_dict[plan.method_key] = None
+            continue
+        try:
+            svc_dict[plan.method_key] = _project_one(result, plan)
+        except Exception as e:  # noqa: BLE001 — a result that fails
+            # projection (e.g. a method returning data that does not fit
+            # its own return annotation) nulls only its own response key;
+            # already-executed results, including committed mutations, are
+            # never erased from the response.
+            svc_dict[plan.method_key] = None
+            errors.append(
+                {
+                    "message": (
+                        str(e)
+                        if isinstance(e, ComposeError)
+                        else f"{type(e).__name__}: {e}"
+                    ),
+                    "path": [plan.service_key, plan.method_key],
+                    "extensions": {
+                        "code": "PROJECTION_FAILED",
+                        "service_method": f"{plan.service_name}.{plan.method_name}",
+                    },
+                }
+            )
     return {"data": output, "errors": errors}
 
 
@@ -262,6 +301,12 @@ def _build_plans(app: Any, parsed: ParsedQuery) -> list[ServiceExecutionPlan]:
                 service_key=service_key,
                 method_key=method_key,
             ))
+    # Selection validation happens at plan time, BEFORE execution: unknown
+    # fields, missing selections, and DTO-leaf arguments fail fast with no
+    # side effects. Anything that can still fail afterwards (runtime data
+    # not fitting the prepared projection) nulls only its own response key.
+    for plan in plans:
+        _prepare_projection(plan)
     return plans
 
 
@@ -603,10 +648,17 @@ def _get_from_context_params(method: Any) -> set[str]:
 # ============================================================================
 
 
-def _project_one(result: Any, plan: ServiceExecutionPlan) -> Any:
-    if result is None:
-        return None
+def _prepare_projection(plan: ServiceExecutionPlan) -> None:
+    """Validate the selection against the return type and cache the
+    projection annotation on ``plan.projected_anno``.
 
+    Runs at plan time, before any method executes, so everything that
+    depends only on the query shape (arguments on DTO leaves, missing
+    field selection, unknown fields) raises :class:`ComposeError` with no
+    side effects. Only the genuinely runtime steps — validating the
+    method's actual result and serializing it — remain in
+    :func:`_project_one`.
+    """
     # Method-level arguments (e.g. get_sprint(sprint_id: 1)) are legitimate.
     # Only reject arguments on DTO leaf selections (sub_fields of the method).
     if plan.method_selection.sub_fields:
@@ -618,22 +670,28 @@ def _project_one(result: Any, plan: ServiceExecutionPlan) -> Any:
         if plan.return_anno is not None
         else None
     )
+    if core_type is None:
+        return  # scalar/unannotated return: serialized as-is, no projection
 
-    if core_type is not None:
-        if not plan.method_selection.sub_fields:
-            raise ComposeError(
-                f"Method '{plan.service_name}.{plan.method_name}' returns an object "
-                f"type and requires field selection (e.g. '{{ id name }}').",
-                "validation_error",
-            )
-        try:
-            subset_model = build_subset_model(core_type, plan.method_selection)
-            projected_anno = _replace_model_type(plan.return_anno, subset_model)
-            projected = TypeAdapter(projected_anno).validate_python(result)
-        except SelectionError as e:
-            raise ComposeError(str(e), "validation_error") from e
+    if not plan.method_selection.sub_fields:
+        raise ComposeError(
+            f"Method '{plan.service_name}.{plan.method_name}' returns an object "
+            f"type and requires field selection (e.g. '{{ id name }}').",
+            "validation_error",
+        )
+    try:
+        subset_model = build_subset_model(core_type, plan.method_selection)
+    except SelectionError as e:
+        raise ComposeError(str(e), "validation_error") from e
+    plan.projected_anno = _replace_model_type(plan.return_anno, subset_model)
+
+
+def _project_one(result: Any, plan: ServiceExecutionPlan) -> Any:
+    if result is None:
+        return None
+    if plan.projected_anno is not None:
+        projected = TypeAdapter(plan.projected_anno).validate_python(result)
         return _serialize_result(projected)
-
     return _serialize_result(result)
 
 
