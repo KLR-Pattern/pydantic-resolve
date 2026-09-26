@@ -105,6 +105,33 @@ class TestLiteralHelpers:
         )
         assert describe_literal_values("Plain.", str) == "Plain."
 
+    @pytest.mark.parametrize(
+        ("annotation", "expected"),
+        [
+            (Literal[True, False], "Allowed values: true, false"),
+            (Literal["open", None], "Allowed values: open (or null)"),
+            (Optional[Literal["fast"]], "Allowed values: fast (or null)"),
+            (Literal["fast"] | None, "Allowed values: fast (or null)"),
+            (Optional[Literal[True, None]], "Allowed values: true (or null)"),
+            (List[Literal[False, None]], "Allowed values: false (or null)"),
+            (Optional[List[Literal[1, 2]]], "Allowed values: 1, 2 (or null)"),
+            (Literal["True", "False"], "Allowed values: True, False"),
+            (Literal[0, 1], "Allowed values: 0, 1"),
+        ],
+    )
+    def test_description_uses_graphql_literals_and_preserves_nullability(
+        self, annotation, expected
+    ):
+        assert describe_literal_values(None, annotation) == expected
+        assert describe_literal_values("Choose a value.", annotation) == (
+            f"Choose a value. {expected}"
+        )
+
+    @pytest.mark.parametrize("annotation", [str, Optional[str], Literal[None], int | str])
+    def test_no_literal_constraint_preserves_description(self, annotation):
+        assert describe_literal_values("Existing.", annotation) == "Existing."
+        assert describe_literal_values(None, annotation) is None
+
 
 class TestLiteralSDL:
     """Entity SDL carries correct scalar types and Allowed values docs."""
@@ -180,8 +207,8 @@ class TestLiteralIntrospection:
         assert fields["status"]["type"]["name"] == "String"
         assert fields["note"]["type"]["name"] == "String"
         assert fields["status"]["description"] == "Allowed values: open, closed"
-        # None member is excluded from the listed values.
-        assert fields["note"]["description"] == "Allowed values: draft"
+        assert fields["flag"]["description"] == "Allowed values: true, false"
+        assert fields["note"]["description"] == "Allowed values: draft (or null)"
 
     @pytest.mark.asyncio
     async def test_method_arg_type_and_description(self):
