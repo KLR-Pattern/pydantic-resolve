@@ -5,7 +5,7 @@ Covers every Literal flavor that must map to a GraphQL scalar: int, str,
 bool, and a None member (nullable). Used by test_literal_type_mapping.py.
 """
 
-from typing import List, Literal
+from typing import List, Literal, Optional
 from pydantic import BaseModel
 from pydantic_resolve import base_entity, query
 
@@ -33,6 +33,9 @@ class TaskLiteEntity(BaseModel, BaseEntity):
     flag: Literal[True, False] = True
     # None member: the value may be null although this is not a Union.
     note: Literal["draft", None] = None
+    # Plain Optional output field: pins the #320 option-A change (nullable
+    # in SDL output, matching introspection, instead of the old String!).
+    memo: Optional[str] = None
 
     @query
     async def get_all(cls) -> List["TaskLiteEntity"]:

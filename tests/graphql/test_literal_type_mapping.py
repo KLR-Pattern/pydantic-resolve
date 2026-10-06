@@ -16,8 +16,8 @@ import pytest
 from pydantic_resolve import config_global_resolver
 from pydantic_resolve.graphql import GraphQLHandler, SchemaBuilder
 from pydantic_resolve.graphql.type_mapping import (
+    annotation_is_nullable,
     describe_literal_values,
-    literal_allowed_values,
     literal_is_nullable,
     map_python_to_graphql,
     map_scalar_type,
@@ -90,11 +90,19 @@ class TestLiteralHelpers:
         assert literal_is_nullable(Optional[Literal["a"]]) is False
         assert literal_is_nullable(str) is False
 
-    def test_literal_allowed_values_unwraps_wrappers(self):
-        assert literal_allowed_values(Literal["open", "closed"]) == ("open", "closed")
-        assert literal_allowed_values(Optional[Literal["open", None]]) == ("open",)
-        assert literal_allowed_values(List[Literal[1, 2]]) == (1, 2)
-        assert literal_allowed_values(str) is None
+    def test_annotation_is_nullable_covers_both_layers(self):
+        # The single predicate NON_NULL decisions must ask (#320): Optional
+        # wrapper and Literal None member, either one alone suffices.
+        assert annotation_is_nullable(Optional[str]) is True
+        assert annotation_is_nullable(str | None) is True
+        assert annotation_is_nullable(Literal["a", None]) is True
+        assert annotation_is_nullable(Optional[Literal["a"]]) is True
+        assert annotation_is_nullable(Literal["a"]) is False
+        assert annotation_is_nullable(str) is False
+        assert annotation_is_nullable(int | str) is False
+        # Element nullability inside a list is the inner type's concern —
+        # the list annotation itself is not nullable.
+        assert annotation_is_nullable(List[Literal["a", None]]) is False
 
     def test_describe_literal_values(self):
         assert describe_literal_values(None, Literal["open", "closed"]) == (
@@ -150,12 +158,17 @@ class TestLiteralSDL:
     def test_str_literal_field_type(self):
         assert "status: String!" in self.sdl
 
-    def test_none_member_field_follows_optional_convention(self):
-        # Output fields are NON_NULL by convention on this path (even
-        # Optional[T] renders as T!); the None-member Literal matches the
-        # Optional treatment. Nullability itself is covered by the input
-        # side (below) and by map_python_to_graphql.
-        assert "note: String!" in self.sdl
+    def test_none_member_output_field_is_nullable(self):
+        # #320: output SDL matches introspection — nullable annotations
+        # (Literal[..., None] included) no longer force NON_NULL.
+        assert "note: String" in self.sdl
+        assert "note: String!" not in self.sdl
+
+    def test_optional_output_field_is_nullable(self):
+        # #320 option A: plain Optional[T] output fields used to render as
+        # T! by convention; they now match introspection (nullable).
+        assert "memo: String" in self.sdl
+        assert "memo: String!" not in self.sdl
 
     def test_none_member_input_field_is_nullable(self):
         input_block = self.sdl.split("input TaskFilter")[1]

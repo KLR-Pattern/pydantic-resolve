@@ -23,6 +23,7 @@ from pydantic import BaseModel
 from pydantic_resolve import query
 from pydantic_resolve.use_case.business import UseCaseService
 from pydantic_resolve.use_case.compose import ComposeError
+from pydantic_resolve.use_case.compose_schema import method_sdl
 from pydantic_resolve.use_case.manager import UseCaseAppConfig, UseCaseManager
 
 
@@ -170,6 +171,17 @@ class TestScalarLiteralSupport:
         for dto in dtos:
             assert dto.fields["enabled"].description == "Allowed values: true, false"
             assert dto.fields["note"].description == "Allowed values: draft (or null)"
+
+    def test_method_sdl_literal_nullability_matches_introspection(self):
+        # #320: the SDL renderer must agree with _build_type_ref/introspection —
+        # a None member suppresses the ! suffix instead of forcing NON_NULL.
+        res = UseCaseManager([_app([LiteralService])]).get_app("t")
+        sdl = method_sdl(res.compose_schema, "LiteralService", "get_task")
+        block = sdl.split("type LiteralTaskDTO")[1]
+        assert "note: String" in block
+        assert "note: String!" not in block
+        assert "enabled: Boolean!" in block
+        assert "status: String!" in block
 
     @pytest.mark.parametrize(
         ("status", "ok"), [("open", True), ("pending", False)]

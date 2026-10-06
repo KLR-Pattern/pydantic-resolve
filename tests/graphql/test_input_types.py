@@ -142,9 +142,12 @@ class TestInputTypeSchemaGeneration:
 
         # Check CreateUserInput is generated as input type
         assert "input CreateUserInput {" in schema
-        assert "name: String!" in schema
-        assert "email: String!" in schema
-        assert "age: Int!" in schema
+        input_block = schema.split("input CreateUserInput")[1].split("}")[0]
+        assert "name: String!" in input_block
+        assert "email: String!" in input_block
+        # age is Optional[int] — nullable, no ! suffix (#320).
+        assert "age: Int" in input_block
+        assert "age: Int!" not in input_block
 
     def test_nested_input_type_generated(self, schema_builder):
         """Test that nested input types are generated"""

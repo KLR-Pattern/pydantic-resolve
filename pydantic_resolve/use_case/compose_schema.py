@@ -39,6 +39,7 @@ from pydantic_resolve.graphql.schema.type_registry import (
     SCALAR_TYPES,
 )
 from pydantic_resolve.graphql.type_mapping import (
+    annotation_is_nullable,
     is_enum_type,
     literal_info,
     describe_literal_values,
@@ -47,7 +48,6 @@ from pydantic_resolve.use_case.business import UseCaseService, iter_use_case_met
 from pydantic_resolve.use_case.context import is_from_context_annotation
 from pydantic_resolve.utils.class_util import safe_issubclass
 from pydantic_resolve.utils.types import (
-    _is_optional,
     _resolve_function_type_hints,
     get_core_types,
     get_return_annotation,
@@ -288,7 +288,7 @@ def _render_field(field_info: FieldInfo, registry: dict[str, TypeInfo]) -> dict[
         "type": _build_type_ref(
             field_info.python_type,
             registry,
-            force_non_null=not _is_optional(field_info.python_type),
+            force_non_null=not annotation_is_nullable(field_info.python_type),
         ),
         "isDeprecated": field_info.is_deprecated,
         "deprecationReason": field_info.deprecation_reason,
@@ -296,8 +296,8 @@ def _render_field(field_info: FieldInfo, registry: dict[str, TypeInfo]) -> dict[
 
 
 def _render_arg(arg_info: ArgumentInfo, registry: dict[str, TypeInfo]) -> dict[str, Any]:
-    # An arg is nullable when its annotation is Optional OR it has a default.
-    is_optional = _is_optional(arg_info.python_type) or arg_info.default_value is not None
+    # An arg is nullable when its annotation admits null OR it has a default.
+    is_optional = annotation_is_nullable(arg_info.python_type) or arg_info.default_value is not None
     return {
         "name": arg_info.name,
         "description": arg_info.description,
@@ -318,7 +318,7 @@ def _render_input_field(field_info: FieldInfo, registry: dict[str, TypeInfo]) ->
         "type": _build_type_ref(
             field_info.python_type,
             registry,
-            force_non_null=not _is_optional(field_info.python_type),
+            force_non_null=not annotation_is_nullable(field_info.python_type),
             is_input=True,
         ),
         "defaultValue": field_info.default_value,
@@ -460,11 +460,11 @@ def method_sdl(
     sdl_parts: list[str] = []
     # Method signature as a comment header
     args_sdl = ", ".join(
-        f"{a.name}: {_type_ref_to_sdl(_build_type_ref(a.python_type, registry, force_non_null=(a.default_value is None and not _is_optional(a.python_type)), is_input=True))}"
+        f"{a.name}: {_type_ref_to_sdl(_build_type_ref(a.python_type, registry, force_non_null=(a.default_value is None and not annotation_is_nullable(a.python_type)), is_input=True))}"
         for a in field_info.args
     )
     return_sdl = _type_ref_to_sdl(
-        _build_type_ref(field_info.python_type, registry, force_non_null=not _is_optional(field_info.python_type))
+        _build_type_ref(field_info.python_type, registry, force_non_null=not annotation_is_nullable(field_info.python_type))
     )
     sdl_parts.append(f"# {service_name}.{method_name}({args_sdl}): {return_sdl}")
     for type_name, type_def in sorted(reachable.items()):
@@ -527,7 +527,9 @@ def _render_struct_type_sdl(type_info: TypeInfo, *, keyword: str) -> str:
             field_lines.append(_indent(_block_string(field.description), 2))
         gql = _TYPE_MAPPER.map_to_graphql_type(field.python_type)
         sdl = gql.to_sdl()
-        if not _is_optional(field.python_type) and not sdl.endswith("!"):
+        # #320: ask annotation_is_nullable (not bare _is_optional) so the
+        # SDL renderer agrees with _build_type_ref on Literal[..., None].
+        if not annotation_is_nullable(field.python_type) and not sdl.endswith("!"):
             sdl = f"{sdl}!"
         field_lines.append(f"  {field.name}: {sdl}")
     parts.append(f"{keyword} {type_info.name} {{\n" + "\n".join(field_lines) + "\n}")

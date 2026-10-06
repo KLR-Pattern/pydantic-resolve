@@ -143,6 +143,23 @@ def map_python_to_graphql(python_type: type, include_required: bool = True) -> s
             return f"{scalar_name}{required_suffix}"
 
 
+def _optional_core(annotation: Any) -> tuple[Any, bool] | None:
+    """Strip one ``Optional`` / ``X | None`` wrapper; return ``(core, had_none)``.
+
+    Returns ``None`` for multi-branch unions (``Union[X, Y]`` without
+    ``None``), which are not a plain Optional. Single source for the
+    unwrap step shared by ``literal_info`` and ``_literal_constraint``.
+    """
+    origin = get_origin(annotation)
+    if origin is Union or origin is _types.UnionType:
+        all_args = get_args(annotation)
+        args = [arg for arg in all_args if arg is not type(None)]
+        if len(args) != 1:
+            return None
+        return args[0], len(args) != len(all_args)
+    return annotation, False
+
+
 def literal_info(annotation: Any) -> tuple[type, bool] | None:
     """Validate a scalar ``Literal`` annotation; return ``(scalar_type, has_none)``.
 
@@ -157,14 +174,13 @@ def literal_info(annotation: Any) -> tuple[type, bool] | None:
     (``schema/type_mapper.py`` / generators) both call this so the rules
     cannot drift. Ported from nexusx #151 via #313.
     """
-    origin = get_origin(annotation)
-    if origin is Union or origin is _types.UnionType:
-        args = [arg for arg in get_args(annotation) if arg is not type(None)]
-        if len(args) != 1:
-            return None
-        core = args[0]
-    else:
-        core = annotation
+    stripped = _optional_core(annotation)
+    if stripped is None:
+        return None
+    # Optional-wrapper nullability is deliberately ignored here (callers
+    # consult _is_optional for that layer); has_none below covers only the
+    # None members inside the Literal itself.
+    core = stripped[0]
     if get_origin(core) is not Literal:
         return None
 
@@ -208,34 +224,37 @@ def literal_is_nullable(annotation: Any) -> bool:
     return info is not None and info[1]
 
 
+def annotation_is_nullable(annotation: Any) -> bool:
+    """True when ``annotation`` admits ``null`` through either layer.
+
+    Covers ``Optional[T]`` / ``T | None`` wrappers *and* a ``None`` member
+    inside a ``Literal``. Single predicate for NON_NULL decisions so the
+    SDL renders and the introspection/type-ref renders cannot drift apart
+    again (#320: the compose SDL renderer asked only ``_is_optional`` and
+    missed the Literal layer its sibling ``_build_type_ref`` did handle).
+    """
+    return _is_optional(annotation) or literal_is_nullable(annotation)
+
+
 def _literal_constraint(annotation: Any) -> tuple[tuple[Any, ...], bool] | None:
     """Extract literal values and nullability through Optional/list wrappers."""
-    origin = get_origin(annotation)
-    if origin is Union or origin is _types.UnionType:
-        all_args = get_args(annotation)
-        args = [arg for arg in all_args if arg is not type(None)]
-        if len(args) == 1:
-            constraint = _literal_constraint(args[0])
-            if constraint is not None:
-                values, has_none = constraint
-                return values, has_none or len(args) != len(all_args)
+    stripped = _optional_core(annotation)
+    if stripped is None:
         return None
-    if origin is list:
-        args = get_args(annotation)
-        if args:
-            return _literal_constraint(args[0])
+    core, wrapper_none = stripped
+    if get_origin(core) is list:
+        args = get_args(core)
+        constraint = _literal_constraint(args[0]) if args else None
+        if constraint is not None:
+            return constraint[0], constraint[1] or wrapper_none
         return None
-    if origin is Literal:
-        all_values = get_args(annotation)
+    if get_origin(core) is Literal:
+        all_values = get_args(core)
         values = tuple(v for v in all_values if v is not None)
-        return (values, len(values) != len(all_values)) if values else None
+        if not values:
+            return None
+        return values, wrapper_none or len(values) != len(all_values)
     return None
-
-
-def literal_allowed_values(annotation: Any) -> tuple[Any, ...] | None:
-    """Return non-None Literal values, unwrapping Optional/list annotations."""
-    constraint = _literal_constraint(annotation)
-    return constraint[0] if constraint is not None else None
 
 
 def _format_literal_value(value: Any) -> str:
