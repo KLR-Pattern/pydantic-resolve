@@ -15,9 +15,9 @@ from .type_registry import FieldInfo, ArgumentInfo
 from pydantic_resolve.utils.class_util import safe_issubclass
 from pydantic_resolve.utils.types import get_core_types, _is_optional, _is_list
 from pydantic_resolve.graphql.type_mapping import (
+    annotation_is_nullable,
     map_scalar_type,
     is_enum_type,
-    literal_is_nullable,
 )
 
 if TYPE_CHECKING:
@@ -248,22 +248,20 @@ class TypeMapper:
         Args:
             python_type: Python type
             is_input: Whether this is for an input type.
-                When True, Optional[T] fields produce "T" (no ! suffix).
 
         Returns:
             SDL type string (e.g., "String!", "[User!]!")
         """
-        is_optional = _is_optional(python_type)
-        # Literal['open', None] allows null without being a Union — the
-        # None member must suppress the ! suffix just like Optional.
-        if literal_is_nullable(python_type):
-            is_optional = True
+        # Nullable annotations (Optional[T] / T | None, or a None member
+        # inside a Literal) skip the ! suffix on both the input and output
+        # sides — matching map_to_introspection and the Python annotation
+        # itself (#320: output SDL previously forced NON_NULL on them).
+        is_nullable = annotation_is_nullable(python_type)
         gql_type = self.map_to_graphql_type(python_type, is_input)
         sdl = gql_type.to_sdl()
 
         # Add NON_NULL wrapper if not already wrapped.
-        # For Optional[T] in input types, skip the ! suffix.
-        if is_optional and is_input:
+        if is_nullable:
             return sdl.rstrip('!')
 
         if not sdl.endswith('!'):
