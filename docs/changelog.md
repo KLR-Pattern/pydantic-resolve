@@ -1,5 +1,5 @@
 ---
-description: "Release-by-release changelog for pydantic-resolve, following semver — major for breaking changes, minor for new features, patch for bug fixes. Most recent: 6.2.0."
+description: "Release-by-release changelog for pydantic-resolve, following semver — major for breaking changes, minor for new features, patch for bug fixes. Most recent: 6.3.0."
 ---
 
 # Changelog
@@ -7,6 +7,16 @@ description: "Release-by-release changelog for pydantic-resolve, following semve
 - **Major (X.0.0)**: Major new features or breaking changes
 - **Minor (x.Y.0)**: New features, backward compatible
 - **Patch (x.y.Z)**: Bug fixes and minor improvements
+
+## 6.3
+
+### 6.3.0 (2026-10-07)
+
+Literal description accuracy and nullability consistency release: `Allowed values` descriptions render GraphQL literals and advertise null (#318), and SDL nullability aligns with introspection (#321).
+
+- fix:
+  - **`Allowed values` descriptions render GraphQL literals and preserve nullability** (#315, #318): booleans rendered as Python `True`/`False`, so a client copying the description produced GraphQL that failed to parse; nullable Literals (`Literal['open', None]`, `Optional[Literal[...]]`, `Literal[...] | None`, including through list elements) omitted null entirely while the mapped type was a nullable scalar, so clients reading the description incorrectly rejected legal null input. Descriptions now render booleans lower-case (`true`/`false`) and append `(or null)` when either nullability layer admits null. The public `literal_allowed_values` return contract was kept through #318 and is removed in this release only as an internal cleanup — it had no library callers left.
+  - **SDL nullability aligns with introspection for nullable annotations** (#320, #321): the compose SDL renderer (`method_sdl`) decided the `!` suffix via `_is_optional` alone and missed `Literal[..., None]`, which its sibling `_build_type_ref` (introspection) handles — the two renderers in the same module disagreed (`note: String!` in SDL vs `SCALAR String` in introspection). The entity-first `map_to_sdl` additionally forced NON_NULL on all output fields by convention (even `Optional[T]`), contradicting both introspection and the Python annotation while the description said `(or null)`. Both SDL renderers now render nullable annotations (`Optional[T]` / `T | None` / `Literal[..., None]`) without the `!` suffix on the input and output sides, and `annotation_is_nullable` is the single predicate for NON_NULL decisions so the renderers cannot drift again. **SDL surface change**: nullable output fields lose the `!` suffix (`note: String!` → `note: String`); SDL consumers should regenerate types.
 
 ## 6.2
 
