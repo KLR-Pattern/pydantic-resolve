@@ -208,38 +208,53 @@ def literal_is_nullable(annotation: Any) -> bool:
     return info is not None and info[1]
 
 
-def literal_allowed_values(annotation: Any) -> tuple[Any, ...] | None:
-    """Return the allowed values of a scalar ``Literal`` annotation.
-
-    Unwraps ``Optional`` / ``list`` wrappers so field and argument
-    descriptions can mention the constraint even though the GraphQL type is
-    the plain underlying scalar.
-    """
+def _literal_constraint(annotation: Any) -> tuple[tuple[Any, ...], bool] | None:
+    """Extract literal values and nullability through Optional/list wrappers."""
     origin = get_origin(annotation)
     if origin is Union or origin is _types.UnionType:
-        args = [arg for arg in get_args(annotation) if arg is not type(None)]
+        all_args = get_args(annotation)
+        args = [arg for arg in all_args if arg is not type(None)]
         if len(args) == 1:
-            return literal_allowed_values(args[0])
+            constraint = _literal_constraint(args[0])
+            if constraint is not None:
+                values, has_none = constraint
+                return values, has_none or len(args) != len(all_args)
         return None
     if origin is list:
         args = get_args(annotation)
         if args:
-            return literal_allowed_values(args[0])
+            return _literal_constraint(args[0])
         return None
     if origin is Literal:
-        values = tuple(v for v in get_args(annotation) if v is not None)
-        return values or None
+        all_values = get_args(annotation)
+        values = tuple(v for v in all_values if v is not None)
+        return (values, len(values) != len(all_values)) if values else None
     return None
+
+
+def literal_allowed_values(annotation: Any) -> tuple[Any, ...] | None:
+    """Return non-None Literal values, unwrapping Optional/list annotations."""
+    constraint = _literal_constraint(annotation)
+    return constraint[0] if constraint is not None else None
+
+
+def _format_literal_value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value)
 
 
 def describe_literal_values(
     description: Optional[str], annotation: Any
 ) -> Optional[str]:
     """Append ``Allowed values: ...`` to a description for ``Literal`` annotations."""
-    values = literal_allowed_values(annotation)
-    if not values:
+    constraint = _literal_constraint(annotation)
+    if constraint is None:
         return description
-    suffix = "Allowed values: " + ", ".join(str(value) for value in values)
+    values, has_none = constraint
+    suffix = "Allowed values: " + ", ".join(_format_literal_value(value) for value in values)
+    if has_none:
+        suffix += " (or null)"
     if description:
         return f"{description} {suffix}"
     return suffix

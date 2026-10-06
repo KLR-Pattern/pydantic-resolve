@@ -111,6 +111,8 @@ class TestMultiOperationDocument:
 
 class LiteralTaskDTO(BaseModel):
     status: Literal["open", "closed"] = "open"
+    enabled: Literal[True, False] = True
+    note: Literal["draft", None] = None
 
 
 class LiteralService(UseCaseService):
@@ -121,6 +123,14 @@ class LiteralService(UseCaseService):
     @query
     async def by_task(cls, task: LiteralTaskDTO) -> str:
         return task.status
+
+    @query
+    async def echo_mode(cls, mode: Literal["fast"] | None) -> str:
+        return mode or "default"
+
+    @query
+    async def get_task(cls) -> LiteralTaskDTO:
+        return LiteralTaskDTO()
 
 
 class TestScalarLiteralSupport:
@@ -145,6 +155,21 @@ class TestScalarLiteralSupport:
         )
         field = dto.fields["status"]
         assert field.description == "Allowed values: open, closed"
+
+    def test_nullable_argument_description(self):
+        res = UseCaseManager([_app([LiteralService])]).get_app("t")
+        svc = next(t for t in res.compose_schema.values() if t.name == "LiteralServiceQuery")
+        method = next(f for f in svc.fields.values() if f.name == "echo_mode")
+        arg = next(a for a in method.args if a.name == "mode")
+        assert arg.description == "Allowed values: fast (or null)"
+
+    def test_input_and_output_literal_descriptions(self):
+        res = UseCaseManager([_app([LiteralService])]).get_app("t")
+        dtos = [t for t in res.compose_schema.values() if t.python_class is LiteralTaskDTO]
+        assert {t.kind for t in dtos} == {"OBJECT", "INPUT_OBJECT"}
+        for dto in dtos:
+            assert dto.fields["enabled"].description == "Allowed values: true, false"
+            assert dto.fields["note"].description == "Allowed values: draft (or null)"
 
     @pytest.mark.parametrize(
         ("status", "ok"), [("open", True), ("pending", False)]
