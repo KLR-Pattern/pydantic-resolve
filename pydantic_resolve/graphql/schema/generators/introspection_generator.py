@@ -13,7 +13,7 @@ from typing import Any, Callable, Optional, get_type_hints
 from pydantic import BaseModel
 
 from pydantic_resolve.graphql.schema.generators.base import SchemaGenerator
-from pydantic_resolve.graphql.utils import group_type_name
+from pydantic_resolve.graphql.utils import group_type_name, is_introspection_query
 import pydantic_resolve.constant as const
 from pydantic_resolve.graphql.schema.type_registry import TypeInfo, FieldInfo, ArgumentInfo, SCALAR_TYPES
 from pydantic_resolve.graphql.types import (
@@ -138,9 +138,7 @@ class IntrospectionGenerator(SchemaGenerator):
 
     def is_introspection_query(self, query: str) -> bool:
         """Check if this is an introspection query."""
-        query_stripped = query.strip()
-        introspection_keywords = ["__schema", "__type", "__typename"]
-        return any(keyword in query_stripped for keyword in introspection_keywords)
+        return is_introspection_query(query)
 
     # --- Internal implementation ---
 

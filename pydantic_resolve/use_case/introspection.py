@@ -2,7 +2,7 @@
 
 Two siblings:
 
-- :func:`is_introspection_query` — cheap keyword-based detector used by
+- :func:`is_introspection_query` — field-based detector used by
   ``compose_query`` to reject (or by HTTP handlers to route) ``__schema``
   / ``__type`` / ``__typename`` queries.
 - :func:`compose_introspect` — hand-builds the GraphQL introspection
@@ -19,25 +19,12 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from pydantic_resolve.graphql.utils import is_introspection_query
 from pydantic_resolve.use_case.compose import ComposeError
 from pydantic_resolve.use_case.compose_schema import (
     render_introspection,
     render_type_by_name,
 )
-
-
-_INTROSPEPTION_KEYWORDS: tuple[str, ...] = ("__schema", "__type", "__typename")
-
-
-def is_introspection_query(query: str) -> bool:
-    """Return True if ``query`` is a GraphQL introspection query.
-
-    Detects ``__schema`` / ``__type`` / ``__typename`` anywhere in the
-    query body.
-    """
-    if not query:
-        return False
-    return any(kw in query for kw in _INTROSPEPTION_KEYWORDS)
 
 
 def compose_introspect(
