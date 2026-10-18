@@ -93,8 +93,8 @@ def scan_grouped_methods(
         Entities with no methods of this kind are omitted.
 
     Raises:
-        ReservedEntityError: an entity contributing methods is named
-            ``Query`` / ``Mutation`` / ``Subscription``.
+        ReservedEntityError: an entity contributing methods has a reserved
+            root name, or a data-only entity shadows a generated operation root.
         ReservedMethodFieldError: a method field name starts with ``__``.
         DuplicateMethodError: two methods on one entity share a field name.
         GroupTypeCollisionError: a ``{Entity}{group_suffix}`` group type name
@@ -146,5 +146,13 @@ def scan_grouped_methods(
                 )
             seen_fields.add(field_name)
             bucket.append(method_info)
+
+    # A data-only entity still emits an OBJECT type. If another entity
+    # creates this operation root, the two type definitions would collide.
+    if grouped and group_suffix in entity_type_names:
+        raise ReservedEntityError(
+            f"Entity class '{group_suffix}' clashes with the generated GraphQL "
+            f"{group_suffix} root operation type; rename the entity class."
+        )
 
     return grouped
