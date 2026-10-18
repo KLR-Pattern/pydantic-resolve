@@ -4,13 +4,6 @@ from __future__ import annotations
 
 import pytest
 
-from demo.use_case.database import init_db
-
-
-@pytest.fixture(autouse=True)
-async def setup_db():
-    """Initialize the in-memory database before each test."""
-    await init_db()
 
 
 # ──────────────────────────────────────────────────

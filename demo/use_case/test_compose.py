@@ -14,15 +14,8 @@ import json
 
 import pytest
 
-from demo.use_case.database import init_db
 
 from pydantic_resolve.use_case.manager import UseCaseAppConfig, UseCaseManager
-
-
-@pytest.fixture(autouse=True)
-async def setup_db():
-    """Initialize the in-memory database before each test."""
-    await init_db()
 
 
 def _make_manager() -> UseCaseManager:
@@ -87,6 +80,7 @@ async def test_compose_single_service_multiple_methods():
         }
         """,
     )
+    assert not result["errors"], result["errors"]
     result = result["data"]
     _print("Single service, multiple methods", result)
     svc = result["SprintService"]
