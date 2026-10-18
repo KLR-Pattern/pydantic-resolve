@@ -102,6 +102,7 @@ def scan_grouped_methods(
     """
     # Every entity produces an OBJECT type named after its class, so a group
     # type name that matches any entity class name would duplicate a type.
+    entities = tuple(entities)
     entity_type_names = {entity_cfg.kls.__name__ for entity_cfg in entities}
 
     grouped: dict[str, list[dict]] = {}
