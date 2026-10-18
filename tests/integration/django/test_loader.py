@@ -192,6 +192,14 @@ def test_loader_factory_generates_unique_identity():
 
     assert len(names) == 3
 
+    for loader_kls, expected_name in (
+        (m2o_loader, "DJ_StudentOrm_school_M2O"),
+        (m2o_loader_alias, "DJ_StudentOrm_school_alias_M2O"),
+        (o2m_loader, "DJ_SchoolOrm_students_O2M"),
+    ):
+        assert loader_kls.__module__ == "pydantic_resolve.integration.django.loader"
+        assert loader_kls.__name__ == loader_kls.__qualname__ == expected_name
+
 
 @pytest.mark.asyncio
 async def test_many_to_one_loader_ignores_non_orm_dto_fields(seeded_db):

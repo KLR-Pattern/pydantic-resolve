@@ -220,6 +220,14 @@ def test_loader_factory_generates_unique_identity():
 
     assert len(names) == 3
 
+    for loader_kls, expected_name in (
+        (m2o_loader, "SA_StudentOrm_school_M2O"),
+        (m2o_loader_alias, "SA_StudentOrm_school_alias_M2O"),
+        (o2m_loader, "SA_SchoolOrm_students_O2M"),
+    ):
+        assert loader_kls.__module__ == "pydantic_resolve.integration.sqlalchemy.loader"
+        assert loader_kls.__name__ == loader_kls.__qualname__ == expected_name
+
 
 @pytest.mark.asyncio
 async def test_create_reverse_one_to_one_loader(session_factory, seeded_db):
